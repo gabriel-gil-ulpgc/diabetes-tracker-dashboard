@@ -555,8 +555,6 @@ export default function AnalyticsPage() {
                             }}
                             itemStyle={{ color: '#1e293b' }}
                             labelStyle={{ color: '#1e293b' }}
-                            itemStyle={{ color: 'white' }}
-                            labelStyle={{ color: 'white' }}
                             formatter={(value, name) => [
                               `${value} registros`, 
                               'Tipo de Comida'
