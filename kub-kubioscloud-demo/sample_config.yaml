@@ -1,0 +1,4 @@
+# Sample configuration file
+username: <kubios_username>
+password: <password_for_the_user>
+client_id: <client_id>

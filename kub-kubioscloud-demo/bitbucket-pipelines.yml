@@ -1,0 +1,29 @@
+#  Template python-build
+
+#  This template allows you to validate your python code.
+#  The workflow allows running tests and code linting on the default branch.
+
+image: python:3.8
+
+pipelines:
+  pull-requests:
+    '**':
+      - step:
+          name: Run tests and linting
+          caches:
+            - pip
+          script:
+            - python -c 'import subprocess; print("version = \"{}\"".format(subprocess.check_output("git describe --always".split()).strip().decode("ascii").replace("-", "+", 1).replace("-", ".")))' > git_version.py
+            - pip install ".[dev]"
+            - pytest -v --junitxml=test-reports/report.xml kubioscloud_demos
+            
+  default:
+    - parallel:
+      - step:
+          name: Test
+          caches:
+            - pip
+          script:
+            - python -c 'import subprocess; print("version = \"{}\"".format(subprocess.check_output("git describe --always".split()).strip().decode("ascii").replace("-", "+", 1).replace("-", ".")))' > git_version.py
+            - pip install ".[dev]"
+            - pytest -v --junitxml=test-reports/report.xml kubioscloud_demos

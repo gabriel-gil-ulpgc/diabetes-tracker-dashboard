@@ -1,0 +1,40 @@
+{
+  "name": "dashboard",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "dev:https": "next dev --turbopack --experimental-https --experimental-https-key ../ssl/localhost.key --experimental-https-cert ../ssl/localhost.crt",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "insert-test-data": "node scripts/insert_test_data.js",
+    "insert-real-data": "node scripts/insert_real_test_data.js",
+    "check-db": "node scripts/check_database.js",
+    "test-decryption": "node scripts/test_decryption.js",
+    "test-production": "node scripts/test_production_backend.js",
+    "test-frontend": "node scripts/test_frontend_api.js",
+    "check-env": "node scripts/check_env.js",
+    "setup-https": "bash ../scripts/setup-https-dev.sh"
+  },
+  "dependencies": {
+    "@supabase/ssr": "^0.6.1",
+    "@supabase/supabase-js": "^2.54.0",
+    "lucide-react": "^0.539.0",
+    "next": "15.4.6",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "recharts": "^3.1.2"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "15.4.6",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}
