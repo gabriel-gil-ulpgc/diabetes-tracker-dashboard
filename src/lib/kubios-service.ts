@@ -68,6 +68,25 @@ export class KubiosService {
 
   private loadConfig(): void {
     try {
+      // En producción (Vercel), usar variables de entorno
+      if (process.env.NODE_ENV === 'production' || process.env.VERCEL) {
+        const config = {
+          username: process.env.KUBIOS_USERNAME,
+          password: process.env.KUBIOS_PASSWORD,
+          client_id: process.env.KUBIOS_CLIENT_ID
+        }
+
+        if (!config.username || !config.password || !config.client_id) {
+          console.warn('⚠️ Variables de entorno de Kubios no configuradas')
+          return
+        }
+
+        this.config = config as KubiosConfig
+        console.log('✅ Configuración de Kubios cargada desde variables de entorno')
+        return
+      }
+
+      // En desarrollo, usar archivo YAML
       const fullPath = path.join(process.cwd(), this.configPath)
       
       if (!fs.existsSync(fullPath)) {
