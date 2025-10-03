@@ -183,11 +183,24 @@ export default function KubiosPage() {
         params.append('to_date', dateFilter.to)
       }
       
-      const response = await fetch(`/api/kubios/hrv-results?${params}`)
+      // Intentar primero la API principal
+      let response = await fetch(`/api/kubios/hrv-results?${params}`)
+      
+      // Si falla, usar el fallback
+      if (!response.ok) {
+        console.log('🔄 API principal falló, usando fallback...')
+        response = await fetch(`/api/kubios/hrv-results-fallback?${params}`)
+      }
+      
       if (!response.ok) throw new Error('Error al cargar resultados HRV')
       
       const data = await response.json()
       setHrvResults(data.results || [])
+      
+      // Mostrar mensaje si se usó fallback
+      if (data.source === 'mock_data') {
+        setError('⚠️ Usando datos de ejemplo - Servicio de Kubios no disponible')
+      }
       
       // Si no hay resultados y hay filtros de fecha, mostrar mensaje informativo
       if ((data.results || []).length === 0 && dateFilter.from && dateFilter.to) {
@@ -211,7 +224,15 @@ export default function KubiosPage() {
       const userPromises = users.map(async (user) => {
         try {
           const params = new URLSearchParams({ user_id: user.user_id })
-          const response = await fetch(`/api/kubios/hrv-results?${params}`)
+          
+          // Intentar primero la API principal
+          let response = await fetch(`/api/kubios/hrv-results?${params}`)
+          
+          // Si falla, usar el fallback
+          if (!response.ok) {
+            console.log(`🔄 API principal falló para usuario ${user.name}, usando fallback...`)
+            response = await fetch(`/api/kubios/hrv-results-fallback?${params}`)
+          }
           
           if (response.ok) {
             const data = await response.json()

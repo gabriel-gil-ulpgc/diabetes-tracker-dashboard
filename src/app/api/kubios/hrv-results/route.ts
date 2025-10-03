@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { spawn } from 'child_process'
 import path from 'path'
+import fs from 'fs'
 
 export async function GET(request: NextRequest) {
   try {
@@ -16,9 +17,27 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Ejecutar el script Python para obtener resultados HRV
-    const pythonScript = path.join(process.cwd(), '..', 'kub-kubioscloud-demo', 'kubios_cli.py')
+    // Verificar que el script Python existe
+    const pythonScript = path.join(process.cwd(), 'kub-kubioscloud-demo', 'kubios_cli.py')
+    const kubiosDir = path.join(process.cwd(), 'kub-kubioscloud-demo')
     
+    if (!fs.existsSync(pythonScript)) {
+      console.error(`❌ Script Python no encontrado: ${pythonScript}`)
+      return NextResponse.json(
+        { error: 'Script de Kubios no encontrado', path: pythonScript },
+        { status: 500 }
+      )
+    }
+
+    if (!fs.existsSync(kubiosDir)) {
+      console.error(`❌ Directorio de Kubios no encontrado: ${kubiosDir}`)
+      return NextResponse.json(
+        { error: 'Directorio de Kubios no encontrado', path: kubiosDir },
+        { status: 500 }
+      )
+    }
+
+    // Ejecutar el script Python para obtener resultados HRV
     const args = [
       pythonScript,
       '--action', 'hrv-results-direct',
@@ -28,10 +47,12 @@ export async function GET(request: NextRequest) {
 
     console.log(`🔍 HRV Results API - Usuario: ${userId}, Fechas: ${fromDate || 'sin filtro'} - ${toDate || 'sin filtro'}`)
     console.log(`📝 Comando Python: python ${args.join(' ')}`)
+    console.log(`📁 Directorio de trabajo: ${kubiosDir}`)
 
     return new Promise((resolve, reject) => {
       const python = spawn('python', args, {
-        cwd: path.join(process.cwd(), '..', 'kub-kubioscloud-demo')
+        cwd: kubiosDir,
+        env: { ...process.env, PYTHONPATH: kubiosDir }
       })
 
       let output = ''
@@ -46,10 +67,19 @@ export async function GET(request: NextRequest) {
       })
 
       python.on('close', (code) => {
+        console.log(`🐍 Script Python terminado con código: ${code}`)
+        console.log(`📤 Output: ${output}`)
+        console.log(`❌ Error output: ${errorOutput}`)
+        
         if (code !== 0) {
           console.error('Error ejecutando script Python:', errorOutput)
           resolve(NextResponse.json(
-            { error: 'Error al obtener resultados HRV', details: errorOutput },
+            { 
+              error: 'Error al obtener resultados HRV', 
+              details: errorOutput,
+              output: output,
+              code: code
+            },
             { status: 500 }
           ))
           return
