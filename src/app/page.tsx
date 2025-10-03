@@ -37,24 +37,46 @@ export default function DashboardPage() {
     try {
       setLoading(true)
       
-      // Cargar estadísticas de usuarios
-      const usersResponse = await fetch('/api/users/count')
-      const usersData = await usersResponse.json()
-      const userCount = usersData?.count || 0
+      let userCount = 0
+      let totalRecords = 0
+      let hrvUserCount = 0
 
-      // Cargar estadísticas de datos
-      const dataResponse = await fetch('/api/decrypted-data')
-      const dataData = await dataResponse.json()
-      const totalRecords = (dataData?.insulinData?.length || 0) + 
-                          (dataData?.foodData?.length || 0) + 
-                          (dataData?.exerciseData?.length || 0) + 
-                          (dataData?.periodData?.length || 0) + 
-                          (dataData?.moodData?.length || 0)
+      // Cargar estadísticas de usuarios con manejo de errores
+      try {
+        const usersResponse = await fetch('/api/users/count')
+        if (usersResponse.ok) {
+          const usersData = await usersResponse.json()
+          userCount = usersData?.count || 0
+        }
+      } catch (error) {
+        console.warn('Error loading user count:', error)
+      }
 
-      // Cargar estadísticas de HRV
-      const hrvResponse = await fetch('/api/kubios/team-users')
-      const hrvData = await hrvResponse.json()
-      const hrvUserCount = hrvData?.users?.length || 0
+      // Cargar estadísticas de datos con manejo de errores
+      try {
+        const dataResponse = await fetch('/api/decrypted-data')
+        if (dataResponse.ok) {
+          const dataData = await dataResponse.json()
+          totalRecords = (dataData?.insulinData?.length || 0) + 
+                        (dataData?.foodData?.length || 0) + 
+                        (dataData?.exerciseData?.length || 0) + 
+                        (dataData?.periodData?.length || 0) + 
+                        (dataData?.moodData?.length || 0)
+        }
+      } catch (error) {
+        console.warn('Error loading data stats:', error)
+      }
+
+      // Cargar estadísticas de HRV con manejo de errores
+      try {
+        const hrvResponse = await fetch('/api/kubios/team-users')
+        if (hrvResponse.ok) {
+          const hrvData = await hrvResponse.json()
+          hrvUserCount = hrvData?.users?.length || 0
+        }
+      } catch (error) {
+        console.warn('Error loading HRV stats:', error)
+      }
 
       // Calcular precisión basada en datos disponibles
       const accuracy = totalRecords > 0 ? Math.min(95 + Math.floor(Math.random() * 5), 100) : 0
@@ -294,10 +316,7 @@ export default function DashboardPage() {
                 </div>
               </div>
             </Link>
-          </div>
 
-          {/* Segunda fila */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20">
             <Link href="/admin" className="group">
               <div className="relative bg-white/90 backdrop-blur-xl border border-gray-200/50 rounded-3xl p-8 hover:border-blue-300/70 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-2xl hover:shadow-blue-500/10">
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-blue-600/5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -326,8 +345,38 @@ export default function DashboardPage() {
             </Link>
           </div>
 
+          {/* Segunda fila */}
+          {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20">
+            <Link href="/admin" className="group">
+              <div className="relative bg-white/90 backdrop-blur-xl border border-gray-200/50 rounded-3xl p-8 hover:border-blue-300/70 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-2xl hover:shadow-blue-500/10">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-blue-600/5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="relative z-10">
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="p-4 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl shadow-lg group-hover:shadow-blue-600/50 transition-all duration-300">
+                      <Settings className="h-8 w-8 text-white" />
+                    </div>
+                    <div className="text-right">
+                      <div className="text-2xl font-bold text-blue-800 group-hover:text-blue-600 transition-colors">Admin</div>
+                      <div className="text-xs text-blue-600/70">Panel</div>
+                    </div>
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-blue-700 transition-colors">
+                    {t.dashboard.administration}
+                  </h3>
+                  <p className="text-gray-600 text-sm leading-relaxed mb-4">
+                    {t.dashboard.administrationDescription}
+                  </p>
+                  <div className="flex items-center text-blue-600 text-sm font-medium">
+                    <span>{t.dashboard.access}</span>
+                    <Settings className="h-4 w-4 ml-2 group-hover:rotate-90 transition-transform" />
+                  </div>
+                </div>
+              </div>
+            </Link>
+          </div> */}
+
           {/* Sección de características premium */}
-          <div className="relative bg-white/80 backdrop-blur-xl border border-gray-200/50 rounded-3xl p-16 text-gray-900 overflow-hidden">
+          {/* <div className="relative bg-white/80 backdrop-blur-xl border border-gray-200/50 rounded-3xl p-16 text-gray-900 overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-blue-600/5"></div>
             <div className="relative z-10">
               <div className="text-center mb-16">
@@ -393,7 +442,7 @@ export default function DashboardPage() {
                 </div>
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </ProtectedRoute>

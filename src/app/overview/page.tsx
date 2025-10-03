@@ -4,10 +4,13 @@ import { useState, useEffect, useCallback } from 'react'
 import { supabase, User, InsulinData, FoodData, ExerciseData, PeriodRecord, MoodData } from '@/lib/supabase'
 import { Users, Activity, TrendingUp, AlertTriangle, Heart, Calendar, User as UserIcon, Filter, Pill, Utensils, Dumbbell, CalendarDays, Smile, Clock, BarChart3, PieChart as PieChartIcon, LineChart as LineChartIcon, Database, Shield, Zap, Target } from 'lucide-react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell, AreaChart, Area } from 'recharts'
-import ProtectedRoute from '@/components/ProtectedRoute'
-import Navigation from '@/components/Navigation'
+import HybridProtectedRoute from '@/components/HybridProtectedRoute'
+import HybridNavigation from '@/components/HybridNavigation'
+import { useLanguage } from '@/contexts/LanguageContext'
+import LanguageSelector from '@/components/LanguageSelector'
 
 export default function OverviewPage() {
+  const { t } = useLanguage()
   const [insulinData, setInsulinData] = useState<InsulinData[]>([])
   const [foodData, setFoodData] = useState<FoodData[]>([])
   const [exerciseData, setExerciseData] = useState<ExerciseData[]>([])
@@ -15,6 +18,20 @@ export default function OverviewPage() {
   const [moodData, setMoodData] = useState<MoodData[]>([])
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
+  const [systemStats, setSystemStats] = useState({
+    totalUsers: 0,
+    totalRecords: 0,
+    totalInsulin: 0,
+    totalFood: 0,
+    totalExercise: 0,
+    totalPeriods: 0,
+    totalMood: 0,
+    activeUsers: 0,
+    avgInsulinDose: 0,
+    avgCarbs: 0,
+    avgMood: 0,
+    lastActivity: null as Date | null
+  })
 
   const fetchData = useCallback(async () => {
     try {
@@ -62,6 +79,71 @@ export default function OverviewPage() {
     fetchUsers()
   }, [fetchData, fetchUsers])
 
+  // Calcular estadísticas cuando los datos cambien
+  useEffect(() => {
+    console.log('useEffect ejecutándose con datos:', {
+      insulinData: insulinData.length,
+      foodData: foodData.length,
+      exerciseData: exerciseData.length,
+      periodData: periodData.length,
+      moodData: moodData.length,
+      users: users.length
+    })
+    
+    // Siempre calcular estadísticas, incluso si no hay datos
+      const stats = {
+        totalUsers: users.length,
+        totalRecords: insulinData.length + foodData.length + exerciseData.length + periodData.length + moodData.length,
+        totalInsulin: insulinData.length,
+        totalFood: foodData.length,
+        totalExercise: exerciseData.length,
+        totalPeriods: periodData.length,
+        totalMood: moodData.length,
+        
+        // Usuarios activos (con actividad en los últimos 7 días)
+        activeUsers: users.filter(user => {
+          const userInsulin = insulinData.filter(d => d.username === user.Username)
+          const userFood = foodData.filter(d => d.username === user.Username)
+          const userExercise = exerciseData.filter(d => d.username === user.Username)
+          const userPeriods = periodData.filter(d => d.username === user.Username)
+          const userMood = moodData.filter(d => d.username === user.Username)
+          
+          const allUserData = [...userInsulin, ...userFood, ...userExercise, ...userPeriods, ...userMood]
+          return isRecentlyActive(allUserData)
+        }).length,
+        
+        // Promedios
+        avgInsulinDose: insulinData.length > 0 
+          ? Math.round(insulinData.reduce((sum, item) => sum + parseFloat(item.dose || '0'), 0) / insulinData.length * 10) / 10 
+          : 0,
+        avgCarbs: foodData.length > 0 
+          ? Math.round(foodData.reduce((sum, item) => sum + parseFloat(item.carbs || '0'), 0) / foodData.length * 10) / 10 
+          : 0,
+        avgMood: moodData.length > 0 
+          ? Math.round(moodData.reduce((sum, item) => sum + parseFloat(item.mood_value || '0'), 0) / moodData.length * 10) / 10 
+          : 0,
+        
+        // Última actividad del sistema
+        lastActivity: null as Date | null
+      }
+
+      // Encontrar la actividad más reciente
+      const allDates = [
+        ...insulinData.map(d => new Date(d.date_time)),
+        ...foodData.map(d => new Date(d.date_time)),
+        ...exerciseData.map(d => new Date(d.date_time)),
+        ...periodData.map(d => new Date(d.startDate)),
+        ...moodData.map(d => new Date(d.date_time))
+      ]
+
+      if (allDates.length > 0) {
+        stats.lastActivity = new Date(Math.max(...allDates.map(d => d.getTime())))
+      }
+
+      setSystemStats(stats)
+      console.log('Estadísticas actualizadas:', stats)
+  }, [insulinData, foodData, exerciseData, periodData, moodData, users])
+
   // Función para calcular actividad reciente (últimos 7 días)
   const isRecentlyActive = (userData: any[]) => {
     if (userData.length === 0) return false
@@ -72,55 +154,6 @@ export default function OverviewPage() {
     return daysSinceLastRecord <= 7
   }
 
-  // Estadísticas del sistema
-  const systemStats = {
-    totalUsers: users.length,
-    totalRecords: insulinData.length + foodData.length + exerciseData.length + periodData.length + moodData.length,
-    totalInsulin: insulinData.length,
-    totalFood: foodData.length,
-    totalExercise: exerciseData.length,
-    totalPeriods: periodData.length,
-    totalMood: moodData.length,
-    
-    // Usuarios activos (con actividad en los últimos 7 días)
-    activeUsers: users.filter(user => {
-      const userInsulin = insulinData.filter(d => d.username === user.Username)
-      const userFood = foodData.filter(d => d.username === user.Username)
-      const userExercise = exerciseData.filter(d => d.username === user.Username)
-      const userPeriods = periodData.filter(d => d.username === user.Username)
-      const userMood = moodData.filter(d => d.username === user.Username)
-      
-      const allUserData = [...userInsulin, ...userFood, ...userExercise, ...userPeriods, ...userMood]
-      return isRecentlyActive(allUserData)
-    }).length,
-    
-    // Promedios
-    avgInsulinDose: insulinData.length > 0 
-      ? Math.round(insulinData.reduce((sum, item) => sum + parseFloat(item.dose || '0'), 0) / insulinData.length * 10) / 10 
-      : 0,
-    avgCarbs: foodData.length > 0 
-      ? Math.round(foodData.reduce((sum, item) => sum + parseFloat(item.carbs || '0'), 0) / foodData.length * 10) / 10 
-      : 0,
-    avgMood: moodData.length > 0 
-      ? Math.round(moodData.reduce((sum, item) => sum + parseFloat(item.mood_value || '0'), 0) / moodData.length * 10) / 10 
-      : 0,
-    
-    // Última actividad del sistema
-    lastActivity: null as Date | null
-  }
-
-  // Encontrar la actividad más reciente
-  const allDates = [
-    ...insulinData.map(d => new Date(d.date_time)),
-    ...foodData.map(d => new Date(d.date_time)),
-    ...exerciseData.map(d => new Date(d.date_time)),
-    ...periodData.map(d => new Date(d.startDate)),
-    ...moodData.map(d => new Date(d.date_time))
-  ]
-
-  if (allDates.length > 0) {
-    systemStats.lastActivity = new Date(Math.max(...allDates.map(d => d.getTime())))
-  }
 
   // Usuarios más activos
   const mostActiveUsers = users.map(user => {
@@ -164,7 +197,7 @@ export default function OverviewPage() {
   if (systemStats.activeUsers < systemStats.totalUsers * 0.5 && systemStats.totalUsers > 0) {
     systemAlerts.push({
       type: 'warning',
-      message: `Solo ${systemStats.activeUsers} de ${systemStats.totalUsers} usuarios están activos (últimos 7 días)`,
+      message: t.overview.onlyActiveUsers.replace('{active}', systemStats.activeUsers.toString()).replace('{total}', systemStats.totalUsers.toString()),
       icon: AlertTriangle
     })
   }
@@ -173,7 +206,7 @@ export default function OverviewPage() {
   if (systemStats.lastActivity && (Date.now() - systemStats.lastActivity.getTime()) > 7 * 24 * 60 * 60 * 1000) {
     systemAlerts.push({
       type: 'danger',
-      message: 'No hay actividad reciente en el sistema (más de 7 días)',
+      message: t.overview.noRecentActivity,
       icon: AlertTriangle
     })
   }
@@ -187,13 +220,23 @@ export default function OverviewPage() {
     })
   }
 
+  // Debug: Log de datos para verificar
+  console.log('Debug Overview Data:', {
+    insulinData: insulinData.length,
+    foodData: foodData.length,
+    exerciseData: exerciseData.length,
+    periodData: periodData.length,
+    moodData: moodData.length,
+    totalRecords: systemStats.totalRecords
+  })
+
   // Datos para gráficos
   const dataByType = [
-    { name: 'Insulina', value: systemStats.totalInsulin, color: '#3B82F6' },
-    { name: 'Comidas', value: systemStats.totalFood, color: '#10B981' },
-    { name: 'Ejercicio', value: systemStats.totalExercise, color: '#F59E0B' },
-    { name: 'Períodos', value: systemStats.totalPeriods, color: '#8B5CF6' },
-    { name: 'Estado de Ánimo', value: systemStats.totalMood, color: '#EC4899' }
+    { name: t.overview.insulin, value: systemStats.totalInsulin, color: '#3B82F6' },
+    { name: t.overview.meals, value: systemStats.totalFood, color: '#10B981' },
+    { name: t.overview.exercise, value: systemStats.totalExercise, color: '#F59E0B' },
+    { name: t.overview.periods, value: systemStats.totalPeriods, color: '#8B5CF6' },
+    { name: t.overview.mood, value: systemStats.totalMood, color: '#EC4899' }
   ]
 
   // Actividad por día (últimos 7 días)
@@ -238,20 +281,31 @@ export default function OverviewPage() {
 
   const getTypeLabel = (type: string) => {
     switch (type) {
-      case 'insulin': return 'Insulina'
-      case 'food': return 'Comida'
-      case 'exercise': return 'Ejercicio'
-      case 'period': return 'Período'
-      case 'mood': return 'Estado de Ánimo'
-      default: return 'Desconocido'
+      case 'insulin': return t.overview.insulin
+      case 'food': return t.overview.meals
+      case 'exercise': return t.overview.exercise
+      case 'period': return t.overview.periods
+      case 'mood': return t.overview.mood
+      default: return t.overview.unknown
     }
   }
 
   return (
-    <ProtectedRoute>
-      <div className="min-h-screen bg-white">
+    <HybridProtectedRoute>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 relative overflow-hidden" style={{ colorScheme: 'light' }}>
+        {/* Elementos decorativos de fondo */}
+        <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+          <div className="absolute top-20 left-10 w-72 h-72 bg-blue-200/20 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute top-40 right-10 w-96 h-96 bg-indigo-200/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+          <div className="absolute bottom-20 left-1/4 w-80 h-80 bg-purple-200/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '4s' }}></div>
+        </div>
+
+        {/* Language Selector */}
+        <div className="absolute top-6 right-6 z-20">
+          <LanguageSelector />
+        </div>
         
-        <Navigation title="Resumen General del Sistema" />
+        <HybridNavigation title={t.dashboard.generalSummary} showBackButton={true} />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
           {/* Header */}
@@ -264,14 +318,14 @@ export default function OverviewPage() {
                   </div>
                 </div>
                 <h1 className="text-4xl font-bold text-blue-600 mb-2">
-                  Resumen General del Sistema
+                  {t.overview.title}
                 </h1>
-                <p className="text-gray-600 text-lg">Vista general y métricas principales del sistema de seguimiento de salud</p>
+                <p className="text-gray-600 text-lg">{t.overview.subtitle}</p>
               </div>
               <div className="flex items-center space-x-3 mt-6 sm:mt-0">
                 <div className="flex items-center text-sm text-green-600 bg-green-50 border border-green-200 rounded-xl px-4 py-2">
                   <Database className="h-4 w-4 mr-2 text-green-600" />
-                  Sistema Activo
+                  {t.overview.systemActive}
                 </div>
                 <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse shadow-lg shadow-green-400/50"></div>
               </div>
@@ -288,10 +342,10 @@ export default function OverviewPage() {
                   </div>
                 </div>
                 <div className="ml-4">
-                  <h3 className="text-lg font-medium text-blue-600">Total Usuarios</h3>
+                  <h3 className="text-lg font-medium text-blue-600">{t.overview.totalUsersOverview}</h3>
                   <p className="text-3xl font-bold text-blue-600">{systemStats.totalUsers}</p>
                   <p className="text-sm text-gray-600">
-                    {systemStats.activeUsers} activos ({systemStats.totalUsers > 0 ? Math.round((systemStats.activeUsers / systemStats.totalUsers) * 100) : 0}%)
+                    {systemStats.activeUsers} {t.overview.activeUsers} ({systemStats.totalUsers > 0 ? Math.round((systemStats.activeUsers / systemStats.totalUsers) * 100) : 0}%)
                   </p>
                 </div>
               </div>
@@ -305,10 +359,10 @@ export default function OverviewPage() {
                   </div>
                 </div>
                 <div className="ml-4">
-                  <h3 className="text-lg font-medium text-blue-600">Total Registros</h3>
+                  <h3 className="text-lg font-medium text-blue-600">{t.overview.totalRecordsOverview}</h3>
                   <p className="text-3xl font-bold text-green-600">{systemStats.totalRecords}</p>
                   <p className="text-sm text-gray-600">
-                    {systemStats.totalUsers > 0 ? Math.round(systemStats.totalRecords / systemStats.totalUsers) : 0} por usuario
+                    {systemStats.totalUsers > 0 ? Math.round(systemStats.totalRecords / systemStats.totalUsers) : 0} {t.overview.recordsPerUser}
                   </p>
                 </div>
               </div>
@@ -322,9 +376,9 @@ export default function OverviewPage() {
                   </div>
                 </div>
                 <div className="ml-4">
-                  <h3 className="text-lg font-medium text-blue-600">Promedio Insulina</h3>
+                  <h3 className="text-lg font-medium text-blue-600">{t.overview.averageInsulin}</h3>
                   <p className="text-3xl font-bold text-purple-600">{systemStats.avgInsulinDose}</p>
-                  <p className="text-sm text-gray-600">unidades por registro</p>
+                  <p className="text-sm text-gray-600">{t.overview.unitsPerRecord}</p>
                 </div>
               </div>
             </div>
@@ -337,9 +391,9 @@ export default function OverviewPage() {
                   </div>
                 </div>
                 <div className="ml-4">
-                  <h3 className="text-lg font-medium text-blue-600">Estado de Ánimo</h3>
+                  <h3 className="text-lg font-medium text-blue-600">{t.overview.moodLevel}</h3>
                   <p className="text-3xl font-bold text-pink-600">{systemStats.avgMood}/10</p>
-                  <p className="text-sm text-gray-600">promedio general</p>
+                  <p className="text-sm text-gray-600">{t.overview.generalAverage}</p>
                 </div>
               </div>
             </div>
@@ -352,35 +406,35 @@ export default function OverviewPage() {
                 <Pill className="h-8 w-8 text-white" />
               </div>
               <p className="text-2xl font-bold text-blue-600">{systemStats.totalInsulin}</p>
-              <p className="text-sm text-gray-600">Insulina</p>
+              <p className="text-sm text-gray-600">{t.overview.insulin}</p>
             </div>
             <div className="text-center p-6 bg-white border border-gray-200 rounded-xl shadow-lg">
               <div className="p-3 bg-gradient-to-br from-green-500 to-green-600 rounded-lg w-fit mx-auto mb-4">
                 <Utensils className="h-8 w-8 text-white" />
               </div>
               <p className="text-2xl font-bold text-green-600">{systemStats.totalFood}</p>
-              <p className="text-sm text-gray-600">Comidas</p>
+              <p className="text-sm text-gray-600">{t.overview.meals}</p>
             </div>
             <div className="text-center p-6 bg-white border border-gray-200 rounded-xl shadow-lg">
               <div className="p-3 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg w-fit mx-auto mb-4">
                 <Dumbbell className="h-8 w-8 text-white" />
               </div>
               <p className="text-2xl font-bold text-orange-600">{systemStats.totalExercise}</p>
-              <p className="text-sm text-gray-600">Ejercicio</p>
+              <p className="text-sm text-gray-600">{t.overview.exercise}</p>
             </div>
             <div className="text-center p-6 bg-white border border-gray-200 rounded-xl shadow-lg">
               <div className="p-3 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg w-fit mx-auto mb-4">
                 <CalendarDays className="h-8 w-8 text-white" />
               </div>
               <p className="text-2xl font-bold text-purple-600">{systemStats.totalPeriods}</p>
-              <p className="text-sm text-gray-600">Períodos</p>
+              <p className="text-sm text-gray-600">{t.overview.periods}</p>
             </div>
             <div className="text-center p-6 bg-white border border-gray-200 rounded-xl shadow-lg">
               <div className="p-3 bg-gradient-to-br from-pink-500 to-pink-600 rounded-lg w-fit mx-auto mb-4">
                 <Smile className="h-8 w-8 text-white" />
               </div>
               <p className="text-2xl font-bold text-pink-600">{systemStats.totalMood}</p>
-              <p className="text-sm text-gray-600">Estado de Ánimo</p>
+              <p className="text-sm text-gray-600">{t.overview.mood}</p>
             </div>
           </div>
 
@@ -392,7 +446,7 @@ export default function OverviewPage() {
                   <div className="p-2 bg-gradient-to-br from-amber-500 to-orange-600 rounded-lg mr-3">
                     <AlertTriangle className="h-5 w-5 text-white" />
                   </div>
-                  Alertas del Sistema
+                  {t.overview.systemAlerts}
                 </h2>
                 <div className="space-y-4">
                   {systemAlerts.map((alert, index) => (
@@ -431,7 +485,7 @@ export default function OverviewPage() {
                   <div className="p-2 bg-gradient-to-br from-amber-500 to-orange-600 rounded-lg mr-3">
                     <PieChartIcon className="h-5 w-5 text-white" />
                   </div>
-                  Distribución por Tipo de Dato
+                  {t.overview.dataDistributionByType}
                 </h3>
                 {loading ? (
                   <div className="h-64 flex items-center justify-center">
@@ -474,7 +528,7 @@ export default function OverviewPage() {
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
               <h3 className="text-lg font-medium text-black mb-4 flex items-center">
                 <LineChartIcon className="h-5 w-5 text-green-600 mr-2" />
-                Actividad de los Últimos 7 Días
+                {t.overview.activityLast7Days}
               </h3>
               {loading ? (
                 <div className="h-64 flex items-center justify-center">
@@ -508,7 +562,7 @@ export default function OverviewPage() {
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
               <h2 className="text-lg font-medium text-black mb-4 flex items-center">
                 <TrendingUp className="h-5 w-5 text-green-600 mr-2" />
-                Usuarios Más Activos
+                {t.overview.mostActiveUsers}
               </h2>
               {loading ? (
                 <div className="flex items-center justify-center h-32">
@@ -552,7 +606,7 @@ export default function OverviewPage() {
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
               <h2 className="text-lg font-medium text-black mb-4 flex items-center">
                 <Clock className="h-5 w-5 text-orange-600 mr-2" />
-                Actividad Reciente
+                {t.overview.recentActivity}
               </h2>
               {loading ? (
                 <div className="flex items-center justify-center h-32">
@@ -595,16 +649,16 @@ export default function OverviewPage() {
           <div className="mt-8 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <h2 className="text-lg font-medium text-black mb-4 flex items-center">
               <BarChart3 className="h-5 w-5 text-indigo-600 mr-2" />
-              Métricas Adicionales del Sistema
+              {t.overview.additionalSystemMetrics}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
               <div className="text-center">
                 <p className="text-2xl font-bold text-green-600">{systemStats.avgCarbs}</p>
-                <p className="text-sm text-gray-600">Promedio carbohidratos</p>
+                <p className="text-sm text-gray-600">{t.overview.averageCarbs}</p>
               </div>
               <div className="text-center">
                 <p className="text-2xl font-bold text-blue-600">{systemStats.totalUsers > 0 ? Math.round(systemStats.totalRecords / systemStats.totalUsers) : 0}</p>
-                <p className="text-sm text-gray-600">Registros por usuario</p>
+                <p className="text-sm text-gray-600">{t.overview.recordsPerUser}</p>
               </div>
               <div className="text-center">
                 <p className="text-2xl font-bold text-purple-600">
@@ -613,18 +667,18 @@ export default function OverviewPage() {
                     0
                   }
                 </p>
-                <p className="text-sm text-gray-600">Días desde última actividad</p>
+                <p className="text-sm text-gray-600">{t.overview.daysSinceLastActivity}</p>
               </div>
               <div className="text-center">
                 <p className="text-2xl font-bold text-orange-600">
                   {systemStats.totalUsers > 0 ? Math.round((systemStats.activeUsers / systemStats.totalUsers) * 100) : 0}%
                 </p>
-                <p className="text-sm text-gray-600">Tasa de usuarios activos</p>
+                <p className="text-sm text-gray-600">{t.overview.activeUsersRate}</p>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </ProtectedRoute>
+    </HybridProtectedRoute>
   )
 } 

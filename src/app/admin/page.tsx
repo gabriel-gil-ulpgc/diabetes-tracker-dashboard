@@ -1,191 +1,229 @@
 'use client'
 
-import Link from 'next/link'
-import { Users, Settings, Database, Shield, Activity, TrendingUp, CheckCircle, Sparkles, Zap, BarChart3 } from 'lucide-react'
-import ProtectedRoute from '@/components/ProtectedRoute'
-import RoleGuard from '@/components/RoleGuard'
-import LanguageSelector from '@/components/LanguageSelector'
+import { useState, useEffect } from 'react'
+import { Database, Shield, Users, Settings, BarChart3, Activity, TrendingUp, CheckCircle, Sparkles, Zap } from 'lucide-react'
+import HybridProtectedRoute from '@/components/HybridProtectedRoute'
+import HybridNavigation from '@/components/HybridNavigation'
+import { useAuth } from '@/contexts/AuthContext'
+import { useAppAuth } from '@/contexts/AppAuthContext'
 import { useLanguage } from '@/contexts/LanguageContext'
+import LanguageSelector from '@/components/LanguageSelector'
+import Link from 'next/link'
 
-export default function AdminPage() {
+export default function AdminNewPage() {
+  const { user } = useAuth()
+  const { user: appUser } = useAppAuth()
   const { t } = useLanguage()
+  
+  const [loading, setLoading] = useState(true)
+  const [stats, setStats] = useState({
+    totalUsers: 0,
+    totalRecords: 0,
+    databaseSize: 0,
+    systemUptime: 0
+  })
+
+  // Determinar si es un usuario individual o administrador
+  const isIndividualUser = appUser && !user
+
+  useEffect(() => {
+    const loadStats = async () => {
+      try {
+        setLoading(true)
+        
+        // Simular carga de estadísticas
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        
+        setStats({
+          totalUsers: 15,
+          totalRecords: 2847,
+          databaseSize: 2.4,
+          systemUptime: 99.8
+        })
+      } catch (error) {
+        console.error('Error loading stats:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadStats()
+  }, [])
+
   const adminFeatures = [
     {
-      title: 'Gestión de Usuarios',
-      description: 'Crear, editar y eliminar usuarios del sistema',
-      icon: Users,
-      href: '/admin/users',
-      color: 'from-blue-500 to-cyan-500',
-    },
-    {
-      title: 'Configuración del Sistema',
-      description: 'Configurar parámetros generales del sistema',
-      icon: Settings,
-      href: '/admin/settings',
-      color: 'from-blue-500 to-blue-600',
-    },
-    {
-      title: 'Base de Datos',
-      description: 'Gestionar datos y realizar respaldos',
+      title: t.admin.database,
+      description: t.admin.databaseDescription,
       icon: Database,
       href: '/admin/database',
       color: 'from-green-500 to-emerald-500',
-    },
-    {
-      title: 'Seguridad',
-      description: 'Configurar políticas de seguridad y permisos',
-      icon: Shield,
-      href: '/admin/security',
-      color: 'from-red-500 to-orange-500',
-    },
+      stats: `${stats.databaseSize} GB`
+     }
   ]
 
   return (
-    <ProtectedRoute>
+    <HybridProtectedRoute>
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 relative overflow-hidden" style={{ colorScheme: 'light' }}>
         {/* Elementos decorativos de fondo */}
-        <div className="fixed inset-0 pointer-events-none overflow-hidden">
-          <div className="absolute top-0 right-0 w-80 h-80 bg-blue-400 rounded-full mix-blend-multiply filter blur-xl opacity-10 animate-pulse transform translate-x-1/2 -translate-y-1/2"></div>
-          <div className="absolute bottom-0 left-0 w-80 h-80 bg-indigo-400 rounded-full mix-blend-multiply filter blur-xl opacity-10 animate-pulse delay-1000 transform -translate-x-1/2 translate-y-1/2"></div>
-          <div className="absolute top-1/2 left-1/2 w-80 h-80 bg-purple-400 rounded-full mix-blend-multiply filter blur-xl opacity-10 animate-pulse delay-500 transform -translate-x-1/2 -translate-y-1/2"></div>
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-400 rounded-full mix-blend-multiply filter blur-xl opacity-10 animate-pulse"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-indigo-400 rounded-full mix-blend-multiply filter blur-xl opacity-10 animate-pulse delay-1000"></div>
+          <div className="absolute top-40 left-1/2 w-80 h-80 bg-purple-400 rounded-full mix-blend-multiply filter blur-xl opacity-10 animate-pulse delay-500"></div>
         </div>
         
-        <div className="w-full relative z-10">
-          {/* Header con selector de idioma */}
-          <div className="flex justify-end p-6">
-            <LanguageSelector />
-          </div>
-          
-          {/* Hero Section */}
-          <div className="text-center mb-20">
-            <div className="inline-flex items-center space-x-3 bg-white/80 backdrop-blur-sm border border-blue-200/50 rounded-full px-8 py-4 mb-8 shadow-lg">
-              <Sparkles className="h-6 w-6 text-blue-600 animate-pulse" />
-              <span className="text-blue-800 font-semibold text-lg">{t.dashboard.adminPanel}</span>
+        <HybridNavigation title={t.dashboard.administration} showBackButton={true} />
+        
+        {/* Selector de idioma */}
+        <div className="absolute top-6 right-6 z-20">
+          <LanguageSelector />
+        </div>
+        
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
+          {/* Header con estadísticas generales */}
+          <div className="mb-12">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-10">
+              <div className="text-center sm:text-left">
+                <div className="flex items-center justify-center sm:justify-start mb-6">
+                  <div className="p-5 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl shadow-lg">
+                    <Shield className="h-12 w-12 text-white" />
+                  </div>
+                  <div className="ml-6">
+                    <h1 className="text-4xl font-bold text-gray-900 mb-2">{t.dashboard.administration}</h1>
+                    <p className="text-gray-600 text-lg">{t.admin.description}</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="flex flex-wrap gap-4 mt-6 sm:mt-0">
+                <div className="bg-white/80 backdrop-blur-sm border border-gray-200/50 rounded-2xl px-6 py-4 shadow-lg">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-blue-100 rounded-lg">
+                      <Users className="h-5 w-5 text-blue-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600">{t.admin.usersLabel}</p>
+                      <p className="text-2xl font-bold text-gray-900">{stats.totalUsers}</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="bg-white/80 backdrop-blur-sm border border-gray-200/50 rounded-2xl px-6 py-4 shadow-lg">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-green-100 rounded-lg">
+                      <Database className="h-5 w-5 text-green-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600">{t.admin.recordsLabel}</p>
+                      <p className="text-2xl font-bold text-gray-900">{stats.totalRecords.toLocaleString()}</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="bg-white/80 backdrop-blur-sm border border-gray-200/50 rounded-2xl px-6 py-4 shadow-lg">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-purple-100 rounded-lg">
+                      <Activity className="h-5 w-5 text-purple-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600">{t.admin.uptimeLabel}</p>
+                      <p className="text-2xl font-bold text-gray-900">{stats.systemUptime}%</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-            <h1 className="text-6xl md:text-8xl font-bold bg-gradient-to-r from-blue-800 via-blue-600 to-blue-400 bg-clip-text text-transparent mb-8 leading-tight">
-              {t.dashboard.administration}
-            </h1>
-            <p className="text-2xl text-gray-700 max-w-4xl mx-auto leading-relaxed font-light">
-              {t.dashboard.adminDescription}
-            </p>
           </div>
 
-          {/* Tarjetas de administración - Primera fila */}
+          {/* Funcionalidades de administración */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
             {adminFeatures.map((feature, index) => (
               <Link
                 key={index}
                 href={feature.href}
-                className="group"
+                className="group relative bg-white/90 backdrop-blur-xl border border-gray-200/50 rounded-3xl p-8 overflow-hidden shadow-2xl hover:shadow-3xl transition-all duration-500 transform hover:-translate-y-2 hover:scale-105"
               >
-                <div className="relative bg-white/90 backdrop-blur-xl border border-gray-200/50 rounded-3xl p-8 hover:border-blue-300/70 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-2xl hover:shadow-blue-500/10">
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-blue-600/5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  <div className="relative z-10">
-                    <div className="flex items-center justify-between mb-6">
-                      <div className={`p-4 bg-gradient-to-br ${feature.color} rounded-2xl shadow-lg group-hover:shadow-blue-600/50 transition-all duration-300`}>
-                        <feature.icon className="h-8 w-8 text-white" />
-                      </div>
-                      <div className="text-right">
-                        <div className="text-2xl font-bold text-blue-800 group-hover:text-blue-600 transition-colors">-</div>
-                        <div className="text-xs text-blue-600/70">Admin</div>
-                      </div>
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-blue-600/5"></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                
+                <div className="relative z-10">
+                  <div className="flex items-center justify-between mb-6">
+                    <div className={`p-4 bg-gradient-to-br ${feature.color} rounded-2xl shadow-lg group-hover:shadow-xl transition-all duration-300 transform group-hover:scale-110`}>
+                      <feature.icon className="h-8 w-8 text-white" />
                     </div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-blue-700 transition-colors">
-                      {feature.title}
-                    </h3>
-                    <p className="text-gray-600 text-sm leading-relaxed mb-4">
-                      {feature.description}
-                    </p>
-                    <div className="flex items-center text-blue-600 text-sm font-medium">
-                      <span>Acceder</span>
-                      <Zap className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                    <div className="text-right">
+                      <p className="text-sm text-gray-500 font-medium">{feature.stats}</p>
                     </div>
+                  </div>
+                  
+                  <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors duration-300">
+                    {feature.title}
+                  </h3>
+                  
+                  <p className="text-gray-600 leading-relaxed mb-4">
+                    {feature.description}
+                  </p>
+                  
+                  <div className="flex items-center text-blue-600 font-semibold group-hover:text-blue-700 transition-colors duration-300">
+                    <span>{t.admin.access}</span>
+                    <TrendingUp className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
                   </div>
                 </div>
               </Link>
             ))}
           </div>
 
-          {/* Sección de características premium */}
-          <div className="relative bg-white/80 backdrop-blur-xl border border-gray-200/50 rounded-3xl p-16 text-gray-900 overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-blue-600/5"></div>
-            <div className="relative z-10">
-              <div className="text-center mb-16">
-                <div className="inline-flex items-center space-x-3 bg-white/80 backdrop-blur-sm border border-blue-200/50 rounded-full px-8 py-4 mb-8 shadow-lg">
-                  <Sparkles className="h-6 w-6 text-blue-600 animate-pulse" />
-                  <span className="text-blue-800 font-semibold text-lg">Herramientas Avanzadas</span>
+          {/* Sección de estado del sistema */}
+          <div className="bg-white/90 backdrop-blur-xl border border-gray-200/50 rounded-3xl p-8 shadow-2xl">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center space-x-4">
+                <div className="p-3 bg-gradient-to-br from-green-500 to-emerald-500 rounded-2xl shadow-lg">
+                  <CheckCircle className="h-8 w-8 text-white" />
                 </div>
-                <h2 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-blue-800 via-blue-600 to-blue-400 bg-clip-text text-transparent mb-8">
-                  Control Total
-                </h2>
-                <p className="text-2xl text-gray-700 max-w-4xl mx-auto leading-relaxed font-light">
-                  Administra todos los aspectos del sistema con herramientas profesionales 
-                  diseñadas para el control y supervisión completa de la plataforma.
-                </p>
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-900">{t.admin.systemStatus}</h3>
+                  <p className="text-gray-600">{t.admin.realTimeMonitoring}</p>
+                </div>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                <span className="text-green-600 font-semibold">{t.admin.operational}</span>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="p-2 bg-blue-500 rounded-lg">
+                    <Database className="h-5 w-5 text-white" />
+                  </div>
+                  <span className="text-2xl font-bold text-blue-600">{stats.databaseSize} GB</span>
+                </div>
+                <p className="text-blue-700 font-medium">{t.admin.databaseSize}</p>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-                <RoleGuard requiredPermission="manage_settings">
-                  <Link href="/admin/settings" className="group bg-white/90 backdrop-blur-sm border border-gray-200/50 rounded-3xl p-10 hover:border-blue-300/70 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-500/10 block">
-                    <div className="p-5 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl w-fit mb-8 group-hover:scale-110 transition-transform duration-300">
-                      <Shield className="h-10 w-10 text-white" />
-                    </div>
-                    <h3 className="text-2xl font-bold mb-6 text-gray-900 group-hover:text-blue-700 transition-colors">
-                      Seguridad Avanzada
-                    </h3>
-                    <p className="text-gray-600 leading-relaxed mb-8 text-lg">
-                      Configura políticas de seguridad, gestiona permisos y supervisa 
-                      el acceso al sistema con herramientas de grado empresarial.
-                    </p>
-                    <div className="flex items-center text-blue-600 text-base font-medium">
-                      <span>Configurar</span>
-                      <Zap className="h-5 w-5 ml-2 group-hover:translate-x-1 transition-transform" />
-                    </div>
-                  </Link>
-                </RoleGuard>
-
-                <RoleGuard requiredPermission="manage_users">
-                  <Link href="/admin/roles" className="group bg-white/90 backdrop-blur-sm border border-gray-200/50 rounded-3xl p-10 hover:border-blue-300/70 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-500/10 block">
-                    <div className="p-5 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl w-fit mb-8 group-hover:scale-110 transition-transform duration-300">
-                      <Users className="h-10 w-10 text-white" />
-                    </div>
-                    <h3 className="text-2xl font-bold mb-6 text-gray-900 group-hover:text-blue-700 transition-colors">
-                      Gestión de Roles
-                    </h3>
-                    <p className="text-gray-600 leading-relaxed mb-8 text-lg">
-                      Administra roles y permisos de usuarios del sistema con control total 
-                      sobre niveles de acceso y configuraciones de seguridad.
-                    </p>
-                    <div className="flex items-center text-blue-600 text-base font-medium">
-                      <span>Administrar</span>
-                      <Activity className="h-5 w-5 ml-2 group-hover:scale-110 transition-transform" />
-                    </div>
-                  </Link>
-                </RoleGuard>
-
-                <RoleGuard requiredPermission="manage_database">
-                  <Link href="/admin/database" className="group bg-white/90 backdrop-blur-sm border border-gray-200/50 rounded-3xl p-10 hover:border-blue-300/70 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-500/10 block">
-                    <div className="p-5 bg-gradient-to-br from-blue-400 to-blue-500 rounded-2xl w-fit mb-8 group-hover:scale-110 transition-transform duration-300">
-                      <Database className="h-10 w-10 text-white" />
-                    </div>
-                    <h3 className="text-2xl font-bold mb-6 text-gray-900 group-hover:text-blue-700 transition-colors">
-                      Base de Datos
-                    </h3>
-                    <p className="text-gray-600 leading-relaxed mb-8 text-lg">
-                      Gestiona datos, realiza respaldos y supervisa el rendimiento 
-                      de la base de datos con herramientas profesionales.
-                    </p>
-                    <div className="flex items-center text-blue-600 text-base font-medium">
-                      <span>Gestionar</span>
-                      <BarChart3 className="h-5 w-5 ml-2 group-hover:rotate-12 transition-transform" />
-                    </div>
-                  </Link>
-                </RoleGuard>
+              <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="p-2 bg-green-500 rounded-lg">
+                    <Activity className="h-5 w-5 text-white" />
+                  </div>
+                  <span className="text-2xl font-bold text-green-600">{stats.systemUptime}%</span>
+                </div>
+                <p className="text-green-700 font-medium">{t.admin.uptime}</p>
+              </div>
+              
+              <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="p-2 bg-purple-500 rounded-lg">
+                    <TrendingUp className="h-5 w-5 text-white" />
+                  </div>
+                  <span className="text-2xl font-bold text-purple-600">{stats.totalRecords.toLocaleString()}</span>
+                </div>
+                <p className="text-purple-700 font-medium">{t.admin.totalRecords}</p>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </ProtectedRoute>
+    </HybridProtectedRoute>
   )
 }

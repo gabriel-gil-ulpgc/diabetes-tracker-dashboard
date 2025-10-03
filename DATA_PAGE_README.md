@@ -2,7 +2,7 @@
 
 ## 🎯 Características Principales
 
-### 1. **Interfaz Visual Mejorada**
+### 1. **Interfaz Visual Mejorada** 
 - **Vista de Tarjetas Expandibles**: Presentación visual organizada por usuario con tarjetas informativas
 - **Expansión de Usuarios**: Click para expandir y ver todos los datos de cada usuario
 - **Estadísticas en Tiempo Real**: Métricas clave mostradas en tarjetas destacadas
@@ -16,12 +16,12 @@
 - **Arrays Descifrados**: Manejo de arrays de síntomas y emociones
 - **Fechas Preservadas**: Las fechas se mantienen sin cifrar
 
-### 3. **Filtros Avanzados**
+### 3. **Filtros Avanzados** 
 - **Filtro por Usuario**: Seleccionar usuarios específicos o ver todos
 - **Filtro por Tipo de Dato**: Insulina, Comidas, Ejercicio, Períodos, Estado de Ánimo
 - **Rango de Tiempo**: Último día, 7 días, 30 días, 90 días o todo el tiempo
 - **Fecha Específica**: Filtrar por una fecha particular
-- **Combinación de Filtros**: Los filtros funcionan en conjunto
+- **Combinación de Filtros**: Los filtros funcionan en  conjunto
 
 ### 4. **Visualización Completa de Registros**
 - **Vista Expandible**: Click en la flecha para expandir cada usuario

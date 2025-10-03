@@ -96,7 +96,10 @@ export interface Translations {
     advancedSystem: string
     logout: string
     adminPanel: string
+    administration: string
     adminDescription: string
+    userManagement: string
+    totalUsers: string
     createUser: string
     searchUsers: string
     username: string
@@ -323,11 +326,6 @@ export interface Translations {
     recordsLabel: string
     usersLabel: string
     uptimeLabel: string
-    lastBackup: string
-    tableStructure: string
-    tableContent: string
-    databaseOperations: string
-    systemMetrics: string
   }
   
   // Usuarios
@@ -381,6 +379,7 @@ export interface Translations {
     edit: string
     create: string
     update: string
+    close: string
     back: string
     next: string
     previous: string
@@ -755,12 +754,7 @@ export const translations: Record<Language, Translations> = {
       configurationDesc: 'Configuración del sistema y preferencias',
       recordsLabel: 'Registros',
       usersLabel: 'Usuarios',
-      uptimeLabel: 'Tiempo de Actividad',
-      lastBackup: 'Último respaldo',
-      tableStructure: 'Estructura y contenido de las tablas',
-      tableContent: 'Contenido de las tablas',
-      databaseOperations: 'Operaciones de base de datos',
-      systemMetrics: 'Métricas del sistema'
+      uptimeLabel: 'Tiempo de Actividad'
     },
     users: {
       title: 'Gestión de Usuarios',
@@ -1181,12 +1175,7 @@ export const translations: Record<Language, Translations> = {
       configurationDesc: 'System configuration and preferences',
       recordsLabel: 'Records',
       usersLabel: 'Users',
-      uptimeLabel: 'Uptime',
-      lastBackup: 'Last backup',
-      tableStructure: 'Table structure and content',
-      tableContent: 'Table content',
-      databaseOperations: 'Database operations',
-      systemMetrics: 'System metrics'
+      uptimeLabel: 'Uptime'
     },
     users: {
       title: 'User Management',

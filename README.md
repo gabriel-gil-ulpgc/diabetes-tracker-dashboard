@@ -1,8 +1,8 @@
-# Diabetes Tracker Dashboard 🩺💙
+# Diabetes Tracker Dashboard
 
-Dashboard de administración para el sistema H2TRAIN Diabetes Tracker, construido con Next.js, React y Tailwind CSS.
+Este es un dashboard de administración para el sistema Diabetes Tracker, construido con Next.js, React y Tailwind CSS.
 
-**Versión**: 1.0.0 | **Última actualización**: Enero 2025
+**Última actualización**: Enero 2025 - Deploy automático configurado ✅ - Monorepo configurado
 
 ## Características
 

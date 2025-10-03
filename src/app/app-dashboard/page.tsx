@@ -12,15 +12,14 @@ import {
   Settings, 
   Database,
   Shield,
-  Stethoscope,
   User as UserIcon,
+  UserCheck,
   LogOut,
   Zap,
   Sparkles,
   Home,
   Heart,
-  TrendingUp,
-  Brain
+  TrendingUp
 } from 'lucide-react'
 import Link from 'next/link'
 import { useLanguage } from '@/contexts/LanguageContext'
@@ -45,22 +44,38 @@ export default function AppDashboardPage() {
     try {
       setLoading(true)
       
-      // Cargar estadísticas reales
-      const [usersResponse, dataResponse] = await Promise.all([
-        fetch('/api/users/count'),
-        fetch('/api/decrypted-data')
-      ])
-      
-      const usersData = await usersResponse.json()
-      const dataData = await dataResponse.json()
+      let userCount = 0
+      let totalRecords = 0
+
+      // Cargar estadísticas de usuarios con manejo de errores
+      try {
+        const usersResponse = await fetch('/api/users/count')
+        if (usersResponse.ok) {
+          const usersData = await usersResponse.json()
+          userCount = usersData?.count || 0
+        }
+      } catch (error) {
+        console.warn('Error loading user count:', error)
+      }
+
+      // Cargar estadísticas de datos con manejo de errores
+      try {
+        const dataResponse = await fetch('/api/decrypted-data')
+        if (dataResponse.ok) {
+          const dataData = await dataResponse.json()
+          totalRecords = (dataData?.insulinData?.length || 0) + 
+                        (dataData?.foodData?.length || 0) + 
+                        (dataData?.exerciseData?.length || 0) + 
+                        (dataData?.moodData?.length || 0) + 
+                        (dataData?.periodData?.length || 0)
+        }
+      } catch (error) {
+        console.warn('Error loading data stats:', error)
+      }
       
       setStats({
-        users: usersData.count || 0,
-        totalRecords: (dataData?.insulinData?.length || 0) + 
-                     (dataData?.foodData?.length || 0) + 
-                     (dataData?.exerciseData?.length || 0) + 
-                     (dataData?.moodData?.length || 0) + 
-                     (dataData?.periodData?.length || 0),
+        users: userCount,
+        totalRecords: totalRecords,
         hrvUsers: 3, // Usuarios con datos HRV
         systemAccuracy: 95 // Precisión del sistema
       })
@@ -89,7 +104,7 @@ export default function AppDashboardPage() {
   const getRoleIcon = (role: string) => {
     switch (role) {
       case 'admin': return <Shield className="h-4 w-4 text-yellow-500" />
-      case 'doctor': return <Stethoscope className="h-4 w-4 text-green-500" />
+      case 'doctor': return <UserCheck className="h-4 w-4 text-green-500" />
       default: return <UserIcon className="h-4 w-4 text-blue-500" />
     }
   }
@@ -162,7 +177,7 @@ export default function AppDashboardPage() {
                     <p className="font-semibold text-white">{user?.Username}</p>
                     <div className="flex items-center space-x-1">
                       {userRole === 'admin' && <Shield className="h-3 w-3 text-yellow-300" />}
-                      {userRole === 'doctor' && <Stethoscope className="h-3 w-3 text-green-300" />}
+                      {userRole === 'doctor' && <UserCheck className="h-3 w-3 text-green-300" />}
                       {userRole === 'user' && <UserIcon className="h-3 w-3 text-blue-200" />}
                       <p className="text-blue-100/80 text-xs capitalize">
                         {userRole === 'admin' && 'Administrador'}
