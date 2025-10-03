@@ -1,0 +1,6 @@
+# Configuración de ejemplo para Kubios Cloud
+# Copia este archivo como 'my_config.yaml' y reemplaza los valores con tus credenciales reales
+
+username: tu_email@ejemplo.com
+password: tu_contraseña
+client_id: tu_client_id_de_kubios

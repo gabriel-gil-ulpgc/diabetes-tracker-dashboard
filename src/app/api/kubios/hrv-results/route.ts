@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { spawn } from 'child_process'
-import path from 'path'
-import fs from 'fs'
+import { KubiosService } from '@/lib/kubios-service'
 
 export async function GET(request: NextRequest) {
   try {
@@ -17,139 +15,85 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Verificar que el script Python existe
-    const pythonScript = path.join(process.cwd(), 'kub-kubioscloud-demo', 'kubios_cli.py')
-    const kubiosDir = path.join(process.cwd(), 'kub-kubioscloud-demo')
-    
-    if (!fs.existsSync(pythonScript)) {
-      console.error(`❌ Script Python no encontrado: ${pythonScript}`)
-      return NextResponse.json(
-        { error: 'Script de Kubios no encontrado', path: pythonScript },
-        { status: 500 }
-      )
-    }
-
-    if (!fs.existsSync(kubiosDir)) {
-      console.error(`❌ Directorio de Kubios no encontrado: ${kubiosDir}`)
-      return NextResponse.json(
-        { error: 'Directorio de Kubios no encontrado', path: kubiosDir },
-        { status: 500 }
-      )
-    }
-
-    // Ejecutar el script Python para obtener resultados HRV
-    const args = [
-      pythonScript,
-      '--action', 'hrv-results-direct',
-      '--user-id', userId,
-      '--count', '10000'  // Aumentar el límite para obtener más datos
-    ]
-
     console.log(`🔍 HRV Results API - Usuario: ${userId}, Fechas: ${fromDate || 'sin filtro'} - ${toDate || 'sin filtro'}`)
-    console.log(`📝 Comando Python: python ${args.join(' ')}`)
-    console.log(`📁 Directorio de trabajo: ${kubiosDir}`)
 
-    return new Promise((resolve, reject) => {
-      const python = spawn('python', args, {
-        cwd: kubiosDir,
-        env: { ...process.env, PYTHONPATH: kubiosDir }
+    // Crear instancia del servicio de Kubios
+    const kubiosService = new KubiosService()
+
+    // Intentar obtener resultados reales de Kubios usando el método directo
+    const directResults = await kubiosService.getHRVResultsDirect(userId)
+    
+    if (directResults && directResults.results && directResults.results.length > 0) {
+      console.log(`✅ Obtenidos ${directResults.results.length} resultados reales de Kubios`)
+      
+      // Filtrar por fechas si se proporcionan
+      let filteredResults = directResults.results
+      if (fromDate || toDate) {
+        filteredResults = directResults.results.filter((result: any) => {
+          const resultDate = new Date(result.measured_timestamp)
+          const from = fromDate ? new Date(fromDate) : null
+          const to = toDate ? new Date(toDate) : null
+          
+          if (from && resultDate < from) return false
+          if (to && resultDate > to) return false
+          return true
+        })
+      }
+
+      // Ordenar por fecha (más reciente primero)
+      filteredResults.sort((a: any, b: any) => 
+        new Date(b.measured_timestamp).getTime() - new Date(a.measured_timestamp).getTime()
+      )
+
+      return NextResponse.json({ 
+        results: filteredResults,
+        total: filteredResults.length,
+        user_id: userId,
+        source: 'kubios_api'
       })
-
-      let output = ''
-      let errorOutput = ''
-
-      python.stdout.on('data', (data) => {
-        output += data.toString()
-      })
-
-      python.stderr.on('data', (data) => {
-        errorOutput += data.toString()
-      })
-
-      python.on('close', (code) => {
-        console.log(`🐍 Script Python terminado con código: ${code}`)
-        console.log(`📤 Output: ${output}`)
-        console.log(`❌ Error output: ${errorOutput}`)
+    } else {
+      // Si el método directo no funciona, intentar con el método original
+      const results = await kubiosService.getHRVResults(userId)
+      
+      if (results.length > 0) {
+        console.log(`✅ Obtenidos ${results.length} resultados reales de Kubios (método alternativo)`)
         
-        if (code !== 0) {
-          console.error('Error ejecutando script Python:', errorOutput)
-          resolve(NextResponse.json(
-            { 
-              error: 'Error al obtener resultados HRV', 
-              details: errorOutput,
-              output: output,
-              code: code
-            },
-            { status: 500 }
-          ))
-          return
+        // Filtrar por fechas si se proporcionan
+        let filteredResults = results
+        if (fromDate || toDate) {
+          filteredResults = results.filter((result: any) => {
+            const resultDate = new Date(result.measured_timestamp)
+            const from = fromDate ? new Date(fromDate) : null
+            const to = toDate ? new Date(toDate) : null
+            
+            if (from && resultDate < from) return false
+            if (to && resultDate > to) return false
+            return true
+          })
         }
 
-        try {
-          console.log(`📊 Output del script Python para usuario ${userId}:`)
-          console.log(`📄 Output completo: ${output}`)
-          console.log(`❌ Error output: ${errorOutput}`)
-          
-          // Parsear la salida JSON del script Python
-          const jsonMatch = output.match(/\{[\s\S]*\}/)
-          if (!jsonMatch) {
-            console.log(`❌ No se encontró JSON válido en la salida del script`)
-            resolve(NextResponse.json(
-              { error: 'No se pudo parsear la respuesta del script Python', output, errorOutput },
-              { status: 500 }
-            ))
-            return
-          }
+        // Ordenar por fecha (más reciente primero)
+        filteredResults.sort((a: any, b: any) => 
+          new Date(b.measured_timestamp).getTime() - new Date(a.measured_timestamp).getTime()
+        )
 
-          const pythonResponse = JSON.parse(jsonMatch[0])
-          console.log(`📋 Respuesta parseada:`, JSON.stringify(pythonResponse, null, 2))
-          
-          if (!pythonResponse.success) {
-            console.log(`❌ Script Python reportó error: ${pythonResponse.message}`)
-            resolve(NextResponse.json(
-              { error: pythonResponse.message || 'Error en el script Python' },
-              { status: 500 }
-            ))
-            return
-          }
-
-          const results = pythonResponse.data?.results || []
-          console.log(`📈 Resultados encontrados: ${results.length} para usuario ${userId}`)
-          
-          // Filtrar por fechas si se proporcionan
-          let filteredResults = results
-          if (fromDate || toDate) {
-            filteredResults = results.filter((result: any) => {
-              const resultDate = new Date(result.measured_timestamp)
-              const from = fromDate ? new Date(fromDate) : null
-              const to = toDate ? new Date(toDate) : null
-              
-              if (from && resultDate < from) return false
-              if (to && resultDate > to) return false
-              return true
-            })
-          }
-
-          // Ordenar por fecha (más reciente primero)
-          filteredResults.sort((a: any, b: any) => 
-            new Date(b.measured_timestamp).getTime() - new Date(a.measured_timestamp).getTime()
-          )
-
-          resolve(NextResponse.json({ 
-            results: filteredResults,
-            total: filteredResults.length,
-            user_id: userId
-          }))
-        } catch (parseError) {
-          console.error('Error parseando salida Python:', parseError)
-          console.error('Output completo:', output)
-          resolve(NextResponse.json(
-            { error: 'Error al procesar resultados HRV', details: parseError instanceof Error ? parseError.message : 'Error desconocido' },
-            { status: 500 }
-          ))
-        }
-      })
-    })
+        return NextResponse.json({ 
+          results: filteredResults,
+          total: filteredResults.length,
+          user_id: userId,
+          source: 'kubios_api'
+        })
+      } else {
+        console.log('⚠️ No se encontraron resultados reales para este usuario')
+        return NextResponse.json({ 
+          results: [],
+          total: 0,
+          user_id: userId,
+          source: 'kubios_api',
+          message: 'No hay datos disponibles para este usuario'
+        })
+      }
+    }
   } catch (error) {
     console.error('Error en API hrv-results:', error)
     return NextResponse.json(

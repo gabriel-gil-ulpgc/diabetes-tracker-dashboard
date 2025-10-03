@@ -6,6 +6,8 @@ import { Heart, Users, Calendar, Filter, Download, RefreshCw, TrendingUp, Activi
 import HybridProtectedRoute from '@/components/HybridProtectedRoute'
 import HybridNavigation from '@/components/HybridNavigation'
 import HRVCharts from '@/components/HRVCharts'
+import { useLanguage } from '@/contexts/LanguageContext'
+import LanguageSelector from '@/components/LanguageSelector'
 
 interface KubiosUser {
   user_id: string
@@ -42,6 +44,27 @@ interface HRVResult {
 }
 
 export default function KubiosPage() {
+  // Verificación de seguridad para el contexto de idioma
+  let t: any
+  try {
+    const languageContext = useLanguage()
+    t = languageContext?.t
+  } catch (error) {
+    console.error('Error accessing language context:', error)
+    t = null
+  }
+  
+  // Verificación de seguridad para evitar errores de runtime
+  if (!t || typeof t !== 'object' || !t.kubios) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-slate-600">Cargando traducciones...</p>
+        </div>
+      </div>
+    )
+  }
   const [users, setUsers] = useState<KubiosUser[]>([])
   const [selectedUser, setSelectedUser] = useState<string>('')
   const [hrvResults, setHrvResults] = useState<HRVResult[]>([])
@@ -183,14 +206,7 @@ export default function KubiosPage() {
         params.append('to_date', dateFilter.to)
       }
       
-      // Intentar primero la API principal
-      let response = await fetch(`/api/kubios/hrv-results?${params}`)
-      
-      // Si falla, usar el fallback
-      if (!response.ok) {
-        console.log('🔄 API principal falló, usando fallback...')
-        response = await fetch(`/api/kubios/hrv-results-fallback?${params}`)
-      }
+      const response = await fetch(`/api/kubios/hrv-results?${params}`)
       
       if (!response.ok) throw new Error('Error al cargar resultados HRV')
       
@@ -220,19 +236,29 @@ export default function KubiosPage() {
       setLoading(true)
       setError('')
       
+      // Verificar que los usuarios estén cargados
+      if (!users || users.length === 0) {
+        console.log('⚠️ No hay usuarios disponibles para cargar resultados')
+        setError('No hay usuarios disponibles')
+        setLoading(false)
+        return
+      }
+      
+      console.log(`📊 Cargando resultados para ${users.length} usuarios`)
+      
       // Hacer llamadas paralelas por cada usuario para mayor eficiencia
       const userPromises = users.map(async (user) => {
         try {
+          console.log(`🔍 Procesando usuario: ${user.name} (ID: ${user.user_id})`)
+          
+          if (!user.user_id) {
+            console.warn(`⚠️ Usuario ${user.name} no tiene user_id`)
+            return []
+          }
+          
           const params = new URLSearchParams({ user_id: user.user_id })
           
-          // Intentar primero la API principal
-          let response = await fetch(`/api/kubios/hrv-results?${params}`)
-          
-          // Si falla, usar el fallback
-          if (!response.ok) {
-            console.log(`🔄 API principal falló para usuario ${user.name}, usando fallback...`)
-            response = await fetch(`/api/kubios/hrv-results-fallback?${params}`)
-          }
+          const response = await fetch(`/api/kubios/hrv-results?${params}`)
           
           if (response.ok) {
             const data = await response.json()
@@ -300,10 +326,10 @@ export default function KubiosPage() {
   }
 
   const getReadinessLevel = (readiness: number) => {
-    if (readiness >= 80) return 'ALTO'
-    if (readiness >= 60) return 'NORMAL'
-    if (readiness >= 40) return 'BAJO'
-    return 'MUY BAJO'
+    if (readiness >= 80) return t.kubios.readinessLevels.high
+    if (readiness >= 60) return t.kubios.readinessLevels.normal
+    if (readiness >= 40) return t.kubios.readinessLevels.low
+    return t.kubios.readinessLevels.veryLow
   }
 
   const formatDate = (dateString: string) => {
@@ -419,11 +445,8 @@ export default function KubiosPage() {
 
     const daysInMonth = getDaysInMonth(selectedDate)
     const firstDay = getFirstDayOfMonth(selectedDate)
-    const monthNames = [
-      'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-      'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
-    ]
-    const dayNames = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']
+    const monthNames = t.datepicker.months
+    const dayNames = t.datepicker.days
 
     const renderCalendarDays = () => {
       const days = []
@@ -552,13 +575,13 @@ export default function KubiosPage() {
               onClick={() => selectDate(new Date(), type)}
               className="px-4 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200"
             >
-              Hoy
+              {t.datepicker.today}
             </button>
             <button
               onClick={onClose}
               className="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg transition-colors duration-200"
             >
-              Cerrar
+              {t.datepicker.close}
             </button>
           </div>
         </div>
@@ -670,7 +693,12 @@ export default function KubiosPage() {
           <div className="absolute top-40 left-1/2 w-80 h-80 bg-purple-400 rounded-full mix-blend-multiply filter blur-xl opacity-10 animate-pulse delay-500"></div>
         </div>
         
-        <HybridNavigation title="Kubios HRV - Variabilidad Cardíaca" showBackButton={true} />
+        <HybridNavigation title={t.kubios.title} showBackButton={true} />
+        
+        {/* Selector de idioma */}
+        <div className="absolute top-6 right-6 z-20">
+          <LanguageSelector />
+        </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
           {/* Header con estadísticas */}
@@ -683,9 +711,9 @@ export default function KubiosPage() {
                 </div>
                 <div>
                   <h2 className="text-4xl md:text-5xl font-bold text-gray-900">
-                    Datos de HRV
+                    {t.kubios.hrvResults}
                   </h2>
-                  <p className="text-gray-600 text-xl font-light">Variabilidad de la frecuencia cardíaca del equipo</p>
+                  <p className="text-gray-600 text-xl font-light">{t.kubios.subtitle}</p>
                 </div>
               </div>
               <div className="flex space-x-4">
@@ -695,7 +723,7 @@ export default function KubiosPage() {
                   className="group flex items-center space-x-3 bg-white/80 border border-gray-200 px-6 py-4 rounded-xl text-gray-700 hover:border-blue-300 hover:bg-blue-50 transition-all duration-300 transform hover:-translate-y-0.5 disabled:opacity-50 disabled:transform-none shadow-lg hover:shadow-xl"
                 >
                   <TrendingUp className="h-6 w-6 group-hover:scale-110 transition-transform" />
-                  <span className="font-semibold text-lg">{showCharts ? 'Ocultar' : 'Mostrar'} Gráficos</span>
+                  <span className="font-semibold text-lg">{showCharts ? t.kubios.hideCharts : t.kubios.showCharts}</span>
                 </button>
                 <button
                   onClick={() => selectedUser && loadHRVResults(selectedUser)}
@@ -703,7 +731,7 @@ export default function KubiosPage() {
                   className="group flex items-center space-x-3 bg-white/80 border border-gray-200 px-6 py-4 rounded-xl text-gray-700 hover:border-green-300 hover:bg-green-50 transition-all duration-300 transform hover:-translate-y-0.5 disabled:opacity-50 disabled:transform-none shadow-lg hover:shadow-xl"
                 >
                   <RefreshCw className={`h-6 w-6 ${loading ? 'animate-spin' : 'group-hover:rotate-180'} transition-transform duration-500`} />
-                  <span className="font-semibold text-lg">Actualizar Datos</span>
+                  <span className="font-semibold text-lg">{t.common.refresh}</span>
                 </button>
                 
                 <button
@@ -720,7 +748,7 @@ export default function KubiosPage() {
                 >
                   <Download className={`h-6 w-6 ${loading ? 'animate-pulse' : 'group-hover:scale-110'} transition-transform duration-300`} />
                   <span className="font-semibold text-lg">
-                    {loading ? `Cargando ${users.length} usuarios...` : 'Cargar Todos los Usuarios'}
+                    {loading ? `${t.kubios.loadingUsers} ${users.length} ${t.kubios.teamUsers.toLowerCase()}...` : t.kubios.allUsers}
                   </span>
                 </button>
                 <button
@@ -736,7 +764,7 @@ export default function KubiosPage() {
                       </div>
                     )}
                   </div>
-                  <span className="font-semibold text-lg">Actualizar Usuarios</span>
+                  <span className="font-semibold text-lg">{t.kubios.updateUsers}</span>
                 </button>
               </div>
             </div>
@@ -746,7 +774,7 @@ export default function KubiosPage() {
               <div className="relative group" ref={dropdownRef}>
                 <label className="block text-sm font-bold text-slate-700 mb-3 flex items-center">
                   <Users className="h-4 w-4 mr-2 text-blue-600" />
-                  Usuario del Equipo
+                  {t.kubios.teamUsers}
                 </label>
                 <div className="relative">
                   <button
@@ -763,10 +791,10 @@ export default function KubiosPage() {
                     className="w-full px-6 py-4 bg-gradient-to-r from-white via-blue-50/50 to-indigo-50/50 border-2 border-blue-200/60 rounded-2xl text-slate-700 focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-500 shadow-xl hover:shadow-2xl hover:border-blue-300/80 cursor-pointer font-medium group-hover:scale-[1.02] transform flex items-center justify-between"
                   >
                     <span className="text-left">
-                      {selectedUser === 'all' ? 'Todos los usuarios' :
+                      {selectedUser === 'all' ? t.kubios.allUsers :
                        selectedUser ? 
-                        users.find(u => u.user_id === selectedUser)?.name || 'Seleccionar usuario...' : 
-                        'Seleccionar usuario...'
+                        users.find(u => u.user_id === selectedUser)?.name || t.kubios.selectUser : 
+                        t.kubios.selectUser
                       }
                     </span>
                     <ChevronDown className={`h-5 w-5 text-blue-500 transition-transform duration-300 ${isDropdownOpen ? 'rotate-180' : ''}`} />
@@ -783,7 +811,7 @@ export default function KubiosPage() {
                 
                 {/* Contador de usuarios */}
                 <div className="absolute -top-2 -right-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
-                  {users.length} usuarios
+                  {users.length} {t.kubios.teamUsers.toLowerCase()}
                 </div>
 
                 {/* Dropdown personalizado (Portal) */}
@@ -805,7 +833,7 @@ export default function KubiosPage() {
                         onClick={() => handleUserSelect('')}
                         className="w-full px-6 py-4 text-left hover:bg-blue-50 transition-colors duration-200 flex items-center justify-between group"
                       >
-                        <span className="text-slate-600 font-medium">Seleccionar usuario...</span>
+                        <span className="text-slate-600 font-medium">{t.kubios.selectUser}</span>
                         {!selectedUser && <Check className="h-5 w-5 text-blue-500" />}
                       </button>
                       <button
@@ -821,19 +849,19 @@ export default function KubiosPage() {
                       >
                         <div className="flex-1">
                           <div className="font-medium text-slate-700 group-hover:text-blue-700 transition-colors">
-                            Todos los usuarios
+                            {t.kubios.allUsers}
                           </div>
                           <div className="text-sm text-slate-500 mt-1">
-                            Cargar datos de {users.length} usuarios
+                            {t.kubios.loadingUsers} {users.length} {t.kubios.teamUsers.toLowerCase()}
                           </div>
                         </div>
                         {selectedUser === 'all' && (
                           <Check className="h-5 w-5 text-blue-500 flex-shrink-0" />
                         )}
                       </button>
-                      {users.map((user) => (
+                      {users.map((user, index) => (
                         <button
-                          key={user.user_id}
+                          key={user.user_id || `user-${index}`}
                           onClick={() => handleUserSelect(user.user_id)}
                           className="w-full px-6 py-4 text-left hover:bg-blue-50 transition-colors duration-200 flex items-center justify-between group border-t border-slate-100"
                         >
@@ -842,7 +870,7 @@ export default function KubiosPage() {
                               {user.name}
                             </div>
                             <div className="text-sm text-slate-500 mt-1">
-                              {user.measurement_count} mediciones
+                              {user.measurement_count} {t.kubios.measurements}
                             </div>
                           </div>
                           {selectedUser === user.user_id && (
@@ -859,7 +887,7 @@ export default function KubiosPage() {
               <div className="relative group z-[9999999]" ref={fromDatePickerRef}>
                 <label className="block text-sm font-bold text-slate-700 mb-3 flex items-center">
                   <Calendar className="h-4 w-4 mr-2 text-green-500" />
-                  Fecha desde
+                  {t.kubios.dateFrom}
                 </label>
                 <div className="relative">
                   <button
@@ -869,7 +897,7 @@ export default function KubiosPage() {
                     className="w-full px-6 py-4 bg-gradient-to-r from-white via-green-50/50 to-emerald-50/50 border-2 border-green-200/60 rounded-2xl text-slate-700 focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all duration-500 shadow-xl hover:shadow-2xl hover:border-green-300/80 cursor-pointer font-medium group-hover:scale-[1.02] transform flex items-center justify-between"
                   >
                     <span className="text-left">
-                      {dateFilter.from ? formatDisplayDate(new Date(dateFilter.from)) : 'Seleccionar fecha...'}
+                      {dateFilter.from ? formatDisplayDate(new Date(dateFilter.from)) : t.data.selectDate}
                     </span>
                     <Calendar className="h-5 w-5 text-green-500" />
                   </button>
@@ -895,7 +923,7 @@ export default function KubiosPage() {
               <div className="relative group z-[9999999]" ref={toDatePickerRef}>
                 <label className="block text-sm font-bold text-slate-700 mb-3 flex items-center">
                   <Calendar className="h-4 w-4 mr-2 text-purple-500" />
-                  Fecha hasta
+                  {t.kubios.dateTo}
                 </label>
                 <div className="relative">
                   <button
@@ -905,7 +933,7 @@ export default function KubiosPage() {
                     className="w-full px-6 py-4 bg-gradient-to-r from-white via-purple-50/50 to-pink-50/50 border-2 border-purple-200/60 rounded-2xl text-slate-700 focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-500 shadow-xl hover:shadow-2xl hover:border-purple-300/80 cursor-pointer font-medium group-hover:scale-[1.02] transform flex items-center justify-between"
                   >
                     <span className="text-left">
-                      {dateFilter.to ? formatDisplayDate(new Date(dateFilter.to)) : 'Seleccionar fecha...'}
+                      {dateFilter.to ? formatDisplayDate(new Date(dateFilter.to)) : t.data.selectDate}
                     </span>
                     <Calendar className="h-5 w-5 text-purple-500" />
                   </button>
@@ -955,7 +983,7 @@ export default function KubiosPage() {
               <div className="absolute inset-0 bg-gradient-to-r from-blue-50/50 to-indigo-50/50 rounded-3xl"></div>
               <div className="relative z-10 flex items-center justify-between mb-8">
                 <h3 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                  Resultados HRV
+                  {t.kubios.hrvResults}
                   {users.find(u => u.user_id === selectedUser) && (
                     <span className="text-slate-600 ml-3 text-lg font-normal">
                       - {users.find(u => u.user_id === selectedUser)?.name}
@@ -965,7 +993,7 @@ export default function KubiosPage() {
                 <div className="flex items-center space-x-2 bg-green-50 border border-green-200 px-4 py-2 rounded-xl">
                   <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                   <span className="text-sm text-green-700 font-medium">
-                    {hrvResults.length} resultados encontrados
+                    {hrvResults.length} {t.kubios.hrvResults.toLowerCase()} {t.common.found}
                   </span>
                 </div>
               </div>
@@ -974,20 +1002,20 @@ export default function KubiosPage() {
                 <div className="relative z-10 flex items-center justify-center py-16">
                   <div className="flex items-center space-x-4 bg-white border border-blue-200 px-8 py-4 rounded-2xl shadow-lg">
                     <RefreshCw className="h-8 w-8 animate-spin text-blue-600" />
-                    <span className="text-slate-700 font-medium">Cargando datos...</span>
+                    <span className="text-slate-700 font-medium">{t.data.loading}</span>
                   </div>
                 </div>
               ) : hrvResults.length === 0 ? (
                 <div className="relative z-10 text-center py-16">
                   <div className="p-6 bg-blue-50 border border-blue-200 rounded-2xl inline-block shadow-lg">
                     <Heart className="h-16 w-16 text-blue-500 mx-auto mb-4" />
-                    <p className="text-slate-700 text-lg font-medium">No se encontraron resultados HRV para este usuario</p>
+                    <p className="text-slate-700 text-lg font-medium">{t.kubios.noResults}</p>
                   </div>
                 </div>
               ) : (
                 <div className="relative z-10 space-y-6">
-                  {hrvResults.map((result) => (
-                    <div key={result.result_id} className="relative bg-white border border-blue-200 rounded-2xl p-8 hover:border-blue-300 hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1 shadow-lg">
+                  {hrvResults.map((result, index) => (
+                    <div key={result.result_id || `result-${index}`} className="relative bg-white border border-blue-200 rounded-2xl p-8 hover:border-blue-300 hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1 shadow-lg">
                       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                         {/* Información básica */}
                         <div className="lg:col-span-1">
@@ -1020,7 +1048,7 @@ export default function KubiosPage() {
                                 <div className="p-2 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg">
                                   <Activity className="h-5 w-5 text-white" />
                                 </div>
-                                <span className="text-sm font-bold text-slate-700">FC Reposo</span>
+                                <span className="text-sm font-bold text-slate-700">{t.kubios.metrics.meanHr}</span>
                               </div>
                               <p className="text-3xl font-bold text-blue-600 mb-1">
                                 {result.result.mean_hr_bpm.toFixed(0)}
@@ -1033,7 +1061,7 @@ export default function KubiosPage() {
                                 <div className="p-2 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-lg">
                                   <Heart className="h-5 w-5 text-white" />
                                 </div>
-                                <span className="text-sm font-bold text-slate-700">RMSSD</span>
+                                <span className="text-sm font-bold text-slate-700">{t.kubios.metrics.rmssd}</span>
                               </div>
                               <p className="text-3xl font-bold text-green-600 mb-1">
                                 {result.result.rmssd_ms.toFixed(1)}
@@ -1046,7 +1074,7 @@ export default function KubiosPage() {
                                 <div className="p-2 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg">
                                   <TrendingUp className="h-5 w-5 text-white" />
                                 </div>
-                                <span className="text-sm font-bold text-slate-700">PNS Index</span>
+                                <span className="text-sm font-bold text-slate-700">{t.kubios.metrics.pnsIndex}</span>
                               </div>
                               <p className="text-3xl font-bold text-purple-600 mb-1">
                                 {result.result.pns_index.toFixed(2)}
@@ -1059,7 +1087,7 @@ export default function KubiosPage() {
                                 <div className="p-2 bg-gradient-to-br from-orange-500 to-red-500 rounded-lg">
                                   <Activity className="h-5 w-5 text-white" />
                                 </div>
-                                <span className="text-sm font-bold text-slate-700">SNS Index</span>
+                                <span className="text-sm font-bold text-slate-700">{t.kubios.metrics.snsIndex}</span>
                               </div>
                               <p className="text-3xl font-bold text-orange-600 mb-1">
                                 {result.result.sns_index.toFixed(2)}
@@ -1071,25 +1099,25 @@ export default function KubiosPage() {
                           {/* Métricas adicionales */}
                           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-8">
                             <div className="text-center bg-slate-50 border border-slate-200 rounded-xl p-4 hover:border-slate-300 transition-all duration-300 shadow-lg">
-                              <p className="text-sm text-slate-600 font-medium mb-2">Edad Fisiológica</p>
+                              <p className="text-sm text-slate-600 font-medium mb-2">{t.kubios.metrics.physiologicalAge}</p>
                               <p className="text-xl font-bold text-slate-800">
-                                {result.result.physiological_age.toFixed(1)} años
+                                {result.result.physiological_age.toFixed(1)} {t.kubios.metrics.years}
                               </p>
                             </div>
                             <div className="text-center bg-slate-50 border border-slate-200 rounded-xl p-4 hover:border-slate-300 transition-all duration-300 shadow-lg">
-                              <p className="text-sm text-slate-600 font-medium mb-2">Frecuencia Respiratoria</p>
+                              <p className="text-sm text-slate-600 font-medium mb-2">{t.kubios.metrics.respiratoryRate}</p>
                               <p className="text-xl font-bold text-slate-800">
                                 {result.result.respiratory_rate.toFixed(1)} min⁻¹
                               </p>
                             </div>
                             <div className="text-center bg-slate-50 border border-slate-200 rounded-xl p-4 hover:border-slate-300 transition-all duration-300 shadow-lg">
-                              <p className="text-sm text-slate-600 font-medium mb-2">Índice de Estrés</p>
+                              <p className="text-sm text-slate-600 font-medium mb-2">{t.kubios.metrics.stressIndex}</p>
                               <p className="text-xl font-bold text-slate-800">
                                 {result.result.stress_index.toFixed(1)}
                               </p>
                             </div>
                             <div className="text-center bg-slate-50 border border-slate-200 rounded-xl p-4 hover:border-slate-300 transition-all duration-300 shadow-lg">
-                              <p className="text-sm text-slate-600 font-medium mb-2">Calidad</p>
+                              <p className="text-sm text-slate-600 font-medium mb-2">{t.kubios.metrics.quality}</p>
                               <p className="text-xl font-bold text-slate-800">
                                 {result.result.artefact_level}
                               </p>
@@ -1102,29 +1130,29 @@ export default function KubiosPage() {
                               <div className="p-2 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-lg mr-3">
                                 <Activity className="h-5 w-5 text-white" />
                               </div>
-                              Dominio de Frecuencia
+                              {t.kubios.metrics.freqDomain}
                             </h4>
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                               <div className="text-center bg-white border border-slate-200 rounded-xl p-4 hover:border-slate-300 transition-all duration-300 shadow-lg">
-                                <p className="text-xs text-slate-600 font-medium mb-2">HF Power</p>
+                                <p className="text-xs text-slate-600 font-medium mb-2">{t.kubios.metrics.hfPower}</p>
                                 <p className="text-lg font-bold text-slate-800">
                                   {result.result.freq_domain.HF_power.toFixed(1)}
                                 </p>
                               </div>
                               <div className="text-center bg-white border border-slate-200 rounded-xl p-4 hover:border-slate-300 transition-all duration-300 shadow-lg">
-                                <p className="text-xs text-slate-600 font-medium mb-2">LF Power</p>
+                                <p className="text-xs text-slate-600 font-medium mb-2">{t.kubios.metrics.lfPower}</p>
                                 <p className="text-lg font-bold text-slate-800">
                                   {result.result.freq_domain.LF_power.toFixed(1)}
                                 </p>
                               </div>
                               <div className="text-center bg-white border border-slate-200 rounded-xl p-4 hover:border-slate-300 transition-all duration-300 shadow-lg">
-                                <p className="text-xs text-slate-600 font-medium mb-2">VLF Power</p>
+                                <p className="text-xs text-slate-600 font-medium mb-2">{t.kubios.metrics.vlfPower}</p>
                                 <p className="text-lg font-bold text-slate-800">
                                   {result.result.freq_domain.VLF_power.toFixed(1)}
                                 </p>
                               </div>
                               <div className="text-center bg-white border border-slate-200 rounded-xl p-4 hover:border-slate-300 transition-all duration-300 shadow-lg">
-                                <p className="text-xs text-slate-600 font-medium mb-2">Total Power</p>
+                                <p className="text-xs text-slate-600 font-medium mb-2">{t.kubios.metrics.totalPower}</p>
                                 <p className="text-lg font-bold text-slate-800">
                                   {result.result.freq_domain.tot_power.toFixed(1)}
                                 </p>

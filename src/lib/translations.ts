@@ -56,12 +56,15 @@ export interface Translations {
     totalRecords: string
     hrvUsers: string
     systemAccuracy: string
-    myRecords: string
-    myHrv: string
-    myStatus: string
-    myProgress: string
-    healthy: string
-    active: string
+      myRecords: string
+      myHrv: string
+      myStatus: string
+      myProgress: string
+      healthy: string
+      active: string
+      // Estados específicos
+      activeStatus: string
+      healthyStatus: string
     navigation: string
     premiumFeatures: string
     systemStatus: string
@@ -121,6 +124,35 @@ export interface Translations {
     roleUpdated: string
     analyzingStudyData: string
     processingCorrelations: string
+    // App Dashboard específico
+    appDashboard: {
+      myHealthPanel: string
+      advancedControlPanel: string
+      myHealthData: string
+      myHrvAnalysis: string
+      myStatistics: string
+      viewMyData: string
+      viewMyHrv: string
+      viewStatistics: string
+      userManagement: string
+      healthData: string
+      advancedAnalytics: string
+      hrvAnalysis: string
+      correlationStudy: string
+      administration: string
+      access: string
+      total: string
+      records: string
+      users: string
+      precision: string
+      study: string
+      analysis: string
+      panel: string
+      administrator: string
+      physician: string
+      user: string
+      signOut: string
+    }
   }
   
   // Datos
@@ -173,6 +205,30 @@ export interface Translations {
     charts: string
     showCharts: string
     hideCharts: string
+    // Métricas HRV
+    metrics: {
+      meanHr: string
+      rmssd: string
+      pnsIndex: string
+      snsIndex: string
+      physiologicalAge: string
+      respiratoryRate: string
+      stressIndex: string
+      quality: string
+      freqDomain: string
+      hfPower: string
+      lfPower: string
+      vlfPower: string
+      totalPower: string
+      years: string
+    }
+    // Niveles de readiness
+    readinessLevels: {
+      high: string
+      normal: string
+      low: string
+      veryLow: string
+    }
   }
   
   // Analytics
@@ -228,6 +284,41 @@ export interface Translations {
     correlations: string
     generalActivityByDate: string
     registeredMealTypes: string
+    // Textos específicos de gráficos
+    average: string
+    units: string
+    carbohydrates: string
+    registeredSessions: string
+    cycleRecords: string
+    allTypes: string
+    mostRecentDate: string
+    showsInsulinTypes: string
+    eachSector: string
+    percentageUsage: string
+    showsMealTypes: string
+    xAxis: string
+    yAxis: string
+    mealTypes: string
+    numberOfRecords: string
+    showsAverageInsulin: string
+    numberOfInjections: string
+    showsMoodFrequency: string
+    verySad: string
+    veryHappy: string
+    percentageRecords: string
+    showsInsulinInjections: string
+    showsMealRegistrations: string
+    numberOfMeals: string
+    showsExerciseSessions: string
+    numberOfSessions: string
+    showsMoodRecords: string
+    numberOfMoodRecords: string
+    foodTypes: string
+    dates: string
+    quantity: string
+    mealType: string
+    exerciseType: string
+    moodLevel: string
   }
   
   // Overview
@@ -397,6 +488,15 @@ export interface Translations {
     no: string
     ok: string
     close: string
+    found: string
+  }
+  
+  // Datepicker
+  datepicker: {
+    months: string[]
+    days: string[]
+    today: string
+    close: string
   }
 }
 
@@ -457,6 +557,9 @@ export const translations: Record<Language, Translations> = {
       myProgress: 'Mi Progreso',
       healthy: 'Saludable',
       active: 'Activo',
+      // Estados específicos
+      activeStatus: 'Activo',
+      healthyStatus: 'Saludable',
       navigation: 'Navegación',
       premiumFeatures: 'Características Premium',
       systemStatus: 'Estado del Sistema',
@@ -565,7 +668,36 @@ export const translations: Record<Language, Translations> = {
       noDataFound: 'No se encontraron datos',
       noRecordsForFilters: 'No hay registros para los filtros seleccionados.',
       analyzingStudyData: 'Analizando Datos del Estudio',
-      processingCorrelations: 'Procesando correlaciones entre diabetes, ejercicio y HRV...'
+      processingCorrelations: 'Procesando correlaciones entre diabetes, ejercicio y HRV...',
+      // App Dashboard específico
+      appDashboard: {
+        myHealthPanel: 'Mi Panel de Salud',
+        advancedControlPanel: 'Panel de Control Avanzado',
+        myHealthData: 'Mis Datos de Salud',
+        myHrvAnalysis: 'Mi Análisis HRV',
+        myStatistics: 'Mis Estadísticas',
+        viewMyData: 'Ver mis datos',
+        viewMyHrv: 'Ver mi HRV',
+        viewStatistics: 'Ver estadísticas',
+        userManagement: 'Gestión de Usuarios',
+        healthData: 'Datos de Salud',
+        advancedAnalytics: 'Análisis Avanzado',
+        hrvAnalysis: 'Análisis HRV',
+        correlationStudy: 'Estudio de Correlaciones',
+        administration: 'Administración',
+        access: 'Acceder',
+        total: 'Total',
+        records: 'Registros',
+        users: 'Usuarios',
+        precision: 'Precisión',
+        study: 'Estudio',
+        analysis: 'Análisis',
+        panel: 'Panel',
+        administrator: 'Administrador',
+        physician: 'Médico',
+        user: 'Usuario',
+        signOut: 'Cerrar Sesión'
+      }
     },
     data: {
       title: 'Datos de Salud',
@@ -613,7 +745,31 @@ export const translations: Record<Language, Translations> = {
       noHrvResults: 'No hay resultados HRV disponibles',
       charts: 'Gráficos',
       showCharts: 'Mostrar Gráficos',
-      hideCharts: 'Ocultar Gráficos'
+      hideCharts: 'Ocultar Gráficos',
+      // Métricas HRV
+      metrics: {
+        meanHr: 'FC Reposo',
+        rmssd: 'RMSSD',
+        pnsIndex: 'PNS Index',
+        snsIndex: 'SNS Index',
+        physiologicalAge: 'Edad Fisiológica',
+        respiratoryRate: 'Frecuencia Respiratoria',
+        stressIndex: 'Índice de Estrés',
+        quality: 'Calidad',
+        freqDomain: 'Dominio de Frecuencia',
+        hfPower: 'HF Power',
+        lfPower: 'LF Power',
+        vlfPower: 'VLF Power',
+        totalPower: 'Total Power',
+        years: 'años'
+      },
+      // Niveles de readiness
+      readinessLevels: {
+        high: 'ALTO',
+        normal: 'NORMAL',
+        low: 'BAJO',
+        veryLow: 'MUY BAJO'
+      }
     },
     analytics: {
       title: 'Análisis y Estadísticas',
@@ -666,7 +822,42 @@ export const translations: Record<Language, Translations> = {
       temporalTrends: 'Tendencias Temporales',
       correlations: 'Correlaciones',
       generalActivityByDate: 'Actividad General por Fecha',
-      registeredMealTypes: 'Tipos de Comida Registrados'
+      registeredMealTypes: 'Tipos de Comida Registrados',
+      // Textos específicos de gráficos
+      average: 'Promedio',
+      units: 'unidades',
+      carbohydrates: 'carbohidratos',
+      registeredSessions: 'Sesiones registradas',
+      cycleRecords: 'Registros de ciclo',
+      allTypes: 'Todos los tipos',
+      mostRecentDate: 'Fecha más reciente',
+      showsInsulinTypes: 'Muestra qué tipos de insulina se usan más frecuentemente.',
+      eachSector: 'Cada sector',
+      percentageUsage: 'Porcentaje de uso de cada tipo',
+      showsMealTypes: 'Muestra qué tipos de comida se registran más frecuentemente.',
+      xAxis: 'Eje X',
+      yAxis: 'Eje Y',
+      mealTypes: 'Tipos de Comida',
+      numberOfRecords: 'Número de Registros',
+      showsAverageInsulin: 'Muestra la cantidad promedio de insulina administrada cada día.',
+      numberOfInjections: 'Número de inyecciones',
+      showsMoodFrequency: 'Muestra qué tan frecuente es cada nivel de estado de ánimo (0=Muy triste, 10=Muy feliz).',
+      verySad: 'Muy triste',
+      veryHappy: 'Muy feliz',
+      percentageRecords: 'Porcentaje de registros con ese nivel',
+      showsInsulinInjections: 'Muestra cuántas inyecciones de insulina se registraron cada día.',
+      showsMealRegistrations: 'Muestra cuántas comidas se registraron cada día.',
+      numberOfMeals: 'Número de Comidas',
+      showsExerciseSessions: 'Muestra cuántas sesiones de ejercicio se registraron cada día.',
+      numberOfSessions: 'Número de Sesiones',
+      showsMoodRecords: 'Muestra cuántos registros de estado de ánimo se hicieron cada día.',
+      numberOfMoodRecords: 'Número de Registros',
+      foodTypes: 'Tipos de Comida',
+      dates: 'Fechas',
+      quantity: 'Cantidad',
+      mealType: 'Tipo de Comida',
+      exerciseType: 'Tipo de Ejercicio',
+      moodLevel: 'Nivel de Estado de Ánimo'
     },
     overview: {
       title: 'Resumen General del Sistema',
@@ -824,6 +1015,13 @@ export const translations: Record<Language, Translations> = {
       yes: 'Sí',
       no: 'No',
       ok: 'OK',
+      close: 'Cerrar',
+      found: 'encontrados'
+    },
+    datepicker: {
+      months: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
+      days: ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'],
+      today: 'Hoy',
       close: 'Cerrar'
     }
   },
@@ -883,6 +1081,9 @@ export const translations: Record<Language, Translations> = {
       myProgress: 'My Progress',
       healthy: 'Healthy',
       active: 'Active',
+      // Estados específicos
+      activeStatus: 'Active',
+      healthyStatus: 'Healthy',
       navigation: 'Navigation',
       premiumFeatures: 'Premium Features',
       systemStatus: 'System Status',
@@ -991,7 +1192,36 @@ export const translations: Record<Language, Translations> = {
       noDataFound: 'No data found',
       noRecordsForFilters: 'No records found for the selected filters.',
       analyzingStudyData: 'Analyzing Study Data',
-      processingCorrelations: 'Processing correlations between diabetes, exercise and HRV...'
+      processingCorrelations: 'Processing correlations between diabetes, exercise and HRV...',
+      // App Dashboard específico
+      appDashboard: {
+        myHealthPanel: 'My Health Panel',
+        advancedControlPanel: 'Advanced Control Panel',
+        myHealthData: 'My Health Data',
+        myHrvAnalysis: 'My HRV Analysis',
+        myStatistics: 'My Statistics',
+        viewMyData: 'View my data',
+        viewMyHrv: 'View my HRV',
+        viewStatistics: 'View statistics',
+        userManagement: 'User Management',
+        healthData: 'Health Data',
+        advancedAnalytics: 'Advanced Analytics',
+        hrvAnalysis: 'HRV Analysis',
+        correlationStudy: 'Correlation Study',
+        administration: 'Administration',
+        access: 'Access',
+        total: 'Total',
+        records: 'Records',
+        users: 'Users',
+        precision: 'Precision',
+        study: 'Study',
+        analysis: 'Analysis',
+        panel: 'Panel',
+        administrator: 'Administrator',
+        physician: 'Physician',
+        user: 'User',
+        signOut: 'Sign Out'
+      }
     },
     data: {
       title: 'Health Data',
@@ -1039,7 +1269,31 @@ export const translations: Record<Language, Translations> = {
       noHrvResults: 'No HRV results available',
       charts: 'Charts',
       showCharts: 'Show Charts',
-      hideCharts: 'Hide Charts'
+      hideCharts: 'Hide Charts',
+      // Métricas HRV
+      metrics: {
+        meanHr: 'Resting HR',
+        rmssd: 'RMSSD',
+        pnsIndex: 'PNS Index',
+        snsIndex: 'SNS Index',
+        physiologicalAge: 'Physiological Age',
+        respiratoryRate: 'Respiratory Rate',
+        stressIndex: 'Stress Index',
+        quality: 'Quality',
+        freqDomain: 'Frequency Domain',
+        hfPower: 'HF Power',
+        lfPower: 'LF Power',
+        vlfPower: 'VLF Power',
+        totalPower: 'Total Power',
+        years: 'years'
+      },
+      // Niveles de readiness
+      readinessLevels: {
+        high: 'HIGH',
+        normal: 'NORMAL',
+        low: 'LOW',
+        veryLow: 'VERY LOW'
+      }
     },
     analytics: {
       title: 'Analytics and Statistics',
@@ -1092,7 +1346,42 @@ export const translations: Record<Language, Translations> = {
       temporalTrends: 'Temporal Trends',
       correlations: 'Correlations',
       generalActivityByDate: 'General Activity by Date',
-      registeredMealTypes: 'Registered Meal Types'
+      registeredMealTypes: 'Registered Meal Types',
+      // Textos específicos de gráficos
+      average: 'Average',
+      units: 'units',
+      carbohydrates: 'carbohydrates',
+      registeredSessions: 'Registered sessions',
+      cycleRecords: 'Cycle records',
+      allTypes: 'All types',
+      mostRecentDate: 'Most recent date',
+      showsInsulinTypes: 'Shows which insulin types are used most frequently.',
+      eachSector: 'Each sector',
+      percentageUsage: 'Percentage usage of each type',
+      showsMealTypes: 'Shows which meal types are registered most frequently.',
+      xAxis: 'X Axis',
+      yAxis: 'Y Axis',
+      mealTypes: 'Meal Types',
+      numberOfRecords: 'Number of Records',
+      showsAverageInsulin: 'Shows the average amount of insulin administered each day.',
+      numberOfInjections: 'Number of injections',
+      showsMoodFrequency: 'Shows how frequent each mood level is (0=Very sad, 10=Very happy).',
+      verySad: 'Very sad',
+      veryHappy: 'Very happy',
+      percentageRecords: 'Percentage of records with that level',
+      showsInsulinInjections: 'Shows how many insulin injections were recorded each day.',
+      showsMealRegistrations: 'Shows how many meals were recorded each day.',
+      numberOfMeals: 'Number of Meals',
+      showsExerciseSessions: 'Shows how many exercise sessions were recorded each day.',
+      numberOfSessions: 'Number of Sessions',
+      showsMoodRecords: 'Shows how many mood records were made each day.',
+      numberOfMoodRecords: 'Number of Records',
+      foodTypes: 'Food Types',
+      dates: 'Dates',
+      quantity: 'Quantity',
+      mealType: 'Meal Type',
+      exerciseType: 'Exercise Type',
+      moodLevel: 'Mood Level'
     },
     overview: {
       title: 'System Overview',
@@ -1250,6 +1539,13 @@ export const translations: Record<Language, Translations> = {
       yes: 'Yes',
       no: 'No',
       ok: 'OK',
+      close: 'Close',
+      found: 'found'
+    },
+    datepicker: {
+      months: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+      days: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+      today: 'Today',
       close: 'Close'
     }
   }

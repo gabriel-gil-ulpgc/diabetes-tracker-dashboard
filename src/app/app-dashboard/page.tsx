@@ -164,8 +164,6 @@ export default function AppDashboardPage() {
               </div>
               
               <div className="flex items-center space-x-4">
-                <LanguageSelector />
-                
                 <div className="flex items-center space-x-4 bg-gradient-to-r from-white/20 to-white/10 backdrop-blur-sm border border-white/30 px-6 py-3 rounded-2xl hover:border-white/40 transition-all duration-300">
                   <div className="relative">
                     <div className="w-10 h-10 bg-gradient-to-r from-blue-400 to-blue-500 rounded-full flex items-center justify-center shadow-lg">
@@ -180,9 +178,9 @@ export default function AppDashboardPage() {
                       {userRole === 'doctor' && <UserCheck className="h-3 w-3 text-green-300" />}
                       {userRole === 'user' && <UserIcon className="h-3 w-3 text-blue-200" />}
                       <p className="text-blue-100/80 text-xs capitalize">
-                        {userRole === 'admin' && 'Administrador'}
-                        {userRole === 'doctor' && 'Médico'}
-                        {userRole === 'user' && 'Usuario'}
+                        {userRole === 'admin' && t.dashboard.appDashboard.administrator}
+                        {userRole === 'doctor' && t.dashboard.appDashboard.physician}
+                        {userRole === 'user' && t.dashboard.appDashboard.user}
                       </p>
                     </div>
                   </div>
@@ -193,7 +191,7 @@ export default function AppDashboardPage() {
                   className="group flex items-center space-x-2 bg-gradient-to-r from-blue-500/20 to-blue-600/20 backdrop-blur-sm border border-blue-400/40 px-4 py-2 rounded-xl text-white hover:border-blue-300/60 hover:from-blue-500/30 hover:to-blue-600/30 transition-all duration-300 transform hover:scale-105"
                 >
                   <LogOut className="h-4 w-4 group-hover:rotate-12 transition-transform duration-300" />
-                  <span className="hidden sm:inline font-medium">Cerrar Sesión</span>
+                  <span className="hidden sm:inline font-medium">{t.dashboard.appDashboard.signOut}</span>
                 </button>
               </div>
             </div>
@@ -206,7 +204,7 @@ export default function AppDashboardPage() {
             <div className="inline-flex items-center space-x-3 bg-white/80 backdrop-blur-sm border border-blue-200/50 rounded-full px-8 py-4 mb-8 shadow-lg">
               <Sparkles className="h-6 w-6 text-blue-600 animate-pulse" />
               <span className="text-blue-800 font-semibold text-lg">
-                {userRole === 'user' ? 'Mi Panel de Salud' : 'Panel de Control Avanzado'}
+                {userRole === 'user' ? t.dashboard.appDashboard.myHealthPanel : t.dashboard.appDashboard.advancedControlPanel}
               </span>
             </div>
             <h1 className="text-6xl md:text-8xl font-bold bg-gradient-to-r from-blue-800 via-blue-600 to-blue-400 bg-clip-text text-transparent mb-8 leading-tight">
@@ -228,7 +226,7 @@ export default function AppDashboardPage() {
                 <div className="bg-white/90 backdrop-blur-xl border border-gray-200/50 rounded-3xl p-6 shadow-lg">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-600">Mis Registros</p>
+                      <p className="text-sm font-medium text-gray-600">{t.dashboard.myRecords}</p>
                       <p className="text-3xl font-bold text-blue-600">
                         {loading ? <LoadingDots /> : stats.totalRecords.toLocaleString()}
                       </p>
@@ -242,9 +240,9 @@ export default function AppDashboardPage() {
                 <div className="bg-white/90 backdrop-blur-xl border border-gray-200/50 rounded-3xl p-6 shadow-lg">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-600">Mi HRV</p>
+                      <p className="text-sm font-medium text-gray-600">{t.dashboard.myHrv}</p>
                       <p className="text-3xl font-bold text-green-600">
-                        {loading ? <LoadingDots /> : 'Activo'}
+                        {loading ? <LoadingDots /> : t.dashboard.activeStatus}
                       </p>
                     </div>
                     <div className="p-3 bg-green-100 rounded-2xl">
@@ -256,9 +254,9 @@ export default function AppDashboardPage() {
                 <div className="bg-white/90 backdrop-blur-xl border border-gray-200/50 rounded-3xl p-6 shadow-lg">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-600">Mi Estado</p>
+                      <p className="text-sm font-medium text-gray-600">{t.dashboard.myStatus}</p>
                       <p className="text-3xl font-bold text-purple-600">
-                        {loading ? <LoadingDots /> : 'Saludable'}
+                        {loading ? <LoadingDots /> : t.dashboard.healthyStatus}
                       </p>
                     </div>
                     <div className="p-3 bg-purple-100 rounded-2xl">
@@ -270,7 +268,7 @@ export default function AppDashboardPage() {
                 <div className="bg-white/90 backdrop-blur-xl border border-gray-200/50 rounded-3xl p-6 shadow-lg">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-600">Mi Progreso</p>
+                      <p className="text-sm font-medium text-gray-600">{t.dashboard.myProgress}</p>
                       <p className="text-3xl font-bold text-orange-600">
                         {loading ? <LoadingDots /> : '95%'}
                       </p>
@@ -287,7 +285,7 @@ export default function AppDashboardPage() {
                 <div className="bg-white/90 backdrop-blur-xl border border-gray-200/50 rounded-3xl p-6 shadow-lg">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-600">Usuarios Totales</p>
+                      <p className="text-sm font-medium text-gray-600">{t.dashboard.totalUsers}</p>
                       <p className="text-3xl font-bold text-blue-600">
                         {loading ? <LoadingDots /> : stats.users}
                       </p>
@@ -301,7 +299,7 @@ export default function AppDashboardPage() {
                 <div className="bg-white/90 backdrop-blur-xl border border-gray-200/50 rounded-3xl p-6 shadow-lg">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-600">Registros Totales</p>
+                      <p className="text-sm font-medium text-gray-600">{t.dashboard.totalRecords}</p>
                       <p className="text-3xl font-bold text-green-600">
                         {loading ? <LoadingDots /> : stats.totalRecords.toLocaleString()}
                       </p>
@@ -315,7 +313,7 @@ export default function AppDashboardPage() {
                 <div className="bg-white/90 backdrop-blur-xl border border-gray-200/50 rounded-3xl p-6 shadow-lg">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-600">Usuarios HRV</p>
+                      <p className="text-sm font-medium text-gray-600">{t.dashboard.hrvUsers}</p>
                       <p className="text-3xl font-bold text-purple-600">
                         {loading ? <LoadingDots /> : stats.hrvUsers}
                       </p>
@@ -329,7 +327,7 @@ export default function AppDashboardPage() {
                 <div className="bg-white/90 backdrop-blur-xl border border-gray-200/50 rounded-3xl p-6 shadow-lg">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-600">Precisión Sistema</p>
+                      <p className="text-sm font-medium text-gray-600">{t.dashboard.systemAccuracy}</p>
                       <p className="text-3xl font-bold text-orange-600">
                         {loading ? <LoadingDots /> : `${stats.systemAccuracy}%`}
                       </p>
@@ -360,24 +358,25 @@ export default function AppDashboardPage() {
                           <div className="text-2xl font-bold text-green-800 group-hover:text-green-600 transition-colors">
                             {loading ? <LoadingDots /> : stats.totalRecords.toLocaleString()}
                           </div>
-                          <div className="text-xs text-green-600/70">Mis Registros</div>
+                          <div className="text-xs text-green-600/70">{t.dashboard.myRecords}</div>
                         </div>
                       </div>
                       <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-green-700 transition-colors">
-                        Mis Datos de Salud
+                        {t.dashboard.appDashboard.myHealthData}
                       </h3>
                       <p className="text-gray-600 text-sm leading-relaxed mb-4">
                         Visualiza tus datos de insulina, comida, ejercicio y estado de ánimo
                       </p>
                       <div className="flex items-center text-green-600 text-sm font-medium">
-                        <span>Ver mis datos</span>
+                        <span>{t.dashboard.appDashboard.viewMyData}</span>
                         <Zap className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
                       </div>
                     </div>
                   </div>
                 </Link>
 
-                <Link href="/kubios" className="group">
+                {/* Tarjeta de HRV comentada - se muestra solo para administradores */}
+                {/* <Link href="/kubios" className="group">
                   <div className="relative bg-white/90 backdrop-blur-xl border border-gray-200/50 rounded-3xl p-8 hover:border-indigo-300/70 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-2xl hover:shadow-indigo-500/10">
                     <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-indigo-600/5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                     <div className="relative z-10">
@@ -389,22 +388,22 @@ export default function AppDashboardPage() {
                           <div className="text-2xl font-bold text-indigo-800 group-hover:text-indigo-600 transition-colors">
                             {loading ? <LoadingDots /> : 'HRV'}
                           </div>
-                          <div className="text-xs text-indigo-600/70">Análisis</div>
+                          <div className="text-xs text-indigo-600/70">{t.dashboard.appDashboard.analysis}</div>
                         </div>
                       </div>
                       <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-indigo-700 transition-colors">
-                        Mi Análisis HRV
+                        {t.dashboard.appDashboard.myHrvAnalysis}
                       </h3>
                       <p className="text-gray-600 text-sm leading-relaxed mb-4">
                         Monitoreo de tu variabilidad del ritmo cardíaco con Kubios
                       </p>
                       <div className="flex items-center text-indigo-600 text-sm font-medium">
-                        <span>Ver mi HRV</span>
+                        <span>{t.dashboard.appDashboard.viewMyHrv}</span>
                         <Zap className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
                       </div>
                     </div>
                   </div>
-                </Link>
+                </Link> */}
 
                 <Link href="/analytics" className="group">
                   <div className="relative bg-white/90 backdrop-blur-xl border border-gray-200/50 rounded-3xl p-8 hover:border-purple-300/70 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-2xl hover:shadow-purple-500/10">
@@ -418,17 +417,17 @@ export default function AppDashboardPage() {
                           <div className="text-2xl font-bold text-purple-800 group-hover:text-purple-600 transition-colors">
                             {loading ? <LoadingDots /> : 'Mis'}
                           </div>
-                          <div className="text-xs text-purple-600/70">Estadísticas</div>
+                          <div className="text-xs text-purple-600/70">{t.dashboard.appDashboard.myStatistics}</div>
                         </div>
                       </div>
                       <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-purple-700 transition-colors">
-                        Mis Estadísticas
+                        {t.dashboard.appDashboard.myStatistics}
                       </h3>
                       <p className="text-gray-600 text-sm leading-relaxed mb-4">
                         Análisis personalizado de tus tendencias de salud
                       </p>
                       <div className="flex items-center text-purple-600 text-sm font-medium">
-                        <span>Ver estadísticas</span>
+                        <span>{t.dashboard.appDashboard.viewStatistics}</span>
                         <Zap className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
                       </div>
                     </div>
@@ -451,17 +450,17 @@ export default function AppDashboardPage() {
                             <div className="text-2xl font-bold text-blue-800 group-hover:text-blue-600 transition-colors">
                               {loading ? <LoadingDots /> : stats.users}
                             </div>
-                            <div className="text-xs text-blue-600/70">Total</div>
+                            <div className="text-xs text-blue-600/70">{t.dashboard.appDashboard.total}</div>
                           </div>
                         </div>
                         <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-blue-700 transition-colors">
-                          Gestión de Usuarios
+                          {t.dashboard.appDashboard.userManagement}
                         </h3>
                         <p className="text-gray-600 text-sm leading-relaxed mb-4">
                           Administra perfiles, permisos y configuraciones del sistema
                         </p>
                         <div className="flex items-center text-blue-600 text-sm font-medium">
-                          <span>Acceder</span>
+                          <span>{t.dashboard.appDashboard.access}</span>
                           <Zap className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
                         </div>
                       </div>
@@ -482,17 +481,17 @@ export default function AppDashboardPage() {
                             <div className="text-2xl font-bold text-green-800 group-hover:text-green-600 transition-colors">
                               {loading ? <LoadingDots /> : stats.totalRecords.toLocaleString()}
                             </div>
-                            <div className="text-xs text-green-600/70">Registros</div>
+                            <div className="text-xs text-green-600/70">{t.dashboard.appDashboard.records}</div>
                           </div>
                         </div>
                         <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-green-700 transition-colors">
-                          Datos de Salud
+                          {t.dashboard.appDashboard.healthData}
                         </h3>
                         <p className="text-gray-600 text-sm leading-relaxed mb-4">
                           Visualiza y gestiona todos los datos de salud de los usuarios
                         </p>
                         <div className="flex items-center text-green-600 text-sm font-medium">
-                          <span>Acceder</span>
+                          <span>{t.dashboard.appDashboard.access}</span>
                           <Zap className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
                         </div>
                       </div>
@@ -513,17 +512,17 @@ export default function AppDashboardPage() {
                             <div className="text-2xl font-bold text-purple-800 group-hover:text-purple-600 transition-colors">
                               {loading ? <LoadingDots /> : `${stats.systemAccuracy}%`}
                             </div>
-                            <div className="text-xs text-purple-600/70">Precisión</div>
+                            <div className="text-xs text-purple-600/70">{t.dashboard.appDashboard.precision}</div>
                           </div>
                         </div>
                         <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-purple-700 transition-colors">
-                          Análisis Avanzado
+                          {t.dashboard.appDashboard.advancedAnalytics}
                         </h3>
                         <p className="text-gray-600 text-sm leading-relaxed mb-4">
                           Estadísticas detalladas y análisis de tendencias de salud
                         </p>
                         <div className="flex items-center text-purple-600 text-sm font-medium">
-                          <span>Acceder</span>
+                          <span>{t.dashboard.appDashboard.access}</span>
                           <Zap className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
                         </div>
                       </div>
@@ -544,17 +543,17 @@ export default function AppDashboardPage() {
                             <div className="text-2xl font-bold text-indigo-800 group-hover:text-indigo-600 transition-colors">
                               {loading ? <LoadingDots /> : stats.hrvUsers}
                             </div>
-                            <div className="text-xs text-indigo-600/70">Usuarios</div>
+                            <div className="text-xs text-indigo-600/70">{t.dashboard.appDashboard.users}</div>
                           </div>
                         </div>
                         <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-indigo-700 transition-colors">
-                          Análisis HRV
+                          {t.dashboard.appDashboard.hrvAnalysis}
                         </h3>
                         <p className="text-gray-600 text-sm leading-relaxed mb-4">
                           Monitoreo de variabilidad del ritmo cardíaco con Kubios
                         </p>
                         <div className="flex items-center text-indigo-600 text-sm font-medium">
-                          <span>Acceder</span>
+                          <span>{t.dashboard.appDashboard.access}</span>
                           <Zap className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
                         </div>
                       </div>
@@ -562,7 +561,8 @@ export default function AppDashboardPage() {
                   </Link>
                 </AppRoleGuard>
 
-                <AppRoleGuard requiredPermission="view_study">
+                {/* Tarjeta de Estudio comentada - funcionalidad deshabilitada temporalmente */}
+                {/* <AppRoleGuard requiredPermission="view_study">
                   <Link href="/study" className="group">
                     <div className="relative bg-white/90 backdrop-blur-xl border border-gray-200/50 rounded-3xl p-8 hover:border-orange-300/70 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-2xl hover:shadow-orange-500/10">
                       <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-orange-600/5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -575,23 +575,23 @@ export default function AppDashboardPage() {
                             <div className="text-2xl font-bold text-orange-800 group-hover:text-orange-600 transition-colors">
                               {loading ? <LoadingDots /> : 'Estudio'}
                             </div>
-                            <div className="text-xs text-orange-600/70">Análisis</div>
+                            <div className="text-xs text-orange-600/70">{t.dashboard.appDashboard.analysis}</div>
                           </div>
                         </div>
                         <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-orange-700 transition-colors">
-                          Estudio de Correlaciones
+                          {t.dashboard.appDashboard.correlationStudy}
                         </h3>
                         <p className="text-gray-600 text-sm leading-relaxed mb-4">
                           Análisis de correlaciones entre ejercicio y métricas de HRV
                         </p>
                         <div className="flex items-center text-orange-600 text-sm font-medium">
-                          <span>Acceder</span>
+                          <span>{t.dashboard.appDashboard.access}</span>
                           <Zap className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
                         </div>
                       </div>
                     </div>
                   </Link>
-                </AppRoleGuard>
+                </AppRoleGuard> */}
 
                 <AppRoleGuard requiredPermission="view_admin">
                   <Link href="/admin" className="group">
@@ -606,17 +606,17 @@ export default function AppDashboardPage() {
                             <div className="text-2xl font-bold text-red-800 group-hover:text-red-600 transition-colors">
                               {loading ? <LoadingDots /> : 'Admin'}
                             </div>
-                            <div className="text-xs text-red-600/70">Panel</div>
+                            <div className="text-xs text-red-600/70">{t.dashboard.appDashboard.panel}</div>
                           </div>
                         </div>
                         <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-red-700 transition-colors">
-                          Administración
+                          {t.dashboard.appDashboard.administration}
                         </h3>
                         <p className="text-gray-600 text-sm leading-relaxed mb-4">
                           Configuración del sistema y herramientas de administración
                         </p>
                         <div className="flex items-center text-red-600 text-sm font-medium">
-                          <span>Acceder</span>
+                          <span>{t.dashboard.appDashboard.access}</span>
                           <Zap className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
                         </div>
                       </div>

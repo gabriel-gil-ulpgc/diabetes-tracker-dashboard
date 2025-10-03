@@ -311,7 +311,7 @@ export default function AnalyticsPage() {
                 <div className="ml-6">
                   <h3 className="text-xl font-semibold text-gray-900">{t.dashboard.insulin}</h3>
                   <p className="text-3xl font-bold text-blue-600">{stats.totalInsulin}</p>
-                  <p className="text-sm text-slate-600">Promedio: {stats.avgInsulinDose} unidades</p>
+                  <p className="text-sm text-slate-600">{t.analytics.average}: {stats.avgInsulinDose} {t.analytics.units}</p>
                 </div>
               </div>
             </div>
@@ -326,7 +326,7 @@ export default function AnalyticsPage() {
                 <div className="ml-4">
                   <h3 className="text-lg font-medium text-slate-800">{t.dashboard.meals}</h3>
                   <p className="text-3xl font-bold text-green-600">{stats.totalFood}</p>
-                  <p className="text-sm text-slate-600">Promedio: {stats.avgCarbs} carbohidratos</p>
+                  <p className="text-sm text-slate-600">{t.analytics.average}: {stats.avgCarbs} {t.analytics.carbohydrates}</p>
                 </div>
               </div>
             </div>
@@ -341,7 +341,7 @@ export default function AnalyticsPage() {
                 <div className="ml-4">
                   <h3 className="text-lg font-medium text-slate-800">{t.dashboard.exercise}</h3>
                   <p className="text-3xl font-bold text-orange-600">{stats.totalExercise}</p>
-                  <p className="text-sm text-slate-600">Sesiones registradas</p>
+                  <p className="text-sm text-slate-600">{t.analytics.registeredSessions}</p>
                 </div>
               </div>
             </div>
@@ -356,7 +356,7 @@ export default function AnalyticsPage() {
                 <div className="ml-4">
                   <h3 className="text-lg font-medium text-slate-800">{t.dashboard.mood}</h3>
                   <p className="text-3xl font-bold text-pink-600">{stats.totalMood}</p>
-                  <p className="text-sm text-slate-600">Promedio: {stats.avgMood}/10</p>
+                  <p className="text-sm text-slate-600">{t.analytics.average}: {stats.avgMood}/10</p>
                 </div>
               </div>
             </div>
@@ -374,7 +374,7 @@ export default function AnalyticsPage() {
                 <div className="ml-4">
                   <h3 className="text-lg font-medium text-slate-800">{t.dashboard.periods}</h3>
                   <p className="text-3xl font-bold text-purple-600">{stats.totalPeriods}</p>
-                  <p className="text-sm text-slate-600">Registros de ciclo</p>
+                  <p className="text-sm text-slate-600">{t.analytics.cycleRecords}</p>
                 </div>
               </div>
             </div>
@@ -389,7 +389,7 @@ export default function AnalyticsPage() {
                 <div className="ml-4">
                   <h3 className="text-lg font-medium text-slate-800">{t.dashboard.total}</h3>
                   <p className="text-3xl font-bold text-indigo-600">{stats.totalRecords}</p>
-                  <p className="text-sm text-slate-600">Todos los tipos</p>
+                  <p className="text-sm text-slate-600">{t.analytics.allTypes}</p>
                 </div>
               </div>
             </div>
@@ -409,7 +409,7 @@ export default function AnalyticsPage() {
                       'N/A'
                     }
                   </p>
-                  <p className="text-sm text-slate-600">Fecha más reciente</p>
+                  <p className="text-sm text-slate-600">{t.analytics.mostRecentDate}</p>
                 </div>
               </div>
             </div>
@@ -473,8 +473,8 @@ export default function AnalyticsPage() {
                         {t.analytics.insulinTypesUsed}
                       </h3>
                       <p className="text-sm text-slate-600 mb-6">
-                        Muestra qué tipos de insulina se usan más frecuentemente. 
-                        <strong className="text-blue-600"> Cada sector:</strong> Porcentaje de uso de cada tipo
+                        {t.analytics.showsInsulinTypes} 
+                        <strong className="text-blue-600"> {t.analytics.eachSector}:</strong> {t.analytics.percentageUsage}
                       </p>
                       <ResponsiveContainer width="100%" height={300}>
                         <PieChart>
@@ -527,9 +527,9 @@ export default function AnalyticsPage() {
                         {t.analytics.registeredMealTypes}
                       </h3>
                       <p className="text-sm text-slate-600 mb-6">
-                        Muestra qué tipos de comida se registran más frecuentemente. 
-                        <strong className="text-green-600"> Eje X:</strong> Tipos de comida | 
-                        <strong className="text-green-600"> Eje Y:</strong> Número de registros
+                        {t.analytics.showsMealTypes} 
+                        <strong className="text-green-600"> {t.analytics.xAxis}:</strong> {t.analytics.mealTypes} | 
+                        <strong className="text-green-600"> {t.analytics.yAxis}:</strong> {t.analytics.numberOfRecords}
                       </p>
                       <ResponsiveContainer width="100%" height={300}>
                         <BarChart data={foodByType}>
@@ -538,12 +538,12 @@ export default function AnalyticsPage() {
                             dataKey="name" 
                             stroke="#9CA3AF" 
                             tick={{ fontSize: 12, fill: '#9CA3AF' }}
-                            label={{ value: 'Tipos de Comida', position: 'insideBottom', offset: -5, style: { textAnchor: 'middle', fill: '#9CA3AF' } }}
+                            label={{ value: t.analytics.mealTypes, position: 'insideBottom', offset: -5, style: { textAnchor: 'middle', fill: '#9CA3AF' } }}
                           />
                           <YAxis 
                             stroke="#9CA3AF" 
                             tick={{ fontSize: 12, fill: '#9CA3AF' }}
-                            label={{ value: 'Número de Registros', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fill: '#9CA3AF' } }}
+                            label={{ value: t.analytics.numberOfRecords, angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fill: '#9CA3AF' } }}
                           />
                           <Tooltip 
                             contentStyle={{
@@ -583,9 +583,9 @@ export default function AnalyticsPage() {
                         {t.analytics.averageInsulinDose}
                       </h3>
                       <p className="text-sm text-slate-600 mb-6">
-                        Muestra la cantidad promedio de insulina administrada cada día. 
-                        <strong className="text-blue-600"> Eje X:</strong> Fechas | 
-                        <strong className="text-blue-600"> Eje Y:</strong> Número de inyecciones
+                        {t.analytics.showsAverageInsulin} 
+                        <strong className="text-blue-600"> {t.analytics.xAxis}:</strong> {t.analytics.dates} | 
+                        <strong className="text-blue-600"> {t.analytics.yAxis}:</strong> {t.analytics.numberOfInjections}
                       </p>
                       <ResponsiveContainer width="100%" height={300}>
                         <BarChart data={insulinByDate}>
@@ -594,12 +594,12 @@ export default function AnalyticsPage() {
                             dataKey="date" 
                             stroke="#9CA3AF" 
                             tick={{ fontSize: 12, fill: '#9CA3AF' }}
-                            label={{ value: 'Fechas', position: 'insideBottom', offset: -5, style: { textAnchor: 'middle', fill: '#9CA3AF' } }}
+                            label={{ value: t.analytics.dates, position: 'insideBottom', offset: -5, style: { textAnchor: 'middle', fill: '#9CA3AF' } }}
                           />
                           <YAxis 
                             stroke="#9CA3AF" 
                             tick={{ fontSize: 12, fill: '#9CA3AF' }}
-                            label={{ value: 'Número de Inyecciones', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fill: '#9CA3AF' } }}
+                            label={{ value: t.analytics.numberOfInjections, angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fill: '#9CA3AF' } }}
                           />
                           <Tooltip 
                             contentStyle={{
@@ -637,8 +637,8 @@ export default function AnalyticsPage() {
                         {t.analytics.moodDistribution}
                       </h3>
                       <p className="text-sm text-slate-600 mb-6">
-                        Muestra qué tan frecuente es cada nivel de estado de ánimo (0=Muy triste, 10=Muy feliz). 
-                        <strong className="text-pink-600"> Cada sector:</strong> Porcentaje de registros con ese nivel
+                        {t.analytics.showsMoodFrequency} 
+                        <strong className="text-pink-600"> {t.analytics.eachSector}:</strong> {t.analytics.percentageRecords}
                       </p>
                       <ResponsiveContainer width="100%" height={300}>
                         <PieChart>
@@ -694,9 +694,9 @@ export default function AnalyticsPage() {
                         {t.analytics.insulinEvolution}
                       </h3>
                       <p className="text-sm text-slate-600 mb-6">
-                        Muestra cuántas inyecciones de insulina se registraron cada día. 
-                        <strong className="text-blue-600"> Eje X:</strong> Fechas | 
-                        <strong className="text-blue-600"> Eje Y:</strong> Número de inyecciones
+                        {t.analytics.showsInsulinInjections} 
+                        <strong className="text-blue-600"> {t.analytics.xAxis}:</strong> {t.analytics.dates} | 
+                        <strong className="text-blue-600"> {t.analytics.yAxis}:</strong> {t.analytics.numberOfInjections}
                       </p>
                       <ResponsiveContainer width="100%" height={300}>
                         <LineChart data={insulinByDate}>
@@ -705,12 +705,12 @@ export default function AnalyticsPage() {
                             dataKey="date" 
                             stroke="#9CA3AF" 
                             tick={{ fontSize: 12, fill: '#9CA3AF' }}
-                            label={{ value: 'Fechas', position: 'insideBottom', offset: -5, style: { textAnchor: 'middle', fill: '#9CA3AF' } }}
+                            label={{ value: t.analytics.dates, position: 'insideBottom', offset: -5, style: { textAnchor: 'middle', fill: '#9CA3AF' } }}
                           />
                           <YAxis 
                             stroke="#9CA3AF" 
                             tick={{ fontSize: 12, fill: '#9CA3AF' }}
-                            label={{ value: 'Número de Inyecciones', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fill: '#9CA3AF' } }}
+                            label={{ value: t.analytics.numberOfInjections, angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fill: '#9CA3AF' } }}
                           />
                           <Tooltip 
                             contentStyle={{
@@ -748,9 +748,9 @@ export default function AnalyticsPage() {
                         {t.analytics.mealEvolution}
                       </h3>
                       <p className="text-sm text-slate-600 mb-6">
-                        Muestra cuántas comidas se registraron cada día. 
-                        <strong className="text-green-400"> Eje X:</strong> Fechas | 
-                        <strong className="text-green-400"> Eje Y:</strong> Número de comidas
+                        {t.analytics.showsMealRegistrations} 
+                        <strong className="text-green-400"> {t.analytics.xAxis}:</strong> {t.analytics.dates} | 
+                        <strong className="text-green-400"> {t.analytics.yAxis}:</strong> {t.analytics.numberOfMeals}
                       </p>
                       <ResponsiveContainer width="100%" height={300}>
                         <LineChart data={foodByDate}>
@@ -759,7 +759,7 @@ export default function AnalyticsPage() {
                             dataKey="date" 
                             stroke="#9CA3AF" 
                             tick={{ fontSize: 12, fill: '#9CA3AF' }}
-                            label={{ value: 'Fechas', position: 'insideBottom', offset: -5, style: { textAnchor: 'middle', fill: '#9CA3AF' } }}
+                            label={{ value: t.analytics.dates, position: 'insideBottom', offset: -5, style: { textAnchor: 'middle', fill: '#9CA3AF' } }}
                           />
                           <YAxis 
                             stroke="#9CA3AF" 
@@ -802,9 +802,9 @@ export default function AnalyticsPage() {
                         {t.analytics.exerciseEvolution}
                       </h3>
                       <p className="text-sm text-slate-600 mb-6">
-                        Muestra cuántas sesiones de ejercicio se registraron cada día. 
-                        <strong className="text-orange-600"> Eje X:</strong> Fechas | 
-                        <strong className="text-orange-600"> Eje Y:</strong> Número de sesiones
+                        {t.analytics.showsExerciseSessions} 
+                        <strong className="text-orange-600"> {t.analytics.xAxis}:</strong> {t.analytics.dates} | 
+                        <strong className="text-orange-600"> {t.analytics.yAxis}:</strong> {t.analytics.numberOfSessions}
                       </p>
                       <ResponsiveContainer width="100%" height={300}>
                         <LineChart data={exerciseByDate}>
@@ -813,12 +813,12 @@ export default function AnalyticsPage() {
                             dataKey="date" 
                             stroke="#9CA3AF" 
                             tick={{ fontSize: 12, fill: '#9CA3AF' }}
-                            label={{ value: 'Fechas', position: 'insideBottom', offset: -5, style: { textAnchor: 'middle', fill: '#9CA3AF' } }}
+                            label={{ value: t.analytics.dates, position: 'insideBottom', offset: -5, style: { textAnchor: 'middle', fill: '#9CA3AF' } }}
                           />
                           <YAxis 
                             stroke="#9CA3AF" 
                             tick={{ fontSize: 12, fill: '#9CA3AF' }}
-                            label={{ value: 'Número de Sesiones', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fill: '#9CA3AF' } }}
+                            label={{ value: t.analytics.numberOfSessions, angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fill: '#9CA3AF' } }}
                           />
                           <Tooltip 
                             contentStyle={{
@@ -856,9 +856,9 @@ export default function AnalyticsPage() {
                         {t.analytics.moodEvolution}
                       </h3>
                       <p className="text-sm text-slate-600 mb-6">
-                        Muestra cuántos registros de estado de ánimo se hicieron cada día. 
-                        <strong className="text-pink-600"> Eje X:</strong> Fechas | 
-                        <strong className="text-pink-600"> Eje Y:</strong> Número de registros
+                        {t.analytics.showsMoodRecords} 
+                        <strong className="text-pink-600"> {t.analytics.xAxis}:</strong> {t.analytics.dates} | 
+                        <strong className="text-pink-600"> {t.analytics.yAxis}:</strong> {t.analytics.numberOfMoodRecords}
                       </p>
                       <ResponsiveContainer width="100%" height={300}>
                         <LineChart data={moodByDate}>
@@ -867,12 +867,12 @@ export default function AnalyticsPage() {
                             dataKey="date" 
                             stroke="#9CA3AF" 
                             tick={{ fontSize: 12, fill: '#9CA3AF' }}
-                            label={{ value: 'Fechas', position: 'insideBottom', offset: -5, style: { textAnchor: 'middle', fill: '#9CA3AF' } }}
+                            label={{ value: t.analytics.dates, position: 'insideBottom', offset: -5, style: { textAnchor: 'middle', fill: '#9CA3AF' } }}
                           />
                           <YAxis 
                             stroke="#9CA3AF" 
                             tick={{ fontSize: 12, fill: '#9CA3AF' }}
-                            label={{ value: 'Número de Registros', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fill: '#9CA3AF' } }}
+                            label={{ value: t.analytics.numberOfRecords, angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fill: '#9CA3AF' } }}
                           />
                           <Tooltip 
                             contentStyle={{

@@ -261,7 +261,7 @@ export default function DashboardPage() {
               </div>
             </Link>
 
-            <Link href="/study" className="group">
+            {/* <Link href="/study" className="group">
               <div className="relative bg-white/90 backdrop-blur-xl border border-gray-200/50 rounded-3xl p-8 hover:border-blue-300/70 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-2xl hover:shadow-blue-500/10">
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-blue-600/5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <div className="relative z-10">
@@ -286,7 +286,7 @@ export default function DashboardPage() {
                   </div>
                 </div>
               </div>
-            </Link>
+            </Link> */}
 
             <Link href="/overview" className="group">
               <div className="relative bg-white/90 backdrop-blur-xl border border-gray-200/50 rounded-3xl p-8 hover:border-blue-300/70 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-2xl hover:shadow-blue-500/10">
