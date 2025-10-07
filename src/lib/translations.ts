@@ -41,6 +41,15 @@ export interface Translations {
     or: string
     adminAccess: string
     appUserAccess: string
+    // Features del login
+    realtimeMonitoring: string
+    realtimeMonitoringDesc: string
+    intelligentAnalysis: string
+    intelligentAnalysisDesc: string
+    teamManagement: string
+    teamManagementDesc: string
+    advancedSecurity: string
+    advancedSecurityDesc: string
   }
   
   // Dashboard
@@ -588,7 +597,16 @@ export const translations: Record<Language, Translations> = {
       register: 'Regístrate',
       or: 'o',
       adminAccess: 'Acceso para administradores (con email)',
-      appUserAccess: 'Acceso para usuarios de la app'
+      appUserAccess: 'Acceso para usuarios de la app',
+      // Features del login
+      realtimeMonitoring: 'Monitoreo en Tiempo Real',
+      realtimeMonitoringDesc: 'Seguimiento continuo de datos de salud con tecnología avanzada',
+      intelligentAnalysis: 'Análisis Inteligente',
+      intelligentAnalysisDesc: 'Gráficos interactivos y estadísticas detalladas con IA',
+      teamManagement: 'Gestión de Equipos',
+      teamManagementDesc: 'Administración completa de usuarios y equipos de investigación',
+      advancedSecurity: 'Seguridad Avanzada',
+      advancedSecurityDesc: 'Protección de datos con encriptación de grado médico'
     },
     dashboard: {
       title: 'Diabetes Tracker',
@@ -1160,7 +1178,16 @@ export const translations: Record<Language, Translations> = {
       register: 'Sign up',
       or: 'or',
       adminAccess: 'Admin access (with email)',
-      appUserAccess: 'App user access'
+      appUserAccess: 'App user access',
+      // Features del login
+      realtimeMonitoring: 'Real-time Monitoring',
+      realtimeMonitoringDesc: 'Continuous health data tracking with advanced technology',
+      intelligentAnalysis: 'Intelligent Analysis',
+      intelligentAnalysisDesc: 'Interactive charts and detailed statistics with AI',
+      teamManagement: 'Team Management',
+      teamManagementDesc: 'Complete administration of users and research teams',
+      advancedSecurity: 'Advanced Security',
+      advancedSecurityDesc: 'Data protection with medical-grade encryption'
     },
     dashboard: {
       title: 'Diabetes Tracker',

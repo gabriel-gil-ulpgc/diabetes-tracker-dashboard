@@ -13,10 +13,9 @@ export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
-  const [isSignUp, setIsSignUp] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const { signIn, signUp } = useAuth()
+  const { signIn } = useAuth()
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -25,9 +24,7 @@ export default function LoginPage() {
     setError('')
 
     try {
-      const { error } = isSignUp 
-        ? await signUp(email, password)
-        : await signIn(email, password)
+      const { error } = await signIn(email, password)
 
       if (error) {
         setError(error.message)
@@ -91,8 +88,8 @@ export default function LoginPage() {
                 <Activity className="h-7 w-7" />
               </div>
               <div>
-                <h3 className="font-semibold text-lg mb-2">Monitoreo en Tiempo Real</h3>
-                <p className="text-blue-100 text-sm leading-relaxed">Seguimiento continuo de datos de salud con tecnología avanzada</p>
+                <h3 className="font-semibold text-lg mb-2">{t.auth.realtimeMonitoring}</h3>
+                <p className="text-blue-100 text-sm leading-relaxed">{t.auth.realtimeMonitoringDesc}</p>
               </div>
             </div>
             
@@ -101,8 +98,8 @@ export default function LoginPage() {
                 <BarChart3 className="h-7 w-7" />
               </div>
               <div>
-                <h3 className="font-semibold text-lg mb-2">Análisis Inteligente</h3>
-                <p className="text-blue-100 text-sm leading-relaxed">Gráficos interactivos y estadísticas detalladas con IA</p>
+                <h3 className="font-semibold text-lg mb-2">{t.auth.intelligentAnalysis}</h3>
+                <p className="text-blue-100 text-sm leading-relaxed">{t.auth.intelligentAnalysisDesc}</p>
               </div>
             </div>
             
@@ -111,8 +108,8 @@ export default function LoginPage() {
                 <Users className="h-7 w-7" />
               </div>
               <div>
-                <h3 className="font-semibold text-lg mb-2">Gestión de Equipos</h3>
-                <p className="text-blue-100 text-sm leading-relaxed">Administración completa de usuarios y equipos de investigación</p>
+                <h3 className="font-semibold text-lg mb-2">{t.auth.teamManagement}</h3>
+                <p className="text-blue-100 text-sm leading-relaxed">{t.auth.teamManagementDesc}</p>
               </div>
             </div>
 
@@ -121,8 +118,8 @@ export default function LoginPage() {
                 <Shield className="h-7 w-7" />
               </div>
               <div>
-                <h3 className="font-semibold text-lg mb-2">Seguridad Avanzada</h3>
-                <p className="text-blue-100 text-sm leading-relaxed">Protección de datos con encriptación de grado médico</p>
+                <h3 className="font-semibold text-lg mb-2">{t.auth.advancedSecurity}</h3>
+                <p className="text-blue-100 text-sm leading-relaxed">{t.auth.advancedSecurityDesc}</p>
               </div>
             </div>
           </div>
@@ -148,13 +145,10 @@ export default function LoginPage() {
             </div>
             
             <h2 className="text-4xl font-bold text-gray-900 mb-3">
-              {isSignUp ? t.auth.createAccount : t.auth.welcome}
+              {t.auth.welcome}
             </h2>
             <p className="text-gray-600 text-lg">
-              {isSignUp 
-                ? t.auth.joinPlatform
-                : t.auth.accessAdmin
-              }
+              {t.auth.accessAdmin}
             </p>
           </div>
 
@@ -229,21 +223,12 @@ export default function LoginPage() {
                 {loading ? (
                   <div className="flex items-center justify-center">
                     <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white mr-3"></div>
-                    {isSignUp ? t.auth.creatingAccount : t.auth.loggingIn}
+                    {t.auth.loggingIn}
                   </div>
                 ) : (
                   <div className="flex items-center justify-center">
-                    {isSignUp ? (
-                      <>
-                        <LogIn className="h-5 w-5 mr-2" />
-                        {t.auth.createAccount}
-                      </>
-                    ) : (
-                      <>
-                        <LogIn className="h-5 w-5 mr-2" />
-                        {t.auth.signIn}
-                      </>
-                    )}
+                    <LogIn className="h-5 w-5 mr-2" />
+                    {t.auth.signIn}
                   </div>
                 )}
               </button>
@@ -255,30 +240,11 @@ export default function LoginPage() {
                   <div className="w-full border-t border-gray-200"></div>
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="px-4 bg-white/80 text-gray-500">o</span>
+                  <span className="px-4 bg-white/80 text-gray-500">{t.auth.or}</span>
                 </div>
               </div>
               
-              <div className="mt-6 space-y-4">
-                <button
-                  onClick={() => setIsSignUp(!isSignUp)}
-                  className="w-full text-blue-600 hover:text-blue-700 font-semibold transition-colors text-lg"
-                >
-                  {isSignUp 
-                    ? '¿Ya tienes cuenta? Inicia sesión'
-                    : t.auth.noAccount
-                  }
-                </button>
-                
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-gray-300"></div>
-                  </div>
-                  <div className="relative flex justify-center text-sm">
-                    <span className="px-2 bg-white text-gray-500">o</span>
-                  </div>
-                </div>
-                
+              <div className="mt-6">
                 <a
                   href="/app-login"
                   className="w-full flex items-center justify-center px-4 py-3 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 transition-colors font-medium"
@@ -288,26 +254,6 @@ export default function LoginPage() {
                 </a>
               </div>
             </div>
-
-            {isSignUp && (
-              <div className="mt-6 p-4 bg-blue-50/80 backdrop-blur-sm rounded-xl border border-blue-200">
-                <div className="flex items-start space-x-3">
-                  <div className="flex-shrink-0">
-                    <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
-                      <CheckCircle className="h-4 w-4 text-white" />
-                    </div>
-                  </div>
-                  <div>
-                    <p className="text-sm text-blue-700 font-medium">
-                      Verificación requerida
-                    </p>
-                    <p className="text-sm text-blue-600 mt-1">
-                      Después de registrarte, necesitarás verificar tu correo electrónico antes de poder iniciar sesión.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </div>
