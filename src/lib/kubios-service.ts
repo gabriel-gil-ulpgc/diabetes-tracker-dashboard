@@ -21,6 +21,7 @@ interface KubiosTokens {
   refresh_token: string
   expires_in: number
   token_type: string
+  id_token: string
 }
 
 interface HRVResult {
@@ -174,6 +175,7 @@ export class KubiosService {
               this.tokens = {
                 id_token: idToken,
                 access_token: accessToken,
+                refresh_token: '', // No disponible en este flujo de autenticación
                 token_type: 'Bearer',
                 expires_in: 3600
               }
@@ -458,7 +460,7 @@ export class KubiosService {
       
       // Por ahora, devolver usuarios sin conteo para evitar bucles de reautenticación
       console.log('📊 Usuarios obtenidos (sin conteo de mediciones para evitar bucles)')
-      const usersWithCounts = mappedUsers.map(user => ({
+      const usersWithCounts = mappedUsers.map((user: { user_id: string; name: string; email: string; measurement_count: number }) => ({
         ...user,
         measurement_count: 0 // Se calculará cuando se seleccione el usuario
       }))

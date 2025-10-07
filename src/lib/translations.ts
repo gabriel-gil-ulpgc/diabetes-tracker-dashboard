@@ -229,6 +229,33 @@ export interface Translations {
       low: string
       veryLow: string
     }
+    // Gráficos HRV
+    charts: {
+      readinessEvolution: string
+      rmssdEvolution: string
+      pnsSnsIndices: string
+      heartRateRest: string
+      frequencyDomain: string
+      averageReadiness: string
+      averageRmssd: string
+      averageHeartRate: string
+      lastRecords: string
+      heartRateVariability: string
+      heartRate: string
+      date: string
+      readinessPercentage: string
+      rmssdMs: string
+      heartRateBpm: string
+      pnsSnsIndicesLabel: string
+      heartRateLabel: string
+      spectralPower: string
+      hfPower: string
+      lfPower: string
+      vlfPower: string
+      pnsIndex: string
+      snsIndex: string
+      heartRateRestLabel: string
+    }
   }
   
   // Analytics
@@ -446,6 +473,29 @@ export interface Translations {
     user: string
     total: string
     active: string
+    status: string
+    gdpr: string
+    activeStatus: string
+    yes: string
+    no: string
+    copyUUID: string
+    clearUUID: string
+    editUser: string
+    createNewUser: string
+    usernameLabel: string
+    passwordLabel: string
+    roleLabel: string
+    information: string
+    userInfo: string
+    saving: string
+    creating: string
+    cancel: string
+    save: string
+    create: string
+    gdprConsent: string
+    currentUUID: string
+    noUUIDAssigned: string
+    userWillBeCreated: string
   }
   
   // Roles
@@ -489,6 +539,7 @@ export interface Translations {
     ok: string
     close: string
     found: string
+    language: string
   }
   
   // Datepicker
@@ -769,6 +820,33 @@ export const translations: Record<Language, Translations> = {
         normal: 'NORMAL',
         low: 'BAJO',
         veryLow: 'MUY BAJO'
+      },
+      // Gráficos HRV
+      charts: {
+        readinessEvolution: 'Evolución del Readiness',
+        rmssdEvolution: 'Evolución del RMSSD',
+        pnsSnsIndices: 'Índices PNS vs SNS',
+        heartRateRest: 'Frecuencia Cardíaca en Reposo',
+        frequencyDomain: 'Dominio de Frecuencia',
+        averageReadiness: 'Readiness Promedio',
+        averageRmssd: 'RMSSD Promedio',
+        averageHeartRate: 'FC Promedio',
+        lastRecords: 'Últimos {count} registros',
+        heartRateVariability: 'Variabilidad cardíaca',
+        heartRate: 'Frecuencia cardíaca',
+        date: 'Fecha',
+        readinessPercentage: 'HRV Readiness (%)',
+        rmssdMs: 'RMSSD (ms)',
+        heartRateBpm: 'Frecuencia Cardíaca (bpm)',
+        pnsSnsIndicesLabel: 'Índices PNS/SNS',
+        heartRateLabel: 'FC Reposo',
+        spectralPower: 'Potencia Espectral (ms²)',
+        hfPower: 'HF Power',
+        lfPower: 'LF Power',
+        vlfPower: 'VLF Power',
+        pnsIndex: 'PNS Index',
+        snsIndex: 'SNS Index',
+        heartRateRestLabel: 'FC Reposo'
       }
     },
     analytics: {
@@ -976,7 +1054,27 @@ export const translations: Record<Language, Translations> = {
       doctor: 'Médico',
       user: 'Usuario',
       total: 'Total',
-      active: 'Activos'
+      active: 'Activos',
+      status: 'Estado',
+      gdpr: 'GDPR',
+      activeStatus: 'Activo',
+      yes: 'Sí',
+      no: 'No',
+      copyUUID: 'Copiar UUID',
+      clearUUID: 'Limpiar UUID',
+      editUser: 'Editar Usuario',
+      createNewUser: 'Crear Nuevo Usuario',
+      usernameLabel: 'Nombre de Usuario',
+      passwordLabel: 'Contraseña',
+      roleLabel: 'Rol',
+      information: 'Información',
+      userInfo: 'El usuario será creado con nombre de usuario y contraseña. Podrá acceder a la aplicación móvil usando estas credenciales.',
+      saving: 'Guardando...',
+      creating: 'Creando...',
+      gdprConsent: 'Consentimiento GDPR',
+      currentUUID: 'UUID Actual',
+      noUUIDAssigned: 'Sin UUID asignado',
+      userWillBeCreated: 'El usuario será creado con nombre de usuario y contraseña. Podrá acceder a la aplicación móvil usando estas credenciales.'
     },
     roles: {
       admin: 'admin',
@@ -1016,7 +1114,8 @@ export const translations: Record<Language, Translations> = {
       no: 'No',
       ok: 'OK',
       close: 'Cerrar',
-      found: 'encontrados'
+      found: 'encontrados',
+      language: 'Idioma'
     },
     datepicker: {
       months: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
@@ -1293,6 +1392,33 @@ export const translations: Record<Language, Translations> = {
         normal: 'NORMAL',
         low: 'LOW',
         veryLow: 'VERY LOW'
+      },
+      // Gráficos HRV
+      charts: {
+        readinessEvolution: 'Readiness Evolution',
+        rmssdEvolution: 'RMSSD Evolution',
+        pnsSnsIndices: 'PNS vs SNS Indices',
+        heartRateRest: 'Resting Heart Rate',
+        frequencyDomain: 'Frequency Domain',
+        averageReadiness: 'Average Readiness',
+        averageRmssd: 'Average RMSSD',
+        averageHeartRate: 'Average HR',
+        lastRecords: 'Last {count} records',
+        heartRateVariability: 'Heart rate variability',
+        heartRate: 'Heart rate',
+        date: 'Date',
+        readinessPercentage: 'HRV Readiness (%)',
+        rmssdMs: 'RMSSD (ms)',
+        heartRateBpm: 'Heart Rate (bpm)',
+        pnsSnsIndicesLabel: 'PNS/SNS Indices',
+        heartRateLabel: 'Resting HR',
+        spectralPower: 'Spectral Power (ms²)',
+        hfPower: 'HF Power',
+        lfPower: 'LF Power',
+        vlfPower: 'VLF Power',
+        pnsIndex: 'PNS Index',
+        snsIndex: 'SNS Index',
+        heartRateRestLabel: 'Resting HR'
       }
     },
     analytics: {
@@ -1500,7 +1626,27 @@ export const translations: Record<Language, Translations> = {
       doctor: 'Doctor',
       user: 'User',
       total: 'Total',
-      active: 'Active'
+      active: 'Active',
+      status: 'Status',
+      gdpr: 'GDPR',
+      activeStatus: 'Active',
+      yes: 'Yes',
+      no: 'No',
+      copyUUID: 'Copy UUID',
+      clearUUID: 'Clear UUID',
+      editUser: 'Edit User',
+      createNewUser: 'Create New User',
+      usernameLabel: 'Username',
+      passwordLabel: 'Password',
+      roleLabel: 'Role',
+      information: 'Information',
+      userInfo: 'The user will be created with username and password. They will be able to access the mobile app using these credentials.',
+      saving: 'Saving...',
+      creating: 'Creating...',
+      gdprConsent: 'GDPR Consent',
+      currentUUID: 'Current UUID',
+      noUUIDAssigned: 'No UUID assigned',
+      userWillBeCreated: 'The user will be created with username and password. They will be able to access the mobile app using these credentials.'
     },
     roles: {
       admin: 'admin',
@@ -1540,7 +1686,8 @@ export const translations: Record<Language, Translations> = {
       no: 'No',
       ok: 'OK',
       close: 'Close',
-      found: 'found'
+      found: 'found',
+      language: 'Language'
     },
     datepicker: {
       months: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],

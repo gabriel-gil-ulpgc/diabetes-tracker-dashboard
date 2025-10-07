@@ -2,6 +2,7 @@
 
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend } from 'recharts'
 import { TrendingUp, Heart, Activity } from 'lucide-react'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 interface HRVResult {
   result_id: string
@@ -35,6 +36,8 @@ interface HRVChartsProps {
 }
 
 export default function HRVCharts({ results, selectedUser }: HRVChartsProps) {
+  const { t } = useLanguage()
+  
   if (!results || results.length === 0) {
     return null
   }
@@ -101,8 +104,8 @@ export default function HRVCharts({ results, selectedUser }: HRVChartsProps) {
               <TrendingUp className="h-8 w-8 text-white" />
             </div>
             <div>
-              <h3 className="text-xl font-bold text-slate-800">Readiness Promedio</h3>
-              <p className="text-sm text-slate-600">Últimos {validResults.length} registros</p>
+              <h3 className="text-xl font-bold text-slate-800">{t.kubios.charts.averageReadiness}</h3>
+              <p className="text-sm text-slate-600">{t.kubios.charts.lastRecords.replace('{count}', validResults.length.toString())}</p>
             </div>
           </div>
           <p className="text-4xl font-bold text-slate-900">
@@ -116,8 +119,8 @@ export default function HRVCharts({ results, selectedUser }: HRVChartsProps) {
               <Heart className="h-8 w-8 text-white" />
             </div>
             <div>
-              <h3 className="text-xl font-bold text-slate-800">RMSSD Promedio</h3>
-              <p className="text-sm text-slate-600">Variabilidad cardíaca</p>
+              <h3 className="text-xl font-bold text-slate-800">{t.kubios.charts.averageRmssd}</h3>
+              <p className="text-sm text-slate-600">{t.kubios.charts.heartRateVariability}</p>
             </div>
           </div>
           <p className="text-4xl font-bold text-slate-900">
@@ -131,8 +134,8 @@ export default function HRVCharts({ results, selectedUser }: HRVChartsProps) {
               <Activity className="h-8 w-8 text-white" />
             </div>
             <div>
-              <h3 className="text-xl font-bold text-slate-800">FC Promedio</h3>
-              <p className="text-sm text-slate-600">Frecuencia cardíaca</p>
+              <h3 className="text-xl font-bold text-slate-800">{t.kubios.charts.averageHeartRate}</h3>
+              <p className="text-sm text-slate-600">{t.kubios.charts.heartRate}</p>
             </div>
           </div>
           <p className="text-4xl font-bold text-slate-900">
@@ -145,7 +148,7 @@ export default function HRVCharts({ results, selectedUser }: HRVChartsProps) {
       <div className="space-y-[-24px]">
         {/* Gráfico de Readiness */}
         <div className="relative bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm border border-white/20 rounded-2xl p-0 hover:border-white/30 transition-all duration-300">
-          <h3 className="text-xl font-bold text-slate-800 mb-0">Evolución del Readiness</h3>
+          <h3 className="text-xl font-bold text-slate-800 mb-0">{t.kubios.charts.readinessEvolution}</h3>
           <ResponsiveContainer width="100%" height={400}>
             <LineChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
@@ -154,14 +157,14 @@ export default function HRVCharts({ results, selectedUser }: HRVChartsProps) {
                 tick={{ fill: '#1F2937', fontSize: 12, fontWeight: 'bold' }}
                 axisLine={{ stroke: '#374151' }}
                 tickLine={{ stroke: '#374151' }}
-                label={{ value: 'Fecha', position: 'insideBottom', offset: -10, style: { textAnchor: 'middle', fill: '#9ca3af' } }}
+                label={{ value: t.kubios.charts.date, position: 'insideBottom', offset: -10, style: { textAnchor: 'middle', fill: '#9ca3af' } }}
               />
               <YAxis 
                 domain={[0, 100]} 
                 tick={{ fill: '#1F2937', fontSize: 12, fontWeight: 'bold' }}
                 axisLine={{ stroke: '#374151' }}
                 tickLine={{ stroke: '#374151' }}
-                label={{ value: 'HRV Readiness (%)', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fill: '#9ca3af' } }}
+                label={{ value: t.kubios.charts.readinessPercentage, angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fill: '#9ca3af' } }}
               />
               <Tooltip 
                 contentStyle={{
@@ -172,20 +175,20 @@ export default function HRVCharts({ results, selectedUser }: HRVChartsProps) {
                 }}
                 formatter={(value: number, name: string, props: any) => [
                   `${value.toFixed(1)}%`, 
-                  'Readiness'
+                  t.kubios.charts.averageReadiness
                 ]}
                 labelFormatter={(label, payload) => {
                   try {
                     if (payload && Array.isArray(payload) && payload.length > 0 && payload[0] && payload[0].payload) {
                       const data = payload[0].payload
                       return selectedUser === 'all' 
-                        ? `Fecha: ${label} - Usuario: ${data.userName || 'Desconocido'}`
-                        : `Fecha: ${label}`
+                        ? `${t.kubios.charts.date}: ${label} - Usuario: ${data.userName || 'Desconocido'}`
+                        : `${t.kubios.charts.date}: ${label}`
                     }
                   } catch (error) {
                     console.warn('Error en labelFormatter:', error)
                   }
-                  return `Fecha: ${label}`
+                  return `${t.kubios.charts.date}: ${label}`
                 }}
               />
               {uniqueUsers.map((userName, index) => (
@@ -213,7 +216,7 @@ export default function HRVCharts({ results, selectedUser }: HRVChartsProps) {
 
         {/* Gráfico de RMSSD */}
         <div className="relative bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm border border-white/20 rounded-2xl p-0 hover:border-white/30 transition-all duration-300">
-          <h3 className="text-xl font-bold text-slate-800 mb-0">Evolución del RMSSD</h3>
+          <h3 className="text-xl font-bold text-slate-800 mb-0">{t.kubios.charts.rmssdEvolution}</h3>
           <ResponsiveContainer width="100%" height={400}>
             <LineChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
@@ -222,13 +225,13 @@ export default function HRVCharts({ results, selectedUser }: HRVChartsProps) {
                 tick={{ fill: '#1F2937', fontSize: 12, fontWeight: 'bold' }}
                 axisLine={{ stroke: '#374151' }}
                 tickLine={{ stroke: '#374151' }}
-                label={{ value: 'Fecha', position: 'insideBottom', offset: -10, style: { textAnchor: 'middle', fill: '#9ca3af' } }}
+                label={{ value: t.kubios.charts.date, position: 'insideBottom', offset: -10, style: { textAnchor: 'middle', fill: '#9ca3af' } }}
               />
               <YAxis 
                 tick={{ fill: '#1F2937', fontSize: 12, fontWeight: 'bold' }}
                 axisLine={{ stroke: '#374151' }}
                 tickLine={{ stroke: '#374151' }}
-                label={{ value: 'RMSSD (ms)', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fill: '#9ca3af' } }}
+                label={{ value: t.kubios.charts.rmssdMs, angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fill: '#9ca3af' } }}
               />
               <Tooltip 
                 contentStyle={{
@@ -239,20 +242,20 @@ export default function HRVCharts({ results, selectedUser }: HRVChartsProps) {
                 }}
                 formatter={(value: number, name: string, props: any) => [
                   `${value.toFixed(1)} ms`, 
-                  'RMSSD'
+                  t.kubios.metrics.rmssd
                 ]}
                 labelFormatter={(label, payload) => {
                   try {
                     if (payload && Array.isArray(payload) && payload.length > 0 && payload[0] && payload[0].payload) {
                       const data = payload[0].payload
                       return selectedUser === 'all' 
-                        ? `Fecha: ${label} - Usuario: ${data.userName || 'Desconocido'}`
-                        : `Fecha: ${label}`
+                        ? `${t.kubios.charts.date}: ${label} - Usuario: ${data.userName || 'Desconocido'}`
+                        : `${t.kubios.charts.date}: ${label}`
                     }
                   } catch (error) {
                     console.warn('Error en labelFormatter:', error)
                   }
-                  return `Fecha: ${label}`
+                  return `${t.kubios.charts.date}: ${label}`
                 }}
               />
               {uniqueUsers.map((userName, index) => (
@@ -280,7 +283,7 @@ export default function HRVCharts({ results, selectedUser }: HRVChartsProps) {
 
         {/* Gráfico de Índices PNS/SNS */}
         <div className="relative bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm border border-white/20 rounded-2xl p-0 hover:border-white/30 transition-all duration-300">
-          <h3 className="text-xl font-bold text-slate-800 mb-0">Índices PNS vs SNS</h3>
+          <h3 className="text-xl font-bold text-slate-800 mb-0">{t.kubios.charts.pnsSnsIndices}</h3>
           <ResponsiveContainer width="100%" height={400}>
             <LineChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
@@ -289,13 +292,13 @@ export default function HRVCharts({ results, selectedUser }: HRVChartsProps) {
                 tick={{ fill: '#1F2937', fontSize: 12, fontWeight: 'bold' }}
                 axisLine={{ stroke: '#374151' }}
                 tickLine={{ stroke: '#374151' }}
-                label={{ value: 'Fecha', position: 'insideBottom', offset: -10, style: { textAnchor: 'middle', fill: '#9ca3af' } }}
+                label={{ value: t.kubios.charts.date, position: 'insideBottom', offset: -10, style: { textAnchor: 'middle', fill: '#9ca3af' } }}
               />
               <YAxis 
                 tick={{ fill: '#1F2937', fontSize: 12, fontWeight: 'bold' }}
                 axisLine={{ stroke: '#374151' }}
                 tickLine={{ stroke: '#374151' }}
-                label={{ value: 'Índices PNS/SNS', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fill: '#9ca3af' } }}
+                label={{ value: t.kubios.charts.pnsSnsIndicesLabel, angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fill: '#9ca3af' } }}
               />
               <Tooltip 
                 contentStyle={{
@@ -306,20 +309,20 @@ export default function HRVCharts({ results, selectedUser }: HRVChartsProps) {
                 }}
                 formatter={(value: number, name: string, props: any) => [
                   `${value.toFixed(2)}`, 
-                  name === 'pnsIndex' ? 'PNS Index' : 'SNS Index'
+                  name === 'pnsIndex' ? t.kubios.charts.pnsIndex : t.kubios.charts.snsIndex
                 ]}
                 labelFormatter={(label, payload) => {
                   try {
                     if (payload && Array.isArray(payload) && payload.length > 0 && payload[0] && payload[0].payload) {
                       const data = payload[0].payload
                       return selectedUser === 'all' 
-                        ? `Fecha: ${label} - Usuario: ${data.userName || 'Desconocido'}`
-                        : `Fecha: ${label}`
+                        ? `${t.kubios.charts.date}: ${label} - Usuario: ${data.userName || 'Desconocido'}`
+                        : `${t.kubios.charts.date}: ${label}`
                     }
                   } catch (error) {
                     console.warn('Error en labelFormatter:', error)
                   }
-                  return `Fecha: ${label}`
+                  return `${t.kubios.charts.date}: ${label}`
                 }}
               />
               {uniqueUsers.map((userName, index) => (
@@ -360,7 +363,7 @@ export default function HRVCharts({ results, selectedUser }: HRVChartsProps) {
 
         {/* Gráfico de Frecuencia Cardíaca */}
         <div className="relative bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm border border-white/20 rounded-2xl p-0 hover:border-white/30 transition-all duration-300">
-          <h3 className="text-xl font-bold text-slate-800 mb-0">Frecuencia Cardíaca en Reposo</h3>
+          <h3 className="text-xl font-bold text-slate-800 mb-0">{t.kubios.charts.heartRateRest}</h3>
           <ResponsiveContainer width="100%" height={400}>
             <LineChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
@@ -369,13 +372,13 @@ export default function HRVCharts({ results, selectedUser }: HRVChartsProps) {
                 tick={{ fill: '#1F2937', fontSize: 12, fontWeight: 'bold' }}
                 axisLine={{ stroke: '#374151' }}
                 tickLine={{ stroke: '#374151' }}
-                label={{ value: 'Fecha', position: 'insideBottom', offset: -10, style: { textAnchor: 'middle', fill: '#9ca3af' } }}
+                label={{ value: t.kubios.charts.date, position: 'insideBottom', offset: -10, style: { textAnchor: 'middle', fill: '#9ca3af' } }}
               />
               <YAxis 
                 tick={{ fill: '#1F2937', fontSize: 12, fontWeight: 'bold' }}
                 axisLine={{ stroke: '#374151' }}
                 tickLine={{ stroke: '#374151' }}
-                label={{ value: 'Frecuencia Cardíaca (bpm)', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fill: '#9ca3af' } }}
+                label={{ value: t.kubios.charts.heartRateBpm, angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fill: '#9ca3af' } }}
               />
               <Tooltip 
                 contentStyle={{
@@ -386,20 +389,20 @@ export default function HRVCharts({ results, selectedUser }: HRVChartsProps) {
                 }}
                 formatter={(value: number, name: string, props: any) => [
                   `${value.toFixed(0)} bpm`, 
-                  'FC Reposo'
+                  t.kubios.charts.heartRateRestLabel
                 ]}
                 labelFormatter={(label, payload) => {
                   try {
                     if (payload && Array.isArray(payload) && payload.length > 0 && payload[0] && payload[0].payload) {
                       const data = payload[0].payload
                       return selectedUser === 'all' 
-                        ? `Fecha: ${label} - Usuario: ${data.userName || 'Desconocido'}`
-                        : `Fecha: ${label}`
+                        ? `${t.kubios.charts.date}: ${label} - Usuario: ${data.userName || 'Desconocido'}`
+                        : `${t.kubios.charts.date}: ${label}`
                     }
                   } catch (error) {
                     console.warn('Error en labelFormatter:', error)
                   }
-                  return `Fecha: ${label}`
+                  return `${t.kubios.charts.date}: ${label}`
                 }}
               />
               {uniqueUsers.map((userName, index) => (
@@ -428,7 +431,7 @@ export default function HRVCharts({ results, selectedUser }: HRVChartsProps) {
 
       {/* Gráfico de Dominio de Frecuencia */}
       <div className="relative bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm border border-white/20 rounded-2xl p-0 hover:border-white/30 transition-all duration-300 -mt-16">
-        <h3 className="text-xl font-bold text-slate-800 mb-0">Dominio de Frecuencia</h3>
+        <h3 className="text-xl font-bold text-slate-800 mb-0">{t.kubios.charts.frequencyDomain}</h3>
         <ResponsiveContainer width="100%" height={500}>
           <LineChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
@@ -443,7 +446,7 @@ export default function HRVCharts({ results, selectedUser }: HRVChartsProps) {
               tick={{ fill: '#1F2937', fontSize: 12, fontWeight: 'bold' }}
               axisLine={{ stroke: '#374151' }}
               tickLine={{ stroke: '#374151' }}
-              label={{ value: 'Potencia Espectral (ms²)', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fill: '#9ca3af' } }}
+              label={{ value: t.kubios.charts.spectralPower, angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fill: '#9ca3af' } }}
             />
             <Tooltip 
               contentStyle={{
@@ -454,8 +457,8 @@ export default function HRVCharts({ results, selectedUser }: HRVChartsProps) {
               }}
               formatter={(value: number, name: string, props: any) => [
                 `${value.toFixed(1)}`, 
-                name === 'hfPower' ? 'HF Power' : 
-                name === 'lfPower' ? 'LF Power' : 'VLF Power'
+                name === 'hfPower' ? t.kubios.charts.hfPower : 
+                name === 'lfPower' ? t.kubios.charts.lfPower : t.kubios.charts.vlfPower
               ]}
               labelFormatter={(label, payload) => {
                 try {

@@ -3,8 +3,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { Heart, Users, Calendar, Filter, Download, RefreshCw, TrendingUp, Activity, ChevronDown, Check, ChevronLeft, ChevronRight } from 'lucide-react'
-import HybridProtectedRoute from '@/components/HybridProtectedRoute'
-import HybridNavigation from '@/components/HybridNavigation'
+import ProtectedRoute from '@/components/ProtectedRoute'
+import Navigation from '@/components/Navigation'
 import HRVCharts from '@/components/HRVCharts'
 import { useLanguage } from '@/contexts/LanguageContext'
 import LanguageSelector from '@/components/LanguageSelector'
@@ -591,7 +591,7 @@ export default function KubiosPage() {
   }
 
   return (
-    <HybridProtectedRoute>
+    <ProtectedRoute>
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 relative overflow-hidden">
         {/* Estilos personalizados para el datepicker */}
         <style jsx global>{`
@@ -693,47 +693,54 @@ export default function KubiosPage() {
           <div className="absolute top-40 left-1/2 w-80 h-80 bg-purple-400 rounded-full mix-blend-multiply filter blur-xl opacity-10 animate-pulse delay-500"></div>
         </div>
         
-        <HybridNavigation title={t.kubios.title} showBackButton={true} />
+        <Navigation title={t.kubios.title} showBackButton={true} />
         
         {/* Selector de idioma */}
-        <div className="absolute top-6 right-6 z-20">
+        <div className="absolute top-6 right-6 z-20 hidden xl:block">
           <LanguageSelector />
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 py-4 sm:py-6 lg:py-8 xl:py-12 relative z-10">
           {/* Header con estadísticas */}
-          <div className="relative bg-white/90 backdrop-blur-xl border border-gray-200/50 rounded-3xl p-10 mb-12 shadow-2xl">
+          <div className="relative bg-white/90 backdrop-blur-xl border border-gray-200/50 rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-10 mb-6 sm:mb-12 overflow-hidden shadow-2xl">
             <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-blue-600/5"></div>
-            <div className="relative z-10 flex items-center justify-between mb-8">
-              <div className="flex items-center space-x-6">
-                <div className="p-5 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl shadow-lg">
-                  <Heart className="h-12 w-12 text-white" />
-                </div>
-                <div>
-                  <h2 className="text-4xl md:text-5xl font-bold text-gray-900">
-                    {t.kubios.hrvResults}
-                  </h2>
-                  <p className="text-gray-600 text-xl font-light">{t.kubios.subtitle}</p>
+            <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6 sm:mb-8 space-y-4 lg:space-y-0">
+              <div className="flex flex-col sm:flex-row sm:items-center space-y-4 sm:space-y-0 sm:space-x-6">
+                <div className="flex items-center space-x-4 sm:space-x-6">
+                  <div className="p-3 sm:p-5 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl sm:rounded-2xl shadow-lg">
+                    <Heart className="h-8 w-8 sm:h-12 sm:w-12 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-900">
+                      {t.kubios.hrvResults}
+                    </h2>
+                    <p className="text-gray-600 text-sm sm:text-base lg:text-xl font-light">{t.kubios.subtitle}</p>
+                  </div>
                 </div>
               </div>
-              <div className="flex space-x-4">
+              {/* Botones en dos filas - 2 por fila (también en móvil) */}
+              <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                {/* Primera fila: Show Charts */}
                 <button
                   onClick={() => setShowCharts(!showCharts)}
                   disabled={!selectedUser || hrvResults.length === 0}
-                  className="group flex items-center space-x-3 bg-white/80 border border-gray-200 px-6 py-4 rounded-xl text-gray-700 hover:border-blue-300 hover:bg-blue-50 transition-all duration-300 transform hover:-translate-y-0.5 disabled:opacity-50 disabled:transform-none shadow-lg hover:shadow-xl"
+                  className="group flex items-center justify-center space-x-1 sm:space-x-2 bg-white/80 border border-gray-200 px-2 sm:px-4 lg:px-6 py-2 sm:py-3 lg:py-4 rounded-xl text-gray-700 hover:border-blue-300 hover:bg-blue-50 transition-all duration-300 transform hover:-translate-y-0.5 disabled:opacity-50 disabled:transform-none shadow-lg hover:shadow-xl"
                 >
-                  <TrendingUp className="h-6 w-6 group-hover:scale-110 transition-transform" />
-                  <span className="font-semibold text-lg">{showCharts ? t.kubios.hideCharts : t.kubios.showCharts}</span>
+                  <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 group-hover:scale-110 transition-transform" />
+                  <span className="font-semibold text-xs sm:text-sm lg:text-lg">{showCharts ? t.kubios.hideCharts : t.kubios.showCharts}</span>
                 </button>
+                
+                {/* Primera fila: Refresh */}
                 <button
                   onClick={() => selectedUser && loadHRVResults(selectedUser)}
                   disabled={loading}
-                  className="group flex items-center space-x-3 bg-white/80 border border-gray-200 px-6 py-4 rounded-xl text-gray-700 hover:border-green-300 hover:bg-green-50 transition-all duration-300 transform hover:-translate-y-0.5 disabled:opacity-50 disabled:transform-none shadow-lg hover:shadow-xl"
+                  className="group flex items-center justify-center space-x-1 sm:space-x-2 bg-white/80 border border-gray-200 px-2 sm:px-4 lg:px-6 py-2 sm:py-3 lg:py-4 rounded-xl text-gray-700 hover:border-green-300 hover:bg-green-50 transition-all duration-300 transform hover:-translate-y-0.5 disabled:opacity-50 disabled:transform-none shadow-lg hover:shadow-xl"
                 >
-                  <RefreshCw className={`h-6 w-6 ${loading ? 'animate-spin' : 'group-hover:rotate-180'} transition-transform duration-500`} />
-                  <span className="font-semibold text-lg">{t.common.refresh}</span>
+                  <RefreshCw className={`h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 ${loading ? 'animate-spin' : 'group-hover:rotate-180'} transition-transform duration-500`} />
+                  <span className="font-semibold text-xs sm:text-sm lg:text-lg">{t.common.refresh}</span>
                 </button>
                 
+                {/* Segunda fila: All Users */}
                 <button
                   onClick={() => {
                     // Limpiar filtros de fecha
@@ -744,33 +751,35 @@ export default function KubiosPage() {
                     loadAllUsersHRVResults()
                   }}
                   disabled={loading}
-                  className="group flex items-center space-x-3 bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-600 hover:from-blue-700 hover:via-blue-800 hover:to-indigo-700 text-white px-6 py-4 rounded-xl transition-all duration-300 transform hover:-translate-y-0.5 disabled:opacity-50 disabled:transform-none shadow-lg hover:shadow-xl"
+                  className="group flex items-center justify-center space-x-1 sm:space-x-2 bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-600 hover:from-blue-700 hover:via-blue-800 hover:to-indigo-700 text-white px-2 sm:px-4 lg:px-6 py-2 sm:py-3 lg:py-4 rounded-xl transition-all duration-300 transform hover:-translate-y-0.5 disabled:opacity-50 disabled:transform-none shadow-lg hover:shadow-xl"
                 >
-                  <Download className={`h-6 w-6 ${loading ? 'animate-pulse' : 'group-hover:scale-110'} transition-transform duration-300`} />
-                  <span className="font-semibold text-lg">
+                  <Download className={`h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 ${loading ? 'animate-pulse' : 'group-hover:scale-110'} transition-transform duration-300`} />
+                  <span className="font-semibold text-xs sm:text-sm lg:text-lg">
                     {loading ? `${t.kubios.loadingUsers} ${users.length} ${t.kubios.teamUsers.toLowerCase()}...` : t.kubios.allUsers}
                   </span>
                 </button>
+                
+                {/* Segunda fila: Update Users */}
                 <button
                   onClick={loadTeamUsers}
                   disabled={loading}
-                  className="group flex items-center space-x-3 bg-white/80 border border-gray-200 px-6 py-4 rounded-xl text-gray-700 hover:border-purple-300 hover:bg-purple-50 transition-all duration-300 transform hover:-translate-y-0.5 disabled:opacity-50 disabled:transform-none shadow-lg hover:shadow-xl"
+                  className="group flex items-center justify-center space-x-1 sm:space-x-2 bg-white/80 border border-gray-200 px-2 sm:px-4 lg:px-6 py-2 sm:py-3 lg:py-4 rounded-xl text-gray-700 hover:border-purple-300 hover:bg-purple-50 transition-all duration-300 transform hover:-translate-y-0.5 disabled:opacity-50 disabled:transform-none shadow-lg hover:shadow-xl"
                 >
                   <div className="relative">
-                    <Users className="h-6 w-6 group-hover:scale-110 transition-transform duration-300" />
+                    <Users className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 group-hover:scale-110 transition-transform duration-300" />
                     {loading && (
                       <div className="absolute -top-1 -right-1">
-                        <RefreshCw className="h-3 w-3 animate-spin text-purple-500" />
+                        <RefreshCw className="h-2 w-2 sm:h-3 sm:w-3 animate-spin text-purple-500" />
                       </div>
                     )}
                   </div>
-                  <span className="font-semibold text-lg">{t.kubios.updateUsers}</span>
+                  <span className="font-semibold text-xs sm:text-sm lg:text-lg">{t.kubios.updateUsers}</span>
                 </button>
               </div>
             </div>
 
             {/* Filtros */}
-            <div className="relative z-[9999999] grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="relative z-[9999999] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               <div className="relative group" ref={dropdownRef}>
                 <label className="block text-sm font-bold text-slate-700 mb-3 flex items-center">
                   <Users className="h-4 w-4 mr-2 text-blue-600" />
@@ -788,7 +797,7 @@ export default function KubiosPage() {
                         if (rect) setDropdownPosition({ top: rect.bottom + 8, left: rect.left, width: rect.width })
                       }
                     }}
-                    className="w-full px-6 py-4 bg-gradient-to-r from-white via-blue-50/50 to-indigo-50/50 border-2 border-blue-200/60 rounded-2xl text-slate-700 focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-500 shadow-xl hover:shadow-2xl hover:border-blue-300/80 cursor-pointer font-medium group-hover:scale-[1.02] transform flex items-center justify-between"
+                    className="w-full px-4 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-white via-blue-50/50 to-indigo-50/50 border-2 border-blue-200/60 rounded-xl sm:rounded-2xl text-slate-700 focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-500 shadow-xl hover:shadow-2xl hover:border-blue-300/80 cursor-pointer font-medium group-hover:scale-[1.02] transform flex items-center justify-between"
                   >
                     <span className="text-left">
                       {selectedUser === 'all' ? t.kubios.allUsers :
@@ -797,7 +806,7 @@ export default function KubiosPage() {
                         t.kubios.selectUser
                       }
                     </span>
-                    <ChevronDown className={`h-5 w-5 text-blue-500 transition-transform duration-300 ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                    <ChevronDown className={`h-4 w-4 sm:h-5 sm:w-5 text-blue-500 transition-transform duration-300 ${isDropdownOpen ? 'rotate-180' : ''}`} />
                   </button>
                   
                   {/* Efecto de brillo en hover */}
@@ -894,12 +903,12 @@ export default function KubiosPage() {
                     ref={fromDateRef}
                     type="button"
                     onClick={() => setIsFromDateOpen(!isFromDateOpen)}
-                    className="w-full px-6 py-4 bg-gradient-to-r from-white via-green-50/50 to-emerald-50/50 border-2 border-green-200/60 rounded-2xl text-slate-700 focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all duration-500 shadow-xl hover:shadow-2xl hover:border-green-300/80 cursor-pointer font-medium group-hover:scale-[1.02] transform flex items-center justify-between"
+                    className="w-full px-4 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-white via-green-50/50 to-emerald-50/50 border-2 border-green-200/60 rounded-xl sm:rounded-2xl text-slate-700 focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all duration-500 shadow-xl hover:shadow-2xl hover:border-green-300/80 cursor-pointer font-medium group-hover:scale-[1.02] transform flex items-center justify-between"
                   >
                     <span className="text-left">
                       {dateFilter.from ? formatDisplayDate(new Date(dateFilter.from)) : t.data.selectDate}
                     </span>
-                    <Calendar className="h-5 w-5 text-green-500" />
+                    <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-green-500" />
                   </button>
                   
                   {/* Efecto de brillo en hover */}
@@ -930,12 +939,12 @@ export default function KubiosPage() {
                     ref={toDateRef}
                     type="button"
                     onClick={() => setIsToDateOpen(!isToDateOpen)}
-                    className="w-full px-6 py-4 bg-gradient-to-r from-white via-purple-50/50 to-pink-50/50 border-2 border-purple-200/60 rounded-2xl text-slate-700 focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-500 shadow-xl hover:shadow-2xl hover:border-purple-300/80 cursor-pointer font-medium group-hover:scale-[1.02] transform flex items-center justify-between"
+                    className="w-full px-4 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-white via-purple-50/50 to-pink-50/50 border-2 border-purple-200/60 rounded-xl sm:rounded-2xl text-slate-700 focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-500 shadow-xl hover:shadow-2xl hover:border-purple-300/80 cursor-pointer font-medium group-hover:scale-[1.02] transform flex items-center justify-between"
                   >
                     <span className="text-left">
                       {dateFilter.to ? formatDisplayDate(new Date(dateFilter.to)) : t.data.selectDate}
                     </span>
-                    <Calendar className="h-5 w-5 text-purple-500" />
+                    <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-purple-500" />
                   </button>
                   
                   {/* Efecto de brillo en hover */}
@@ -969,8 +978,8 @@ export default function KubiosPage() {
 
           {/* Gráficos HRV */}
           {showCharts && selectedUser && hrvResults.length > 0 && (
-            <div className="relative bg-white/90 backdrop-blur-xl border border-blue-200/50 rounded-3xl p-8 mb-12 overflow-hidden shadow-xl">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-50/50 to-indigo-50/50 rounded-3xl"></div>
+            <div className="relative bg-white/90 backdrop-blur-xl border border-blue-200/50 rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 mb-6 sm:mb-12 overflow-hidden shadow-xl">
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-50/50 to-indigo-50/50 rounded-2xl sm:rounded-3xl"></div>
               <div className="relative z-10">
                 <HRVCharts results={hrvResults} selectedUser={selectedUser} />
               </div>
@@ -979,117 +988,117 @@ export default function KubiosPage() {
 
           {/* Resultados HRV */}
           {selectedUser && (
-            <div className="relative bg-white/90 backdrop-blur-xl border border-blue-200/50 rounded-3xl p-8 overflow-hidden shadow-xl">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-50/50 to-indigo-50/50 rounded-3xl"></div>
-              <div className="relative z-10 flex items-center justify-between mb-8">
-                <h3 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
+            <div className="relative bg-white/90 backdrop-blur-xl border border-blue-200/50 rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 overflow-hidden shadow-xl">
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-50/50 to-indigo-50/50 rounded-2xl sm:rounded-3xl"></div>
+              <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between mb-6 sm:mb-8 space-y-3 sm:space-y-0">
+                <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
                   {t.kubios.hrvResults}
                   {users.find(u => u.user_id === selectedUser) && (
-                    <span className="text-slate-600 ml-3 text-lg font-normal">
+                    <span className="text-slate-600 ml-2 sm:ml-3 text-sm sm:text-lg font-normal">
                       - {users.find(u => u.user_id === selectedUser)?.name}
                     </span>
                   )}
                 </h3>
-                <div className="flex items-center space-x-2 bg-green-50 border border-green-200 px-4 py-2 rounded-xl">
+                <div className="flex items-center space-x-2 bg-green-50 border border-green-200 px-3 sm:px-4 py-2 rounded-xl">
                   <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                  <span className="text-sm text-green-700 font-medium">
+                  <span className="text-xs sm:text-sm text-green-700 font-medium">
                     {hrvResults.length} {t.kubios.hrvResults.toLowerCase()} {t.common.found}
                   </span>
                 </div>
               </div>
 
               {loading ? (
-                <div className="relative z-10 flex items-center justify-center py-16">
-                  <div className="flex items-center space-x-4 bg-white border border-blue-200 px-8 py-4 rounded-2xl shadow-lg">
-                    <RefreshCw className="h-8 w-8 animate-spin text-blue-600" />
-                    <span className="text-slate-700 font-medium">{t.data.loading}</span>
+                <div className="relative z-10 flex items-center justify-center py-8 sm:py-16">
+                  <div className="flex items-center space-x-3 sm:space-x-4 bg-white border border-blue-200 px-4 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl shadow-lg">
+                    <RefreshCw className="h-6 w-6 sm:h-8 sm:w-8 animate-spin text-blue-600" />
+                    <span className="text-slate-700 font-medium text-sm sm:text-base">{t.data.loading}</span>
                   </div>
                 </div>
               ) : hrvResults.length === 0 ? (
-                <div className="relative z-10 text-center py-16">
-                  <div className="p-6 bg-blue-50 border border-blue-200 rounded-2xl inline-block shadow-lg">
-                    <Heart className="h-16 w-16 text-blue-500 mx-auto mb-4" />
-                    <p className="text-slate-700 text-lg font-medium">{t.kubios.noResults}</p>
+                <div className="relative z-10 text-center py-8 sm:py-16">
+                  <div className="p-4 sm:p-6 bg-blue-50 border border-blue-200 rounded-xl sm:rounded-2xl inline-block shadow-lg">
+                    <Heart className="h-12 w-12 sm:h-16 sm:w-16 text-blue-500 mx-auto mb-3 sm:mb-4" />
+                    <p className="text-slate-700 text-sm sm:text-lg font-medium">{t.kubios.noResults}</p>
                   </div>
                 </div>
               ) : (
-                <div className="relative z-10 space-y-6">
+                <div className="relative z-10 space-y-4 sm:space-y-6">
                   {hrvResults.map((result, index) => (
-                    <div key={result.result_id || `result-${index}`} className="relative bg-white border border-blue-200 rounded-2xl p-8 hover:border-blue-300 hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1 shadow-lg">
-                      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                    <div key={result.result_id || `result-${index}`} className="relative bg-white border border-blue-200 rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 hover:border-blue-300 hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1 shadow-lg">
+                      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6">
                         {/* Información básica */}
                         <div className="lg:col-span-1">
-                          <div className="flex items-center space-x-4 mb-6">
-                            <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg">
-                              <Calendar className="h-6 w-6 text-white" />
+                          <div className="flex items-center space-x-3 sm:space-x-4 mb-4 sm:mb-6">
+                            <div className="p-2 sm:p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg sm:rounded-xl shadow-lg">
+                              <Calendar className="h-4 w-4 sm:h-6 sm:w-6 text-white" />
                             </div>
                             <div>
-                              <p className="font-bold text-slate-800 text-lg">
+                              <p className="font-bold text-slate-800 text-sm sm:text-lg">
                                 {formatDate(result.measured_timestamp)}
                               </p>
-                              <p className="text-sm text-slate-600">
+                              <p className="text-xs sm:text-sm text-slate-600">
                                 {result.daily_result}
                               </p>
                             </div>
                           </div>
                           
                           {/* Readiness Score */}
-                          <div className={`inline-flex items-center px-4 py-2 rounded-xl text-sm font-bold shadow-lg ${getReadinessColorDark(result.result.readiness)}`}>
-                            <TrendingUp className="h-4 w-4 mr-2" />
+                          <div className={`inline-flex items-center px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm font-bold shadow-lg ${getReadinessColorDark(result.result.readiness)}`}>
+                            <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />
                             {result.result.readiness.toFixed(1)}% - {getReadinessLevel(result.result.readiness)}
                           </div>
                         </div>
 
                         {/* Métricas principales */}
                         <div className="lg:col-span-3">
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                            <div className="relative bg-blue-50 border border-blue-200 p-6 rounded-xl hover:border-blue-300 transition-all duration-300 shadow-lg">
-                              <div className="flex items-center space-x-3 mb-3">
-                                <div className="p-2 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg">
-                                  <Activity className="h-5 w-5 text-white" />
+                          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
+                            <div className="relative bg-blue-50 border border-blue-200 p-3 sm:p-4 lg:p-6 rounded-lg sm:rounded-xl hover:border-blue-300 transition-all duration-300 shadow-lg">
+                              <div className="flex items-center space-x-2 sm:space-x-3 mb-2 sm:mb-3">
+                                <div className="p-1.5 sm:p-2 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-md sm:rounded-lg">
+                                  <Activity className="h-3 w-3 sm:h-4 sm:w-4 lg:h-5 lg:w-5 text-white" />
                                 </div>
-                                <span className="text-sm font-bold text-slate-700">{t.kubios.metrics.meanHr}</span>
+                                <span className="text-xs sm:text-sm font-bold text-slate-700">{t.kubios.metrics.meanHr}</span>
                               </div>
-                              <p className="text-3xl font-bold text-blue-600 mb-1">
+                              <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-blue-600 mb-1">
                                 {result.result.mean_hr_bpm.toFixed(0)}
                               </p>
                               <p className="text-xs text-slate-600 font-medium">bpm</p>
                             </div>
 
-                            <div className="relative bg-green-50 border border-green-200 p-6 rounded-xl hover:border-green-300 transition-all duration-300 shadow-lg">
-                              <div className="flex items-center space-x-3 mb-3">
-                                <div className="p-2 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-lg">
-                                  <Heart className="h-5 w-5 text-white" />
+                            <div className="relative bg-green-50 border border-green-200 p-3 sm:p-4 lg:p-6 rounded-lg sm:rounded-xl hover:border-green-300 transition-all duration-300 shadow-lg">
+                              <div className="flex items-center space-x-2 sm:space-x-3 mb-2 sm:mb-3">
+                                <div className="p-1.5 sm:p-2 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-md sm:rounded-lg">
+                                  <Heart className="h-3 w-3 sm:h-4 sm:w-4 lg:h-5 lg:w-5 text-white" />
                                 </div>
-                                <span className="text-sm font-bold text-slate-700">{t.kubios.metrics.rmssd}</span>
+                                <span className="text-xs sm:text-sm font-bold text-slate-700">{t.kubios.metrics.rmssd}</span>
                               </div>
-                              <p className="text-3xl font-bold text-green-600 mb-1">
+                              <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-green-600 mb-1">
                                 {result.result.rmssd_ms.toFixed(1)}
                               </p>
                               <p className="text-xs text-slate-600 font-medium">ms</p>
                             </div>
 
-                            <div className="relative bg-purple-50 border border-purple-200 p-6 rounded-xl hover:border-purple-300 transition-all duration-300 shadow-lg">
-                              <div className="flex items-center space-x-3 mb-3">
-                                <div className="p-2 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg">
-                                  <TrendingUp className="h-5 w-5 text-white" />
+                            <div className="relative bg-purple-50 border border-purple-200 p-3 sm:p-4 lg:p-6 rounded-lg sm:rounded-xl hover:border-purple-300 transition-all duration-300 shadow-lg">
+                              <div className="flex items-center space-x-2 sm:space-x-3 mb-2 sm:mb-3">
+                                <div className="p-1.5 sm:p-2 bg-gradient-to-br from-purple-500 to-pink-500 rounded-md sm:rounded-lg">
+                                  <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 lg:h-5 lg:w-5 text-white" />
                                 </div>
-                                <span className="text-sm font-bold text-slate-700">{t.kubios.metrics.pnsIndex}</span>
+                                <span className="text-xs sm:text-sm font-bold text-slate-700">{t.kubios.metrics.pnsIndex}</span>
                               </div>
-                              <p className="text-3xl font-bold text-purple-600 mb-1">
+                              <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-purple-600 mb-1">
                                 {result.result.pns_index.toFixed(2)}
                               </p>
                               <p className="text-xs text-slate-600 font-medium">parasimpático</p>
                             </div>
 
-                            <div className="relative bg-orange-50 border border-orange-200 p-6 rounded-xl hover:border-orange-300 transition-all duration-300 shadow-lg">
-                              <div className="flex items-center space-x-3 mb-3">
-                                <div className="p-2 bg-gradient-to-br from-orange-500 to-red-500 rounded-lg">
-                                  <Activity className="h-5 w-5 text-white" />
+                            <div className="relative bg-orange-50 border border-orange-200 p-3 sm:p-4 lg:p-6 rounded-lg sm:rounded-xl hover:border-orange-300 transition-all duration-300 shadow-lg">
+                              <div className="flex items-center space-x-2 sm:space-x-3 mb-2 sm:mb-3">
+                                <div className="p-1.5 sm:p-2 bg-gradient-to-br from-orange-500 to-red-500 rounded-md sm:rounded-lg">
+                                  <Activity className="h-3 w-3 sm:h-4 sm:w-4 lg:h-5 lg:w-5 text-white" />
                                 </div>
-                                <span className="text-sm font-bold text-slate-700">{t.kubios.metrics.snsIndex}</span>
+                                <span className="text-xs sm:text-sm font-bold text-slate-700">{t.kubios.metrics.snsIndex}</span>
                               </div>
-                              <p className="text-3xl font-bold text-orange-600 mb-1">
+                              <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-orange-600 mb-1">
                                 {result.result.sns_index.toFixed(2)}
                               </p>
                               <p className="text-xs text-slate-600 font-medium">simpático</p>
@@ -1097,63 +1106,63 @@ export default function KubiosPage() {
                           </div>
 
                           {/* Métricas adicionales */}
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-8">
-                            <div className="text-center bg-slate-50 border border-slate-200 rounded-xl p-4 hover:border-slate-300 transition-all duration-300 shadow-lg">
-                              <p className="text-sm text-slate-600 font-medium mb-2">{t.kubios.metrics.physiologicalAge}</p>
-                              <p className="text-xl font-bold text-slate-800">
+                          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 mt-6 sm:mt-8">
+                            <div className="text-center bg-slate-50 border border-slate-200 rounded-lg sm:rounded-xl p-3 sm:p-4 hover:border-slate-300 transition-all duration-300 shadow-lg">
+                              <p className="text-xs sm:text-sm text-slate-600 font-medium mb-1 sm:mb-2">{t.kubios.metrics.physiologicalAge}</p>
+                              <p className="text-lg sm:text-xl font-bold text-slate-800">
                                 {result.result.physiological_age.toFixed(1)} {t.kubios.metrics.years}
                               </p>
                             </div>
-                            <div className="text-center bg-slate-50 border border-slate-200 rounded-xl p-4 hover:border-slate-300 transition-all duration-300 shadow-lg">
-                              <p className="text-sm text-slate-600 font-medium mb-2">{t.kubios.metrics.respiratoryRate}</p>
-                              <p className="text-xl font-bold text-slate-800">
+                            <div className="text-center bg-slate-50 border border-slate-200 rounded-lg sm:rounded-xl p-3 sm:p-4 hover:border-slate-300 transition-all duration-300 shadow-lg">
+                              <p className="text-xs sm:text-sm text-slate-600 font-medium mb-1 sm:mb-2">{t.kubios.metrics.respiratoryRate}</p>
+                              <p className="text-lg sm:text-xl font-bold text-slate-800">
                                 {result.result.respiratory_rate.toFixed(1)} min⁻¹
                               </p>
                             </div>
-                            <div className="text-center bg-slate-50 border border-slate-200 rounded-xl p-4 hover:border-slate-300 transition-all duration-300 shadow-lg">
-                              <p className="text-sm text-slate-600 font-medium mb-2">{t.kubios.metrics.stressIndex}</p>
-                              <p className="text-xl font-bold text-slate-800">
+                            <div className="text-center bg-slate-50 border border-slate-200 rounded-lg sm:rounded-xl p-3 sm:p-4 hover:border-slate-300 transition-all duration-300 shadow-lg">
+                              <p className="text-xs sm:text-sm text-slate-600 font-medium mb-1 sm:mb-2">{t.kubios.metrics.stressIndex}</p>
+                              <p className="text-lg sm:text-xl font-bold text-slate-800">
                                 {result.result.stress_index.toFixed(1)}
                               </p>
                             </div>
-                            <div className="text-center bg-slate-50 border border-slate-200 rounded-xl p-4 hover:border-slate-300 transition-all duration-300 shadow-lg">
-                              <p className="text-sm text-slate-600 font-medium mb-2">{t.kubios.metrics.quality}</p>
-                              <p className="text-xl font-bold text-slate-800">
+                            <div className="text-center bg-slate-50 border border-slate-200 rounded-lg sm:rounded-xl p-3 sm:p-4 hover:border-slate-300 transition-all duration-300 shadow-lg">
+                              <p className="text-xs sm:text-sm text-slate-600 font-medium mb-1 sm:mb-2">{t.kubios.metrics.quality}</p>
+                              <p className="text-lg sm:text-xl font-bold text-slate-800">
                                 {result.result.artefact_level}
                               </p>
                             </div>
                           </div>
 
                           {/* Dominio de frecuencia */}
-                          <div className="mt-8 p-6 bg-indigo-50 border border-indigo-200 rounded-2xl shadow-lg">
-                            <h4 className="text-lg font-bold text-slate-800 mb-6 flex items-center">
-                              <div className="p-2 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-lg mr-3">
-                                <Activity className="h-5 w-5 text-white" />
+                          <div className="mt-6 sm:mt-8 p-4 sm:p-6 bg-indigo-50 border border-indigo-200 rounded-xl sm:rounded-2xl shadow-lg">
+                            <h4 className="text-base sm:text-lg font-bold text-slate-800 mb-4 sm:mb-6 flex items-center">
+                              <div className="p-1.5 sm:p-2 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-md sm:rounded-lg mr-2 sm:mr-3">
+                                <Activity className="h-3 w-3 sm:h-4 sm:w-4 lg:h-5 lg:w-5 text-white" />
                               </div>
                               {t.kubios.metrics.freqDomain}
                             </h4>
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                              <div className="text-center bg-white border border-slate-200 rounded-xl p-4 hover:border-slate-300 transition-all duration-300 shadow-lg">
-                                <p className="text-xs text-slate-600 font-medium mb-2">{t.kubios.metrics.hfPower}</p>
-                                <p className="text-lg font-bold text-slate-800">
+                            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
+                              <div className="text-center bg-white border border-slate-200 rounded-lg sm:rounded-xl p-3 sm:p-4 hover:border-slate-300 transition-all duration-300 shadow-lg">
+                                <p className="text-xs text-slate-600 font-medium mb-1 sm:mb-2">{t.kubios.metrics.hfPower}</p>
+                                <p className="text-sm sm:text-lg font-bold text-slate-800">
                                   {result.result.freq_domain.HF_power.toFixed(1)}
                                 </p>
                               </div>
-                              <div className="text-center bg-white border border-slate-200 rounded-xl p-4 hover:border-slate-300 transition-all duration-300 shadow-lg">
-                                <p className="text-xs text-slate-600 font-medium mb-2">{t.kubios.metrics.lfPower}</p>
-                                <p className="text-lg font-bold text-slate-800">
+                              <div className="text-center bg-white border border-slate-200 rounded-lg sm:rounded-xl p-3 sm:p-4 hover:border-slate-300 transition-all duration-300 shadow-lg">
+                                <p className="text-xs text-slate-600 font-medium mb-1 sm:mb-2">{t.kubios.metrics.lfPower}</p>
+                                <p className="text-sm sm:text-lg font-bold text-slate-800">
                                   {result.result.freq_domain.LF_power.toFixed(1)}
                                 </p>
                               </div>
-                              <div className="text-center bg-white border border-slate-200 rounded-xl p-4 hover:border-slate-300 transition-all duration-300 shadow-lg">
-                                <p className="text-xs text-slate-600 font-medium mb-2">{t.kubios.metrics.vlfPower}</p>
-                                <p className="text-lg font-bold text-slate-800">
+                              <div className="text-center bg-white border border-slate-200 rounded-lg sm:rounded-xl p-3 sm:p-4 hover:border-slate-300 transition-all duration-300 shadow-lg">
+                                <p className="text-xs text-slate-600 font-medium mb-1 sm:mb-2">{t.kubios.metrics.vlfPower}</p>
+                                <p className="text-sm sm:text-lg font-bold text-slate-800">
                                   {result.result.freq_domain.VLF_power.toFixed(1)}
                                 </p>
                               </div>
-                              <div className="text-center bg-white border border-slate-200 rounded-xl p-4 hover:border-slate-300 transition-all duration-300 shadow-lg">
-                                <p className="text-xs text-slate-600 font-medium mb-2">{t.kubios.metrics.totalPower}</p>
-                                <p className="text-lg font-bold text-slate-800">
+                              <div className="text-center bg-white border border-slate-200 rounded-lg sm:rounded-xl p-3 sm:p-4 hover:border-slate-300 transition-all duration-300 shadow-lg">
+                                <p className="text-xs text-slate-600 font-medium mb-1 sm:mb-2">{t.kubios.metrics.totalPower}</p>
+                                <p className="text-sm sm:text-lg font-bold text-slate-800">
                                   {result.result.freq_domain.tot_power.toFixed(1)}
                                 </p>
                               </div>
@@ -1169,6 +1178,6 @@ export default function KubiosPage() {
           )}
         </div>
       </div>
-    </HybridProtectedRoute>
+    </ProtectedRoute>
   )
 }

@@ -3,9 +3,9 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { supabase, User, InsulinData, FoodData, ExerciseData, PeriodRecord, MoodData } from '@/lib/supabase'
-import { Download, Activity, Heart, Calendar, User as UserIcon, Filter, TrendingUp, TrendingDown, Clock, Pill, Utensils, Dumbbell, CalendarDays, Smile, ChevronDown, ChevronUp, Eye, EyeOff, Database, ChevronLeft, ChevronRight } from 'lucide-react'
-import HybridProtectedRoute from '@/components/HybridProtectedRoute'
-import HybridNavigation from '@/components/HybridNavigation'
+import { Download, Activity, Heart, Calendar, User as UserIcon, Filter, TrendingUp, TrendingDown, Clock, Pill, Utensils, Dumbbell, CalendarDays, Smile, ChevronDown, ChevronUp, Eye, EyeOff, Database, ChevronLeft, ChevronRight, Search } from 'lucide-react'
+import ProtectedRoute from '@/components/ProtectedRoute'
+import Navigation from '@/components/Navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { useAppAuth } from '@/contexts/AppAuthContext'
 import { useLanguage } from '@/contexts/LanguageContext'
@@ -30,6 +30,7 @@ export default function DataPage() {
   const [selectedDataType, setSelectedDataType] = useState<string>('all')
   const [expandedUsers, setExpandedUsers] = useState<Set<string>>(new Set())
   const [showAllRecords, setShowAllRecords] = useState<Set<string>>(new Set())
+  const [searchTerm, setSearchTerm] = useState<string>('')
   
   // Determinar si es un usuario individual o administrador
   const isIndividualUser = appUser && !user
@@ -792,7 +793,7 @@ export default function DataPage() {
   }
 
   return (
-    <HybridProtectedRoute>
+    <ProtectedRoute>
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 relative overflow-hidden">
         {/* Elementos decorativos de fondo */}
         <div className="absolute inset-0 overflow-hidden">
@@ -801,127 +802,146 @@ export default function DataPage() {
           <div className="absolute top-40 left-1/2 w-80 h-80 bg-purple-400 rounded-full mix-blend-multiply filter blur-xl opacity-10 animate-pulse delay-500"></div>
         </div>
         
-        <HybridNavigation title={isIndividualUser ? t.dashboard.healthData : t.dashboard.healthData} showBackButton={true} />
+        <Navigation title={isIndividualUser ? t.dashboard.healthData : t.dashboard.healthData} showBackButton={true} />
         
         {/* Selector de idioma */}
-        <div className="absolute top-6 right-6 z-20">
+        <div className="absolute top-6 right-6 z-20 hidden xl:block">
           <LanguageSelector />
         </div>
         
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
-          {/* Header con estadísticas generales */}
-          <div className="mb-12">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-10">
-              <div className="text-center sm:text-left">
-                <div className="flex items-center justify-center sm:justify-start mb-6">
-                  <div className="p-5 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl shadow-lg">
-                    <Database className="h-12 w-12 text-white" />
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 py-4 sm:py-6 lg:py-8 xl:py-12 relative z-10">
+          {/* Header con estadísticas */}
+          <div className="relative bg-white/90 backdrop-blur-xl border border-gray-200/50 rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-10 mb-6 sm:mb-12 overflow-hidden shadow-2xl">
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-blue-600/5"></div>
+            <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6 sm:mb-8 space-y-4 lg:space-y-0">
+              <div className="flex flex-col sm:flex-row sm:items-center space-y-4 sm:space-y-0 sm:space-x-6">
+                <div className="flex items-center space-x-4 sm:space-x-6">
+                  <div className="p-3 sm:p-5 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl sm:rounded-2xl shadow-lg">
+                    <Database className="h-8 w-8 sm:h-12 sm:w-12 text-white" />
                   </div>
-                  <div className="ml-6">
-                    <h1 className="text-4xl md:text-5xl font-bold text-gray-900">
+                  <div>
+                    <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-900">
                       {isIndividualUser ? t.dashboard.healthData : t.dashboard.healthData}
-                    </h1>
-                    <p className="text-gray-600 text-xl font-light">{t.dashboard.healthDataDescription}</p>
+                    </h2>
+                    <p className="text-gray-600 text-sm sm:text-base lg:text-xl font-light">{t.dashboard.healthDataDescription}</p>
                   </div>
                 </div>
               </div>
-              <div className="flex gap-4 mt-6 sm:mt-0">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
+                <div className="flex items-center space-x-3 bg-white/80 backdrop-blur-sm border border-gray-200/50 px-4 sm:px-6 py-2 sm:py-3 rounded-xl shadow-lg">
+                  <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                  <span className="text-sm sm:text-base text-gray-800 font-semibold">
+                    {stats.totalRecords} registros totales
+                  </span>
+                </div>
                 <button
                   onClick={exportData}
-                  className="bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-600 hover:from-blue-700 hover:via-blue-800 hover:to-indigo-700 text-white px-8 py-4 rounded-xl flex items-center text-base font-semibold transition-all duration-300 transform hover:-translate-y-0.5 shadow-lg hover:shadow-xl"
+                  className="flex items-center space-x-2 sm:space-x-3 bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-600 hover:from-blue-700 hover:via-blue-800 hover:to-indigo-700 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-xl transition-all duration-300 transform hover:-translate-y-0.5 shadow-lg hover:shadow-xl"
                 >
-                  <Download className="h-6 w-6 mr-3" />
-                  {t.dashboard.exportCSV}
+                  <Download className="h-4 w-4 sm:h-5 sm:w-5" />
+                  <span className="font-semibold text-sm sm:text-lg">{t.dashboard.exportCSV}</span>
                 </button>
               </div>
             </div>
 
-            {/* Estadísticas generales */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-              <div className="relative bg-white/90 backdrop-blur-xl border border-gray-200/50 rounded-3xl p-8 hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-300 transform hover:-translate-y-1">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <div className="p-4 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl shadow-lg">
-                      <Pill className="h-8 w-8 text-white" />
-                    </div>
-                  </div>
-                  <div className="ml-6">
-                    <h3 className="text-xl font-semibold text-gray-900">{t.dashboard.insulin}</h3>
-                    <p className="text-4xl font-bold text-blue-600">{stats.totalInsulin}</p>
-                  </div>
-                </div>
+            {/* Barra de búsqueda */}
+            <div className="relative z-10">
+              <div className="relative max-w-md">
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 sm:h-6 sm:w-6 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Buscar en datos..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-12 sm:pl-14 pr-4 py-3 sm:py-4 bg-white/50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 hover:bg-white/70 text-sm sm:text-base"
+                />
               </div>
-
-              <div className="relative bg-white/90 backdrop-blur-xl border border-gray-200/50 rounded-3xl p-8 hover:shadow-2xl hover:shadow-green-500/10 transition-all duration-300 transform hover:-translate-y-1">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <div className="p-4 bg-gradient-to-br from-green-600 to-green-700 rounded-2xl shadow-lg">
-                      <Utensils className="h-8 w-8 text-white" />
-                    </div>
-                  </div>
-                  <div className="ml-6">
-                    <h3 className="text-xl font-semibold text-gray-900">{t.dashboard.food}</h3>
-                    <p className="text-4xl font-bold text-green-600">{stats.totalFood}</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="relative bg-white/90 backdrop-blur-xl border border-gray-200/50 rounded-3xl p-8 hover:shadow-2xl hover:shadow-orange-500/10 transition-all duration-300 transform hover:-translate-y-1">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <div className="p-4 bg-gradient-to-br from-orange-600 to-orange-700 rounded-2xl shadow-lg">
-                      <Dumbbell className="h-8 w-8 text-white" />
-                    </div>
-                  </div>
-                  <div className="ml-6">
-                    <h3 className="text-xl font-semibold text-gray-900">{t.dashboard.exercise}</h3>
-                    <p className="text-4xl font-bold text-orange-600">{stats.totalExercise}</p>
-                  </div>
-                </div>
-              </div>
-
             </div>
+          </div>
 
-            {/* Segunda fila de estadísticas */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-              <div className="relative bg-white/90 backdrop-blur-xl border border-gray-200/50 rounded-3xl p-8 hover:shadow-2xl hover:shadow-purple-500/10 transition-all duration-300 transform hover:-translate-y-1">
+          {/* Estadísticas generales */}
+          <div className="mb-8 sm:mb-12">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+              <div className="relative bg-white/90 backdrop-blur-xl border border-gray-200/50 rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-300 transform hover:-translate-y-1">
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
-                    <div className="p-4 bg-gradient-to-br from-purple-600 to-purple-700 rounded-2xl shadow-lg">
-                      <CalendarDays className="h-8 w-8 text-white" />
+                    <div className="p-2 sm:p-3 lg:p-4 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl sm:rounded-2xl shadow-lg">
+                      <Pill className="h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-white" />
                     </div>
                   </div>
-                  <div className="ml-6">
-                    <h3 className="text-xl font-semibold text-gray-900">{t.dashboard.periods}</h3>
-                    <p className="text-4xl font-bold text-purple-600">{stats.totalPeriods}</p>
+                  <div className="ml-3 sm:ml-4 lg:ml-6">
+                    <h3 className="text-sm sm:text-base lg:text-xl font-semibold text-gray-900">{t.dashboard.insulin}</h3>
+                    <p className="text-2xl sm:text-3xl lg:text-4xl font-bold text-blue-600">{stats.totalInsulin}</p>
                   </div>
                 </div>
               </div>
 
-              <div className="relative bg-white/90 backdrop-blur-xl border border-gray-200/50 rounded-3xl p-8 hover:shadow-2xl hover:shadow-pink-500/10 transition-all duration-300 transform hover:-translate-y-1">
+              <div className="relative bg-white/90 backdrop-blur-xl border border-gray-200/50 rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 hover:shadow-2xl hover:shadow-green-500/10 transition-all duration-300 transform hover:-translate-y-1">
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
-                    <div className="p-4 bg-gradient-to-br from-pink-600 to-pink-700 rounded-2xl shadow-lg">
-                      <Smile className="h-8 w-8 text-white" />
+                    <div className="p-2 sm:p-3 lg:p-4 bg-gradient-to-br from-green-600 to-green-700 rounded-xl sm:rounded-2xl shadow-lg">
+                      <Utensils className="h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-white" />
                     </div>
                   </div>
-                  <div className="ml-6">
-                    <h3 className="text-xl font-semibold text-gray-900">{t.dashboard.mood}</h3>
-                    <p className="text-4xl font-bold text-pink-600">{stats.totalMood}</p>
+                  <div className="ml-3 sm:ml-4 lg:ml-6">
+                    <h3 className="text-sm sm:text-base lg:text-xl font-semibold text-gray-900">{t.dashboard.food}</h3>
+                    <p className="text-2xl sm:text-3xl lg:text-4xl font-bold text-green-600">{stats.totalFood}</p>
                   </div>
                 </div>
               </div>
 
-              <div className="relative bg-white/90 backdrop-blur-xl border border-gray-200/50 rounded-3xl p-8 hover:shadow-2xl hover:shadow-indigo-500/10 transition-all duration-300 transform hover:-translate-y-1">
+              <div className="relative bg-white/90 backdrop-blur-xl border border-gray-200/50 rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 hover:shadow-2xl hover:shadow-orange-500/10 transition-all duration-300 transform hover:-translate-y-1">
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
-                    <div className="p-4 bg-gradient-to-br from-indigo-600 to-indigo-700 rounded-2xl shadow-lg">
-                      <Activity className="h-8 w-8 text-white" />
+                    <div className="p-2 sm:p-3 lg:p-4 bg-gradient-to-br from-orange-600 to-orange-700 rounded-xl sm:rounded-2xl shadow-lg">
+                      <Dumbbell className="h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-white" />
                     </div>
                   </div>
-                  <div className="ml-6">
-                    <h3 className="text-xl font-semibold text-gray-900">{t.dashboard.total}</h3>
-                    <p className="text-4xl font-bold text-indigo-600">{stats.totalRecords}</p>
+                  <div className="ml-3 sm:ml-4 lg:ml-6">
+                    <h3 className="text-sm sm:text-base lg:text-xl font-semibold text-gray-900">{t.dashboard.exercise}</h3>
+                    <p className="text-2xl sm:text-3xl lg:text-4xl font-bold text-orange-600">{stats.totalExercise}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="relative bg-white/90 backdrop-blur-xl border border-gray-200/50 rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 hover:shadow-2xl hover:shadow-purple-500/10 transition-all duration-300 transform hover:-translate-y-1">
+                <div className="flex items-center">
+                  <div className="flex-shrink-0">
+                    <div className="p-2 sm:p-3 lg:p-4 bg-gradient-to-br from-purple-600 to-purple-700 rounded-xl sm:rounded-2xl shadow-lg">
+                      <CalendarDays className="h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-white" />
+                    </div>
+                  </div>
+                  <div className="ml-3 sm:ml-4 lg:ml-6">
+                    <h3 className="text-sm sm:text-base lg:text-xl font-semibold text-gray-900">{t.dashboard.periods}</h3>
+                    <p className="text-2xl sm:text-3xl lg:text-4xl font-bold text-purple-600">{stats.totalPeriods}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="relative bg-white/90 backdrop-blur-xl border border-gray-200/50 rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 hover:shadow-2xl hover:shadow-pink-500/10 transition-all duration-300 transform hover:-translate-y-1">
+                <div className="flex items-center">
+                  <div className="flex-shrink-0">
+                    <div className="p-2 sm:p-3 lg:p-4 bg-gradient-to-br from-pink-600 to-pink-700 rounded-xl sm:rounded-2xl shadow-lg">
+                      <Smile className="h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-white" />
+                    </div>
+                  </div>
+                  <div className="ml-3 sm:ml-4 lg:ml-6">
+                    <h3 className="text-sm sm:text-base lg:text-xl font-semibold text-gray-900">{t.dashboard.mood}</h3>
+                    <p className="text-2xl sm:text-3xl lg:text-4xl font-bold text-pink-600">{stats.totalMood}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="relative bg-white/90 backdrop-blur-xl border border-gray-200/50 rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 hover:shadow-2xl hover:shadow-indigo-500/10 transition-all duration-300 transform hover:-translate-y-1">
+                <div className="flex items-center">
+                  <div className="flex-shrink-0">
+                    <div className="p-2 sm:p-3 lg:p-4 bg-gradient-to-br from-indigo-600 to-indigo-700 rounded-xl sm:rounded-2xl shadow-lg">
+                      <Activity className="h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-white" />
+                    </div>
+                  </div>
+                  <div className="ml-3 sm:ml-4 lg:ml-6">
+                    <h3 className="text-sm sm:text-base lg:text-xl font-semibold text-gray-900">{t.dashboard.total}</h3>
+                    <p className="text-2xl sm:text-3xl lg:text-4xl font-bold text-indigo-600">{stats.totalRecords}</p>
                   </div>
                 </div>
               </div>
@@ -929,42 +949,42 @@ export default function DataPage() {
           </div>
 
           {/* Filtros mejorados */}
-          <div className="relative bg-white/90 backdrop-blur-xl border border-gray-200/50 rounded-3xl p-10 mb-12 overflow-hidden shadow-2xl">
+          <div className="relative bg-white/90 backdrop-blur-xl border border-gray-200/50 rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-10 mb-8 sm:mb-12 overflow-hidden shadow-2xl">
             <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-blue-600/5"></div>
             
             <div className="relative z-10">
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 space-y-3 sm:space-y-0">
                 <div className="flex items-center">
                   <div className="p-2 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg mr-3">
-                    <Filter className="h-5 w-5 text-white" />
+                    <Filter className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                   </div>
-                  <h2 className="text-xl font-bold text-blue-900">{t.dashboard.dataFilters}</h2>
+                  <h2 className="text-lg sm:text-xl font-bold text-blue-900">{t.dashboard.dataFilters}</h2>
                 </div>
                 <button
                   onClick={clearFilters}
-                  className="px-4 py-2 text-sm bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-400 hover:to-blue-500 transition-all duration-300 transform hover:scale-105 flex items-center"
+                  className="px-3 sm:px-4 py-2 text-xs sm:text-sm bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-400 hover:to-blue-500 transition-all duration-300 transform hover:scale-105 flex items-center"
                 >
-                  <span className="mr-2">🗑️</span>
+                  <span className="mr-1 sm:mr-2">🗑️</span>
                   {t.dashboard.clearFilters}
                 </button>
               </div>
               
-              <div className={`grid grid-cols-1 gap-6 ${isIndividualUser ? 'md:grid-cols-3' : 'md:grid-cols-4'}`}>
+              <div className={`grid grid-cols-1 gap-4 sm:gap-6 ${isIndividualUser ? 'sm:grid-cols-2 lg:grid-cols-3' : 'sm:grid-cols-2 lg:grid-cols-4'}`}>
                 {!isIndividualUser && (
                   <div>
-                    <label className="block text-sm font-bold text-blue-900 mb-3 flex items-center">
-                      <UserIcon className="h-4 w-4 mr-2" />
+                    <label className="block text-xs sm:text-sm font-bold text-blue-900 mb-2 sm:mb-3 flex items-center">
+                      <UserIcon className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                       {t.dashboard.user}
                     </label>
                     <select
                       value={selectedUser}
                       onChange={(e) => setSelectedUser(e.target.value)}
-                      className="w-full bg-white border-2 border-blue-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-blue-900 shadow-lg hover:border-blue-300 transition-all duration-300 cursor-pointer appearance-none bg-gradient-to-r from-blue-50 to-indigo-50"
+                      className="w-full bg-white border-2 border-blue-200 rounded-lg sm:rounded-xl px-3 sm:px-4 py-2 sm:py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-blue-900 shadow-lg hover:border-blue-300 transition-all duration-300 cursor-pointer appearance-none bg-gradient-to-r from-blue-50 to-indigo-50 text-sm sm:text-base"
                       style={{
                         backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e")`,
-                        backgroundPosition: 'right 12px center',
+                        backgroundPosition: 'right 8px center',
                         backgroundRepeat: 'no-repeat',
-                        backgroundSize: '16px'
+                        backgroundSize: '12px'
                       }}
                     >
                       <option value="all" className="bg-white text-blue-900 py-2">{t.dashboard.allUsers}</option>
@@ -978,19 +998,19 @@ export default function DataPage() {
                 )}
                 
                 <div>
-                  <label className="block text-sm font-bold text-blue-900 mb-3 flex items-center">
-                    <Activity className="h-4 w-4 mr-2" />
+                  <label className="block text-xs sm:text-sm font-bold text-blue-900 mb-2 sm:mb-3 flex items-center">
+                    <Activity className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                     {t.dashboard.dataType}
                   </label>
                   <select
                     value={selectedDataType}
                     onChange={(e) => setSelectedDataType(e.target.value)}
-                    className="w-full bg-white border-2 border-blue-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-blue-900 shadow-lg hover:border-blue-300 transition-all duration-300 cursor-pointer appearance-none bg-gradient-to-r from-blue-50 to-indigo-50"
+                    className="w-full bg-white border-2 border-blue-200 rounded-lg sm:rounded-xl px-3 sm:px-4 py-2 sm:py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-blue-900 shadow-lg hover:border-blue-300 transition-all duration-300 cursor-pointer appearance-none bg-gradient-to-r from-blue-50 to-indigo-50 text-sm sm:text-base"
                     style={{
                       backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e")`,
-                      backgroundPosition: 'right 12px center',
+                      backgroundPosition: 'right 8px center',
                       backgroundRepeat: 'no-repeat',
-                      backgroundSize: '16px'
+                      backgroundSize: '12px'
                     }}
                   >
                     <option value="all" className="bg-white text-blue-900 py-2">{t.dashboard.allTypes}</option>
@@ -1003,19 +1023,19 @@ export default function DataPage() {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-bold text-blue-900 mb-3 flex items-center">
-                    <Clock className="h-4 w-4 mr-2" />
+                  <label className="block text-xs sm:text-sm font-bold text-blue-900 mb-2 sm:mb-3 flex items-center">
+                    <Clock className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                     {t.dashboard.timeRange}
                   </label>
                   <select
                     value={timeRange}
                     onChange={(e) => setTimeRange(e.target.value)}
-                    className="w-full bg-white border-2 border-blue-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-blue-900 shadow-lg hover:border-blue-300 transition-all duration-300 cursor-pointer appearance-none bg-gradient-to-r from-blue-50 to-indigo-50"
+                    className="w-full bg-white border-2 border-blue-200 rounded-lg sm:rounded-xl px-3 sm:px-4 py-2 sm:py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-blue-900 shadow-lg hover:border-blue-300 transition-all duration-300 cursor-pointer appearance-none bg-gradient-to-r from-blue-50 to-indigo-50 text-sm sm:text-base"
                     style={{
                       backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e")`,
-                      backgroundPosition: 'right 12px center',
+                      backgroundPosition: 'right 8px center',
                       backgroundRepeat: 'no-repeat',
-                      backgroundSize: '16px'
+                      backgroundSize: '12px'
                     }}
                   >
                     <option value="all" className="bg-white text-blue-900 py-2">{t.dashboard.allTime}</option>
@@ -1027,19 +1047,19 @@ export default function DataPage() {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-bold text-blue-900 mb-3 flex items-center">
-                    <Calendar className="h-4 w-4 mr-2" />
+                  <label className="block text-xs sm:text-sm font-bold text-blue-900 mb-2 sm:mb-3 flex items-center">
+                    <Calendar className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                     {t.dashboard.specificDate}
                   </label>
                   <button
                     ref={datePickerRef}
                     onClick={() => setIsDatePickerOpen(!isDatePickerOpen)}
-                    className="w-full bg-white border border-blue-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-blue-900 text-left hover:bg-blue-50 transition-all duration-300 flex items-center justify-between"
+                    className="w-full bg-white border border-blue-200 rounded-lg sm:rounded-xl px-3 sm:px-4 py-2 sm:py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-blue-900 text-left hover:bg-blue-50 transition-all duration-300 flex items-center justify-between text-sm sm:text-base"
                   >
                     <span className={dateFilter ? 'text-blue-900' : 'text-gray-500'}>
                       {dateFilter ? formatDisplayDate(new Date(dateFilter)) : t.dashboard.selectDate}
                     </span>
-                    <Calendar className="h-5 w-5 text-blue-600" />
+                    <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
                   </button>
                   
                   <Portal>
@@ -1059,11 +1079,11 @@ export default function DataPage() {
 
           {/* Contenido principal */}
           {loading ? (
-            <div className="relative bg-white backdrop-blur-xl border border-blue-200/50 rounded-3xl p-12 text-center shadow-lg">
-              <div className="flex flex-col items-center justify-center space-y-6">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-                <div className="w-full max-w-md">
-                  <div className="flex justify-between text-sm text-blue-600 mb-2">
+            <div className="relative bg-white backdrop-blur-xl border border-blue-200/50 rounded-2xl sm:rounded-3xl p-6 sm:p-8 lg:p-12 text-center shadow-lg">
+              <div className="flex flex-col items-center justify-center space-y-4 sm:space-y-6">
+                <div className="animate-spin rounded-full h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 border-b-2 border-blue-500"></div>
+                <div className="w-full max-w-sm sm:max-w-md">
+                  <div className="flex justify-between text-xs sm:text-sm text-blue-600 mb-2">
                     <span>{t.dashboard.loadingData}</span>
                     <span>{loadingProgress}%</span>
                   </div>
@@ -1074,7 +1094,7 @@ export default function DataPage() {
                     ></div>
                   </div>
                 </div>
-                <p className="text-blue-700 text-sm">
+                <p className="text-blue-700 text-xs sm:text-sm">
                   {loadingProgress < 40 ? t.dashboard.connectingServer :
                    loadingProgress < 60 ? t.dashboard.decryptingData :
                    loadingProgress < 80 ? t.dashboard.processingInfo :
@@ -1084,26 +1104,26 @@ export default function DataPage() {
             </div>
           ) : (
             /* Vista de tarjetas por usuario */
-            <div className="space-y-8">
+            <div className="space-y-4 sm:space-y-6 lg:space-y-8">
               {userDataGroups.length > 0 ? (
                 userDataGroups.map((group) => (
-                  <div key={group.user.UserID} className="relative bg-white backdrop-blur-xl border border-blue-200/50 rounded-3xl overflow-hidden shadow-lg">
+                  <div key={group.user.UserID} className="relative bg-white backdrop-blur-xl border border-blue-200/50 rounded-2xl sm:rounded-3xl overflow-hidden shadow-lg">
                     <div className="absolute inset-0 bg-gradient-to-r from-blue-50/50 to-blue-100/50"></div>
                     
-                    <div className="relative z-10 px-8 py-6 border-b border-blue-200">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h3 className="text-xl font-bold text-blue-900 mb-1">
+                    <div className="relative z-10 px-4 sm:px-6 lg:px-8 py-4 sm:py-6 border-b border-blue-200">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-3 sm:space-y-0">
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-lg sm:text-xl font-bold text-blue-900 mb-1 truncate">
                             {group.user.Username}
                           </h3>
-                          <p className="text-blue-700">
+                          <p className="text-sm sm:text-base text-blue-700">
                             {group.stats.totalRecords} {t.dashboard.totalRecords}
                           </p>
                         </div>
-                        <div className="flex items-center space-x-6">
-                          <div className="text-right">
-                            <p className="text-sm text-blue-600">{t.dashboard.lastActivity}</p>
-                            <p className="text-sm font-medium text-blue-900">
+                        <div className="flex items-center space-x-3 sm:space-x-6 w-full sm:w-auto justify-between sm:justify-end">
+                          <div className="text-left sm:text-right">
+                            <p className="text-xs sm:text-sm text-blue-600">{t.dashboard.lastActivity}</p>
+                            <p className="text-xs sm:text-sm font-medium text-blue-900">
                               {group.stats.lastActivity ? 
                                 new Date(group.stats.lastActivity).toLocaleDateString('es-ES') : 
                                 'N/A'
@@ -1112,12 +1132,12 @@ export default function DataPage() {
                           </div>
                           <button
                             onClick={() => toggleUserExpansion(group.user.UserID)}
-                            className="p-3 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl hover:from-blue-400 hover:to-blue-500 transition-all duration-300 transform hover:scale-105"
+                            className="p-2 sm:p-3 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg sm:rounded-xl hover:from-blue-400 hover:to-blue-500 transition-all duration-300 transform hover:scale-105 flex-shrink-0"
                           >
                             {expandedUsers.has(group.user.UserID) ? (
-                              <ChevronUp className="h-5 w-5 text-white" />
+                              <ChevronUp className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                             ) : (
-                              <ChevronDown className="h-5 w-5 text-white" />
+                              <ChevronDown className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                             )}
                           </button>
                         </div>
@@ -1125,54 +1145,54 @@ export default function DataPage() {
                     </div>
                     
                     {expandedUsers.has(group.user.UserID) && (
-                      <div className="relative z-10 p-8">
+                      <div className="relative z-10 p-4 sm:p-6 lg:p-8">
                         {/* Resumen por tipo de dato */}
-                        <div className="grid grid-cols-2 md:grid-cols-5 gap-6 mb-8">
-                          <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-blue-100 backdrop-blur-sm border border-blue-200 rounded-xl">
-                            <div className="p-2 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg w-fit mx-auto mb-3">
-                              <Pill className="h-6 w-6 text-white" />
+                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8">
+                          <div className="text-center p-3 sm:p-4 bg-gradient-to-br from-blue-50 to-blue-100 backdrop-blur-sm border border-blue-200 rounded-lg sm:rounded-xl">
+                            <div className="p-1.5 sm:p-2 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg w-fit mx-auto mb-2 sm:mb-3">
+                              <Pill className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-white" />
                             </div>
-                            <p className="text-lg font-bold text-blue-600">{group.stats.insulinCount}</p>
-                            <p className="text-sm text-blue-700">{t.dashboard.insulin}</p>
+                            <p className="text-sm sm:text-base lg:text-lg font-bold text-blue-600">{group.stats.insulinCount}</p>
+                            <p className="text-xs sm:text-sm text-blue-700">{t.dashboard.insulin}</p>
                           </div>
-                          <div className="text-center p-4 bg-gradient-to-br from-green-50 to-green-100 backdrop-blur-sm border border-green-200 rounded-xl">
-                            <div className="p-2 bg-gradient-to-br from-green-500 to-green-600 rounded-lg w-fit mx-auto mb-3">
-                              <Utensils className="h-6 w-6 text-white" />
+                          <div className="text-center p-3 sm:p-4 bg-gradient-to-br from-green-50 to-green-100 backdrop-blur-sm border border-green-200 rounded-lg sm:rounded-xl">
+                            <div className="p-1.5 sm:p-2 bg-gradient-to-br from-green-500 to-green-600 rounded-lg w-fit mx-auto mb-2 sm:mb-3">
+                              <Utensils className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-white" />
                             </div>
-                            <p className="text-lg font-bold text-green-600">{group.stats.foodCount}</p>
-                            <p className="text-sm text-green-700">{t.dashboard.meals}</p>
+                            <p className="text-sm sm:text-base lg:text-lg font-bold text-green-600">{group.stats.foodCount}</p>
+                            <p className="text-xs sm:text-sm text-green-700">{t.dashboard.meals}</p>
                           </div>
-                          <div className="text-center p-4 bg-gradient-to-br from-orange-50 to-orange-100 backdrop-blur-sm border border-orange-200 rounded-xl">
-                            <div className="p-2 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg w-fit mx-auto mb-3">
-                              <Dumbbell className="h-6 w-6 text-white" />
+                          <div className="text-center p-3 sm:p-4 bg-gradient-to-br from-orange-50 to-orange-100 backdrop-blur-sm border border-orange-200 rounded-lg sm:rounded-xl">
+                            <div className="p-1.5 sm:p-2 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg w-fit mx-auto mb-2 sm:mb-3">
+                              <Dumbbell className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-white" />
                             </div>
-                            <p className="text-lg font-bold text-orange-600">{group.stats.exerciseCount}</p>
-                            <p className="text-sm text-orange-700">{t.dashboard.exercise}</p>
+                            <p className="text-sm sm:text-base lg:text-lg font-bold text-orange-600">{group.stats.exerciseCount}</p>
+                            <p className="text-xs sm:text-sm text-orange-700">{t.dashboard.exercise}</p>
                           </div>
-                          <div className="text-center p-4 bg-gradient-to-br from-purple-50 to-purple-100 backdrop-blur-sm border border-purple-200 rounded-xl">
-                            <div className="p-2 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg w-fit mx-auto mb-3">
-                              <CalendarDays className="h-6 w-6 text-white" />
+                          <div className="text-center p-3 sm:p-4 bg-gradient-to-br from-purple-50 to-purple-100 backdrop-blur-sm border border-purple-200 rounded-lg sm:rounded-xl">
+                            <div className="p-1.5 sm:p-2 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg w-fit mx-auto mb-2 sm:mb-3">
+                              <CalendarDays className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-white" />
                             </div>
-                            <p className="text-lg font-bold text-purple-600">{group.stats.periodCount}</p>
-                            <p className="text-sm text-purple-700">{t.dashboard.periods}</p>
+                            <p className="text-sm sm:text-base lg:text-lg font-bold text-purple-600">{group.stats.periodCount}</p>
+                            <p className="text-xs sm:text-sm text-purple-700">{t.dashboard.periods}</p>
                           </div>
-                          <div className="text-center p-4 bg-gradient-to-br from-pink-50 to-pink-100 backdrop-blur-sm border border-pink-200 rounded-xl">
-                            <div className="p-2 bg-gradient-to-br from-pink-500 to-pink-600 rounded-lg w-fit mx-auto mb-3">
-                              <Smile className="h-6 w-6 text-white" />
+                          <div className="text-center p-3 sm:p-4 bg-gradient-to-br from-pink-50 to-pink-100 backdrop-blur-sm border border-pink-200 rounded-lg sm:rounded-xl">
+                            <div className="p-1.5 sm:p-2 bg-gradient-to-br from-pink-500 to-pink-600 rounded-lg w-fit mx-auto mb-2 sm:mb-3">
+                              <Smile className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-white" />
                             </div>
-                            <p className="text-lg font-bold text-pink-600">{group.stats.moodCount}</p>
-                            <p className="text-sm text-pink-700">{t.dashboard.mood}</p>
+                            <p className="text-sm sm:text-base lg:text-lg font-bold text-pink-600">{group.stats.moodCount}</p>
+                            <p className="text-xs sm:text-sm text-pink-700">{t.dashboard.mood}</p>
                           </div>
                         </div>
 
                         {/* Datos detallados por tipo */}
-                        <div className="space-y-8">
+                        <div className="space-y-6 sm:space-y-8">
                           {/* Insulina */}
                           {group.insulin.length > 0 && (
                             <div>
-                              <h4 className="text-lg font-bold text-blue-900 mb-4 flex items-center">
-                                <div className="p-2 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg mr-3">
-                                  <Pill className="h-5 w-5 text-white" />
+                              <h4 className="text-base sm:text-lg font-bold text-blue-900 mb-3 sm:mb-4 flex items-center">
+                                <div className="p-1.5 sm:p-2 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg mr-2 sm:mr-3">
+                                  <Pill className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                                 </div>
                                 {t.dashboard.insulinData} ({group.insulin.length} {t.dashboard.records})
                               </h4>
@@ -1183,9 +1203,9 @@ export default function DataPage() {
                           {/* Comidas */}
                           {group.food.length > 0 && (
                             <div>
-                              <h4 className="text-lg font-bold text-white mb-4 flex items-center">
-                                <div className="p-2 bg-gradient-to-br from-green-500 to-green-600 rounded-lg mr-3">
-                                  <Utensils className="h-5 w-5 text-white" />
+                              <h4 className="text-base sm:text-lg font-bold text-green-900 mb-3 sm:mb-4 flex items-center">
+                                <div className="p-1.5 sm:p-2 bg-gradient-to-br from-green-500 to-green-600 rounded-lg mr-2 sm:mr-3">
+                                  <Utensils className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                                 </div>
                                 {t.dashboard.food} ({group.food.length} {t.dashboard.records})
                               </h4>
@@ -1196,9 +1216,9 @@ export default function DataPage() {
                           {/* Ejercicio */}
                           {group.exercise.length > 0 && (
                             <div>
-                              <h4 className="text-lg font-bold text-white mb-4 flex items-center">
-                                <div className="p-2 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg mr-3">
-                                  <Dumbbell className="h-5 w-5 text-white" />
+                              <h4 className="text-base sm:text-lg font-bold text-orange-900 mb-3 sm:mb-4 flex items-center">
+                                <div className="p-1.5 sm:p-2 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg mr-2 sm:mr-3">
+                                  <Dumbbell className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                                 </div>
                                 {t.dashboard.exercise} ({group.exercise.length} {t.dashboard.records})
                               </h4>
@@ -1209,9 +1229,9 @@ export default function DataPage() {
                           {/* Períodos */}
                           {group.periods.length > 0 && (
                             <div>
-                              <h4 className="text-lg font-bold text-white mb-4 flex items-center">
-                                <div className="p-2 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg mr-3">
-                                  <CalendarDays className="h-5 w-5 text-white" />
+                              <h4 className="text-base sm:text-lg font-bold text-purple-900 mb-3 sm:mb-4 flex items-center">
+                                <div className="p-1.5 sm:p-2 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg mr-2 sm:mr-3">
+                                  <CalendarDays className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                                 </div>
                                 {t.dashboard.periods} ({group.periods.length} {t.dashboard.records})
                               </h4>
@@ -1222,9 +1242,9 @@ export default function DataPage() {
                           {/* Estado de ánimo */}
                           {group.mood.length > 0 && (
                             <div>
-                              <h4 className="text-lg font-bold text-white mb-4 flex items-center">
-                                <div className="p-2 bg-gradient-to-br from-pink-500 to-pink-600 rounded-lg mr-3">
-                                  <Smile className="h-5 w-5 text-white" />
+                              <h4 className="text-base sm:text-lg font-bold text-pink-900 mb-3 sm:mb-4 flex items-center">
+                                <div className="p-1.5 sm:p-2 bg-gradient-to-br from-pink-500 to-pink-600 rounded-lg mr-2 sm:mr-3">
+                                  <Smile className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                                 </div>
                                 {t.dashboard.mood} ({group.mood.length} {t.dashboard.records})
                               </h4>
@@ -1237,14 +1257,14 @@ export default function DataPage() {
                   </div>
                 ))
               ) : (
-                <div className="relative bg-gradient-to-r from-slate-800/50 to-slate-900/50 backdrop-blur-xl border border-white/20 rounded-3xl p-12 text-center">
+                <div className="relative bg-gradient-to-r from-slate-800/50 to-slate-900/50 backdrop-blur-xl border border-white/20 rounded-2xl sm:rounded-3xl p-6 sm:p-8 lg:p-12 text-center">
                   <div className="absolute inset-0 bg-gradient-to-r from-slate-800/20 to-slate-900/20"></div>
                   <div className="relative z-10">
-                    <div className="p-4 bg-gradient-to-br from-green-500/20 to-emerald-600/20 backdrop-blur-sm border border-green-400/30 rounded-2xl w-fit mx-auto mb-6">
-                      <Activity className="h-16 w-16 text-green-400" />
+                    <div className="p-3 sm:p-4 bg-gradient-to-br from-green-500/20 to-emerald-600/20 backdrop-blur-sm border border-green-400/30 rounded-xl sm:rounded-2xl w-fit mx-auto mb-4 sm:mb-6">
+                      <Activity className="h-12 w-12 sm:h-14 sm:w-14 lg:h-16 lg:w-16 text-green-400" />
                     </div>
-                    <h3 className="text-2xl font-bold text-white mb-3">{t.dashboard.noDataFound}</h3>
-                    <p className="text-white/70 text-lg">{t.dashboard.noRecordsForFilters}</p>
+                    <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-white mb-2 sm:mb-3">{t.dashboard.noDataFound}</h3>
+                    <p className="text-white/70 text-sm sm:text-base lg:text-lg">{t.dashboard.noRecordsForFilters}</p>
                   </div>
                 </div>
               )}
@@ -1252,6 +1272,6 @@ export default function DataPage() {
           )}
         </div>
       </div>
-    </HybridProtectedRoute>
+    </ProtectedRoute>
   )
 }

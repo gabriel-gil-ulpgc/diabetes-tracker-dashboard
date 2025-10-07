@@ -115,8 +115,8 @@ export default function DashboardPage() {
         
         <Navigation title={`${t.dashboard.title} Dashboard`} showBackButton={false} />
         
-        {/* Selector de idioma */}
-        <div className="absolute top-6 right-6 z-50">
+        {/* Selector de idioma - Solo visible en desktop */}
+        <div className="absolute top-6 right-6 z-50 hidden xl:block">
           <div className="bg-white/90 backdrop-blur-xl border border-white/30 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300">
             <LanguageSelector />
           </div>

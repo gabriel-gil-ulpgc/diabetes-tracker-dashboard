@@ -4,7 +4,11 @@ import { useLanguage } from '@/contexts/LanguageContext'
 import { Globe, Check } from 'lucide-react'
 import { useState, useRef, useEffect } from 'react'
 
-export default function LanguageSelector() {
+interface LanguageSelectorProps {
+  compact?: boolean
+}
+
+export default function LanguageSelector({ compact = false }: LanguageSelectorProps) {
   const { language, setLanguage, t } = useLanguage()
   const [isOpen, setIsOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
@@ -29,6 +33,45 @@ export default function LanguageSelector() {
     }
   }, [])
 
+  if (compact) {
+    return (
+      <div className="relative" ref={dropdownRef}>
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="flex items-center justify-center w-8 h-8 text-white bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 rounded-lg transition-all duration-200 hover:scale-105"
+          title={t.common.language || 'Language'}
+        >
+          <span className="text-sm">{currentLanguage?.flag}</span>
+        </button>
+
+        {isOpen && (
+          <div className="absolute right-0 mt-2 w-40 bg-white/95 backdrop-blur-xl rounded-xl shadow-xl border border-gray-200/50 py-2 z-[99999]">
+            {languages.map((lang) => (
+              <button
+                key={lang.code}
+                onClick={() => {
+                  setLanguage(lang.code)
+                  setIsOpen(false)
+                }}
+                className={`w-full flex items-center justify-between px-3 py-2 text-sm hover:bg-blue-50 transition-all duration-200 rounded-lg mx-1 ${
+                  language === lang.code ? 'bg-blue-100 text-blue-700 font-semibold' : 'text-gray-700 hover:text-blue-600'
+                }`}
+              >
+                <div className="flex items-center space-x-2">
+                  <span className="text-base">{lang.flag}</span>
+                  <span className="font-medium text-xs">{lang.name}</span>
+                </div>
+                {language === lang.code && (
+                  <Check className="h-3 w-3 text-blue-600" />
+                )}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    )
+  }
+
   return (
     <div className="relative" ref={dropdownRef}>
       <button
@@ -42,7 +85,7 @@ export default function LanguageSelector() {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-52 bg-white/95 backdrop-blur-xl rounded-2xl shadow-xl border border-gray-200/50 py-2 z-50">
+        <div className="absolute right-0 mt-2 w-52 bg-white/95 backdrop-blur-xl rounded-2xl shadow-xl border border-gray-200/50 py-2 z-[99999]">
           {languages.map((lang) => (
             <button
               key={lang.code}

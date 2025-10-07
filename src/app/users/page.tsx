@@ -7,7 +7,6 @@ import ProtectedRoute from '@/components/ProtectedRoute'
 import Navigation from '@/components/Navigation'
 import { getBackendUrl } from '@/lib/config'
 import { useLanguage } from '@/contexts/LanguageContext'
-import LanguageSelector from '@/components/LanguageSelector'
 
 export default function UsersPage() {
   const { t } = useLanguage()
@@ -243,42 +242,38 @@ export default function UsersPage() {
         
         <Navigation title={t.dashboard.userManagement} showBackButton={true} />
         
-        {/* Selector de idioma */}
-        <div className="absolute top-6 right-6 z-50">
-          <div className="bg-white/90 backdrop-blur-xl border border-white/30 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300">
-            <LanguageSelector />
-          </div>
-        </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 py-4 sm:py-6 lg:py-8 xl:py-12 relative z-10">
           {/* Header con estadísticas */}
-          <div className="relative bg-white/90 backdrop-blur-xl border border-gray-200/50 rounded-3xl p-10 mb-12 overflow-hidden shadow-2xl">
+          <div className="relative bg-white/90 backdrop-blur-xl border border-gray-200/50 rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-10 mb-6 sm:mb-12 overflow-hidden shadow-2xl">
             <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-blue-600/5"></div>
-            <div className="relative z-10 flex items-center justify-between mb-8">
-              <div className="flex items-center space-x-6">
-                <div className="p-5 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl shadow-lg">
-                  <Users className="h-12 w-12 text-white" />
-                </div>
-                <div>
-                  <h2 className="text-4xl md:text-5xl font-bold text-gray-900">
-                    {t.dashboard.userManagement}
-                  </h2>
-                  <p className="text-gray-600 text-xl font-light">Administra usuarios, edita información y regenera UUIDs</p>
+            <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6 sm:mb-8 space-y-4 lg:space-y-0">
+              <div className="flex flex-col sm:flex-row sm:items-center space-y-4 sm:space-y-0 sm:space-x-6">
+                <div className="flex items-center space-x-4 sm:space-x-6">
+                  <div className="p-3 sm:p-5 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl sm:rounded-2xl shadow-lg">
+                    <Users className="h-8 w-8 sm:h-12 sm:w-12 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-900">
+                      {t.dashboard.userManagement}
+                    </h2>
+                    <p className="text-gray-600 text-sm sm:text-base lg:text-xl font-light">Administra usuarios, edita información y regenera UUIDs</p>
+                  </div>
                 </div>
               </div>
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-3 bg-white/80 backdrop-blur-sm border border-gray-200/50 px-6 py-3 rounded-xl shadow-lg">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
+                <div className="flex items-center space-x-3 bg-white/80 backdrop-blur-sm border border-gray-200/50 px-4 sm:px-6 py-2 sm:py-3 rounded-xl shadow-lg">
                   <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-                  <span className="text-base text-gray-800 font-semibold">
+                  <span className="text-sm sm:text-base text-gray-800 font-semibold">
                     {users.length} usuarios registrados
                   </span>
                 </div>
                 <button
                   onClick={() => setShowCreateForm(true)}
-                  className="flex items-center space-x-3 bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-600 hover:from-blue-700 hover:via-blue-800 hover:to-indigo-700 text-white px-6 py-3 rounded-xl transition-all duration-300 transform hover:-translate-y-0.5 shadow-lg hover:shadow-xl"
+                  className="flex items-center space-x-2 sm:space-x-3 bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-600 hover:from-blue-700 hover:via-blue-800 hover:to-indigo-700 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-xl transition-all duration-300 transform hover:-translate-y-0.5 shadow-lg hover:shadow-xl"
                 >
-                  <Plus className="h-5 w-5" />
-                  <span className="font-semibold text-lg">{t.dashboard.createUser}</span>
+                  <Plus className="h-4 w-4 sm:h-5 sm:w-5" />
+                  <span className="font-semibold text-sm sm:text-lg">{t.dashboard.createUser}</span>
                 </button>
               </div>
             </div>
@@ -286,13 +281,13 @@ export default function UsersPage() {
             {/* Barra de búsqueda */}
             <div className="relative z-10">
               <div className="relative max-w-md">
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-6 w-6 text-gray-400" />
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 sm:h-6 sm:w-6 text-gray-400" />
                 <input
                   type="text"
                   placeholder={t.dashboard.searchUsers}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-14 pr-4 py-4 bg-white/50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 hover:bg-white/70"
+                  className="w-full pl-12 sm:pl-14 pr-4 py-3 sm:py-4 bg-white/50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 hover:bg-white/70 text-sm sm:text-base"
                 />
               </div>
             </div>
@@ -317,64 +312,48 @@ export default function UsersPage() {
           )}
 
           {/* Tabla de usuarios */}
-          <div className="relative bg-white/90 backdrop-blur-xl border border-gray-200/50 rounded-3xl p-10 overflow-hidden shadow-2xl">
+          <div className="relative bg-white/90 backdrop-blur-xl border border-gray-200/50 rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-10 overflow-hidden shadow-2xl">
             <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-blue-600/5"></div>
 
             <div className="relative z-10">
               {loading ? (
-                <div className="flex items-center justify-center py-20">
-                  <div className="flex items-center space-x-4 bg-white/80 backdrop-blur-sm border border-gray-200/50 px-10 py-6 rounded-2xl shadow-lg">
-                    <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
-                    <span className="text-gray-800 font-semibold text-lg">Cargando usuarios...</span>
+                <div className="flex items-center justify-center py-12 sm:py-20">
+                  <div className="flex items-center space-x-4 bg-white/80 backdrop-blur-sm border border-gray-200/50 px-6 sm:px-10 py-4 sm:py-6 rounded-2xl shadow-lg">
+                    <div className="animate-spin rounded-full h-8 w-8 sm:h-10 sm:w-10 border-b-2 border-blue-600"></div>
+                    <span className="text-gray-800 font-semibold text-base sm:text-lg">Cargando usuarios...</span>
                   </div>
                 </div>
               ) : (
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-gray-200">
-                      <th className="px-8 py-6 text-left text-sm font-bold text-gray-800 uppercase tracking-wider w-1/4">
-                        {t.dashboard.username}
-                      </th>
-                      <th className="px-8 py-6 text-left text-sm font-bold text-gray-800 uppercase tracking-wider w-2/5">
-                        UUID
-                      </th>
-                      <th className="px-8 py-6 text-left text-sm font-bold text-gray-800 uppercase tracking-wider w-1/6">
-                        Estado
-                      </th>
-                      <th className="px-8 py-6 text-left text-sm font-bold text-gray-800 uppercase tracking-wider w-1/6">
-                        GDPR
-                      </th>
-                      <th className="px-8 py-6 text-right text-sm font-bold text-gray-800 uppercase tracking-wider w-1/6">
-                        {t.dashboard.actions}
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
+                <>
+                  {/* Vista de tarjetas para móvil */}
+                  <div className="block lg:hidden space-y-4">
                     {filteredUsers.map((user) => (
-                      <tr key={user.UserID} className="border-b border-gray-100 hover:bg-gray-50/50 transition-all duration-300">
-                        <td className="px-8 py-8">
+                      <div key={user.UserID} className="bg-white/80 backdrop-blur-sm border border-gray-200/50 rounded-2xl p-5 shadow-lg hover:shadow-xl transition-all duration-300">
+                        {/* Header de la tarjeta */}
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-5 space-y-3 sm:space-y-0">
                           <div className="flex items-center space-x-4">
-                            <div className="flex-shrink-0">
-                              <div className="h-14 w-14 rounded-full bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center shadow-lg">
-                                <span className="text-xl font-bold text-white">
-                                  {user.Username.charAt(0).toUpperCase()}
-                                </span>
-                              </div>
+                            <div className="h-14 w-14 rounded-full bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center shadow-lg flex-shrink-0">
+                              <span className="text-xl font-bold text-white">
+                                {user.Username.charAt(0).toUpperCase()}
+                              </span>
                             </div>
-                            <div>
-                              <div className="text-xl font-bold text-gray-900">
-                                {user.Username}
-                              </div>
-                              <div className="text-sm text-gray-600">
-                                ID: {user.UserID}
-                              </div>
+                            <div className="min-w-0 flex-1">
+                              <h3 className="text-lg font-bold text-gray-900 truncate">{user.Username}</h3>
+                              <p className="text-sm text-gray-600">ID: {user.UserID}</p>
                             </div>
                           </div>
-                        </td>
-                        <td className="px-8 py-8">
-                          <div className="flex items-center space-x-3">
+                          <div className="flex items-center space-x-2 bg-green-50 px-3 py-2 rounded-lg">
+                            <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
+                            <span className="text-sm font-semibold text-green-700">{t.users.activeStatus}</span>
+                          </div>
+                        </div>
+
+                        {/* UUID */}
+                        <div className="mb-5">
+                          <label className="block text-sm font-semibold text-gray-700 mb-3">UUID</label>
+                          <div className="flex items-start space-x-3">
                             <div className="flex-1 min-w-0">
-                              <div className="text-sm text-gray-800 font-mono bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 break-all">
+                              <div className="text-xs text-gray-800 font-mono bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 break-all leading-relaxed">
                                 {user.UUID ?? 'Sin UUID'}
                               </div>
                             </div>
@@ -382,78 +361,204 @@ export default function UsersPage() {
                               <button
                                 onClick={() => copyToClipboard(user.UUID!)}
                                 className="p-3 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg hover:from-blue-500 hover:to-blue-600 transition-all duration-300 transform hover:scale-105 flex-shrink-0 shadow-lg"
-                                title="Copiar UUID"
+                                title={t.users.copyUUID}
                               >
-                                <Key className="h-5 w-5 text-white" />
+                                <Key className="h-4 w-4 text-white" />
                               </button>
                             )}
                           </div>
-                        </td>
-                        <td className="px-8 py-8">
-                          <div className="flex items-center space-x-3">
-                            <CheckCircle className="h-6 w-6 text-green-500" />
-                            <span className="text-base font-semibold text-gray-900">Activo</span>
-                          </div>
-                        </td>
-                        <td className="px-8 py-8">
-                          <div className="flex items-center space-x-3">
+                        </div>
+
+                        {/* GDPR y Rol */}
+                        <div className="flex items-center justify-between mb-5">
+                          <div className="flex items-center space-x-2">
                             {user.GDPRConsent ? (
-                              <>
-                                <CheckCircle className="h-6 w-6 text-green-500" />
-                                <span className="text-base font-semibold text-green-700">Sí</span>
-                              </>
+                              <div className="flex items-center space-x-2 bg-green-50 px-3 py-2 rounded-lg">
+                                <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                                <span className="text-sm font-semibold text-green-700">{t.users.gdpr}: {t.users.yes}</span>
+                              </div>
                             ) : (
-                              <>
-                                <AlertCircle className="h-6 w-6 text-red-500" />
-                                <span className="text-base font-semibold text-red-700">No</span>
-                              </>
+                              <div className="flex items-center space-x-2 bg-red-50 px-3 py-2 rounded-lg">
+                                <AlertCircle className="h-4 w-4 text-red-500 flex-shrink-0" />
+                                <span className="text-sm font-semibold text-red-700">{t.users.gdpr}: {t.users.no}</span>
+                              </div>
                             )}
                           </div>
-                        </td>
-                        <td className="px-8 py-8 text-right">
-                          <div className="flex flex-col items-end space-y-3">
-                            {/* Selector de rol */}
+                          <div className="flex items-center space-x-2">
+                            <label className="text-sm font-semibold text-gray-700">Rol:</label>
                             <select
                               value={user.role || 'user'}
                               onChange={(e) => updateUserRole(user.UserID, e.target.value)}
-                              className="px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+                              className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
                             >
                               <option value="admin">{t.dashboard.admin}</option>
                               <option value="doctor">{t.dashboard.doctor}</option>
                               <option value="user">{t.dashboard.user}</option>
                             </select>
-                            
-                            {/* Botones de acción */}
-                            <div className="flex items-center space-x-3">
-                            <button
-                              onClick={() => startEditing(user)}
-                              className="p-3 bg-gradient-to-br from-blue-600 to-cyan-600 rounded-lg hover:from-blue-500 hover:to-cyan-500 transition-all duration-300 transform hover:scale-105 shadow-lg"
-                              title={t.dashboard.edit}
-                            >
-                              <Edit className="h-5 w-5 text-white" />
-                            </button>
-                            <button
-                              onClick={() => clearUUID(user.UserID)}
-                              disabled={clearingUUID}
-                              className="p-3 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg hover:from-blue-500 hover:to-blue-600 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:transform-none shadow-lg"
-                              title={t.dashboard.clearUUID}
-                            >
-                              <RefreshCw className={`h-5 w-5 text-white ${clearingUUID ? 'animate-spin' : ''}`} />
-                            </button>
-                            <button
-                              onClick={() => deleteUser(user.UserID)}
-                              className="p-3 bg-gradient-to-br from-red-600 to-rose-600 rounded-lg hover:from-red-500 hover:to-rose-500 transition-all duration-300 transform hover:scale-105 shadow-lg"
-                              title={t.dashboard.delete}
-                            >
-                              <Trash2 className="h-5 w-5 text-white" />
-                            </button>
-                            </div>
                           </div>
-                        </td>
-                      </tr>
+                        </div>
+
+                        {/* Botones de acción */}
+                        <div className="flex items-center justify-center sm:justify-end space-x-3 pt-2 border-t border-gray-200">
+                          <button
+                            onClick={() => startEditing(user)}
+                            className="flex items-center justify-center px-4 py-2 bg-gradient-to-br from-blue-600 to-cyan-600 rounded-lg hover:from-blue-500 hover:to-cyan-500 transition-all duration-300 transform hover:scale-105 shadow-lg"
+                            title={t.dashboard.edit}
+                          >
+                            <Edit className="h-4 w-4 text-white" />
+                            <span className="text-sm font-medium text-white hidden sm:block ml-2">Editar</span>
+                          </button>
+                          <button
+                            onClick={() => clearUUID(user.UserID)}
+                            disabled={clearingUUID}
+                            className="flex items-center justify-center px-4 py-2 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg hover:from-blue-500 hover:to-blue-600 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:transform-none shadow-lg"
+                            title={t.users.clearUUID}
+                          >
+                            <RefreshCw className={`h-4 w-4 text-white ${clearingUUID ? 'animate-spin' : ''}`} />
+                            <span className="text-sm font-medium text-white hidden sm:block ml-2">Limpiar</span>
+                          </button>
+                          <button
+                            onClick={() => deleteUser(user.UserID)}
+                            className="flex items-center justify-center px-4 py-2 bg-gradient-to-br from-red-600 to-rose-600 rounded-lg hover:from-red-500 hover:to-rose-500 transition-all duration-300 transform hover:scale-105 shadow-lg"
+                            title={t.dashboard.delete}
+                          >
+                            <Trash2 className="h-4 w-4 text-white" />
+                            <span className="text-sm font-medium text-white hidden sm:block ml-2">Eliminar</span>
+                          </button>
+                        </div>
+                      </div>
                     ))}
-                  </tbody>
-                </table>
+                  </div>
+
+                  {/* Vista de tabla para desktop */}
+                  <div className="hidden lg:block overflow-x-auto">
+                    <table className="w-full min-w-[900px]">
+                      <thead>
+                        <tr className="border-b border-gray-200">
+                          <th className="px-3 sm:px-4 lg:px-6 xl:px-8 py-3 sm:py-4 lg:py-6 text-left text-xs sm:text-sm font-bold text-gray-800 uppercase tracking-wider">
+                            {t.dashboard.username}
+                          </th>
+                          <th className="px-3 sm:px-4 lg:px-6 xl:px-8 py-3 sm:py-4 lg:py-6 text-left text-xs sm:text-sm font-bold text-gray-800 uppercase tracking-wider">
+                            UUID
+                          </th>
+                          <th className="px-3 sm:px-4 lg:px-6 xl:px-8 py-3 sm:py-4 lg:py-6 text-left text-xs sm:text-sm font-bold text-gray-800 uppercase tracking-wider">
+                            {t.users.status}
+                          </th>
+                          <th className="px-3 sm:px-4 lg:px-6 xl:px-8 py-3 sm:py-4 lg:py-6 text-left text-xs sm:text-sm font-bold text-gray-800 uppercase tracking-wider">
+                            {t.users.gdpr}
+                          </th>
+                          <th className="px-3 sm:px-4 lg:px-6 xl:px-8 py-3 sm:py-4 lg:py-6 text-right text-xs sm:text-sm font-bold text-gray-800 uppercase tracking-wider">
+                            {t.dashboard.actions}
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredUsers.map((user) => (
+                          <tr key={user.UserID} className="border-b border-gray-100 hover:bg-gray-50/50 transition-all duration-300">
+                            <td className="px-3 sm:px-4 lg:px-6 xl:px-8 py-3 sm:py-4 lg:py-6 xl:py-8">
+                              <div className="flex items-center space-x-2 sm:space-x-3 lg:space-x-4">
+                                <div className="flex-shrink-0">
+                                  <div className="h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 xl:h-14 xl:w-14 rounded-full bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center shadow-lg">
+                                    <span className="text-xs sm:text-sm lg:text-base xl:text-xl font-bold text-white">
+                                      {user.Username.charAt(0).toUpperCase()}
+                                    </span>
+                                  </div>
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                  <div className="text-xs sm:text-sm lg:text-base xl:text-xl font-bold text-gray-900 truncate">
+                                    {user.Username}
+                                  </div>
+                                  <div className="text-xs sm:text-sm text-gray-600">
+                                    ID: {user.UserID}
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="px-3 sm:px-4 lg:px-6 xl:px-8 py-3 sm:py-4 lg:py-6 xl:py-8">
+                              <div className="flex items-center space-x-2 sm:space-x-3">
+                                <div className="flex-1 min-w-0">
+                                  <div className="text-xs sm:text-sm text-gray-800 font-mono bg-gray-50 border border-gray-200 rounded-lg px-2 sm:px-3 lg:px-4 py-2 sm:py-3 break-all">
+                                    {user.UUID ?? 'Sin UUID'}
+                                  </div>
+                                </div>
+                                {user.UUID && (
+                                  <button
+                                    onClick={() => copyToClipboard(user.UUID!)}
+                                    className="p-1.5 sm:p-2 lg:p-3 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg hover:from-blue-500 hover:to-blue-600 transition-all duration-300 transform hover:scale-105 flex-shrink-0 shadow-lg"
+                                    title={t.users.copyUUID}
+                                  >
+                                    <Key className="h-3 w-3 sm:h-4 sm:w-4 lg:h-5 lg:w-5 text-white" />
+                                  </button>
+                                )}
+                              </div>
+                            </td>
+                            <td className="px-3 sm:px-4 lg:px-6 xl:px-8 py-3 sm:py-4 lg:py-6 xl:py-8">
+                              <div className="flex items-center space-x-2 sm:space-x-3">
+                                <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-green-500" />
+                                <span className="text-xs sm:text-sm lg:text-base font-semibold text-gray-900">{t.users.activeStatus}</span>
+                              </div>
+                            </td>
+                            <td className="px-3 sm:px-4 lg:px-6 xl:px-8 py-3 sm:py-4 lg:py-6 xl:py-8">
+                              <div className="flex items-center space-x-2 sm:space-x-3">
+                                {user.GDPRConsent ? (
+                                  <>
+                                    <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-green-500" />
+                                    <span className="text-xs sm:text-sm lg:text-base font-semibold text-green-700">{t.users.yes}</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <AlertCircle className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-red-500" />
+                                    <span className="text-xs sm:text-sm lg:text-base font-semibold text-red-700">{t.users.no}</span>
+                                  </>
+                                )}
+                              </div>
+                            </td>
+                            <td className="px-3 sm:px-4 lg:px-6 xl:px-8 py-3 sm:py-4 lg:py-6 xl:py-8 text-right">
+                              <div className="flex flex-col items-end space-y-2 sm:space-y-3">
+                                {/* Selector de rol */}
+                                <select
+                                  value={user.role || 'user'}
+                                  onChange={(e) => updateUserRole(user.UserID, e.target.value)}
+                                  className="px-2 sm:px-3 py-1 sm:py-2 bg-white border border-gray-300 rounded-lg text-xs sm:text-sm font-medium text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 w-full sm:w-auto"
+                                >
+                                  <option value="admin">{t.dashboard.admin}</option>
+                                  <option value="doctor">{t.dashboard.doctor}</option>
+                                  <option value="user">{t.dashboard.user}</option>
+                                </select>
+                                
+                                {/* Botones de acción */}
+                                <div className="flex flex-col sm:flex-row items-end sm:items-center space-y-1 sm:space-y-0 sm:space-x-2 lg:space-x-3">
+                                  <button
+                                    onClick={() => startEditing(user)}
+                                    className="p-2 sm:p-3 bg-gradient-to-br from-blue-600 to-cyan-600 rounded-lg hover:from-blue-500 hover:to-cyan-500 transition-all duration-300 transform hover:scale-105 shadow-lg"
+                                    title={t.dashboard.edit}
+                                  >
+                                    <Edit className="h-3 w-3 sm:h-4 sm:w-4 lg:h-5 lg:w-5 text-white" />
+                                  </button>
+                                  <button
+                                    onClick={() => clearUUID(user.UserID)}
+                                    disabled={clearingUUID}
+                                    className="p-2 sm:p-3 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg hover:from-blue-500 hover:to-blue-600 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:transform-none shadow-lg"
+                                    title={t.users.clearUUID}
+                                  >
+                                    <RefreshCw className={`h-3 w-3 sm:h-4 sm:w-4 lg:h-5 lg:w-5 text-white ${clearingUUID ? 'animate-spin' : ''}`} />
+                                  </button>
+                                  <button
+                                    onClick={() => deleteUser(user.UserID)}
+                                    className="p-2 sm:p-3 bg-gradient-to-br from-red-600 to-rose-600 rounded-lg hover:from-red-500 hover:to-rose-500 transition-all duration-300 transform hover:scale-105 shadow-lg"
+                                    title={t.dashboard.delete}
+                                  >
+                                    <Trash2 className="h-3 w-3 sm:h-4 sm:w-4 lg:h-5 lg:w-5 text-white" />
+                                  </button>
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </>
               )}
             </div>
 
@@ -469,76 +574,76 @@ export default function UsersPage() {
 
           {/* Modal de edición */}
           {editingUser && (
-            <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
-              <div className="relative bg-white/95 backdrop-blur-xl border border-gray-200/50 rounded-3xl p-10 w-full max-w-lg mx-4 shadow-2xl">
-                <div className="flex items-center justify-between mb-8">
-                  <h3 className="text-3xl font-bold text-gray-900">Editar Usuario</h3>
+            <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+              <div className="relative bg-white/95 backdrop-blur-xl border border-gray-200/50 rounded-2xl sm:rounded-3xl p-6 sm:p-8 lg:p-10 w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl">
+                <div className="flex items-center justify-between mb-6 sm:mb-8">
+                  <h3 className="text-2xl sm:text-3xl font-bold text-gray-900">{t.users.editUser}</h3>
                   <button
                     onClick={cancelEditing}
-                    className="p-3 bg-gradient-to-br from-red-500/20 to-rose-500/20 backdrop-blur-sm border border-red-500/30 rounded-xl text-red-500 hover:border-red-500/50 transition-all duration-300"
+                    className="p-2 sm:p-3 bg-gradient-to-br from-red-500/20 to-rose-500/20 backdrop-blur-sm border border-red-500/30 rounded-xl text-red-500 hover:border-red-500/50 transition-all duration-300"
                   >
-                    <X className="h-6 w-6" />
+                    <X className="h-5 w-5 sm:h-6 sm:w-6" />
                   </button>
                 </div>
 
-                <div className="space-y-8">
+                <div className="space-y-6 sm:space-y-8">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-4">
-                      Nombre de Usuario
+                    <label className="block text-sm font-semibold text-gray-700 mb-3 sm:mb-4">
+                      {t.users.usernameLabel}
                     </label>
                     <input
                       type="text"
                       value={editForm.Username}
                       onChange={(e) => setEditForm({ ...editForm, Username: e.target.value })}
-                      className="w-full bg-white/50 border border-gray-200 rounded-xl px-4 py-4 text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 hover:bg-white/70"
+                      className="w-full bg-white/50 border border-gray-200 rounded-xl px-3 sm:px-4 py-3 sm:py-4 text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 hover:bg-white/70 text-sm sm:text-base"
                     />
                   </div>
 
-                  <div className="flex items-center space-x-4">
+                  <div className="flex items-center space-x-3 sm:space-x-4">
                     <input
                       type="checkbox"
                       id="gdpr-consent"
                       checked={editForm.GDPRConsent}
                       onChange={(e) => setEditForm({ ...editForm, GDPRConsent: e.target.checked })}
-                      className="h-6 w-6 text-blue-600 focus:ring-blue-500 border-gray-300 rounded bg-white"
+                      className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 focus:ring-blue-500 border-gray-300 rounded bg-white"
                     />
-                    <label htmlFor="gdpr-consent" className="block text-base font-semibold text-gray-700">
-                      Consentimiento GDPR
+                    <label htmlFor="gdpr-consent" className="block text-sm sm:text-base font-semibold text-gray-700">
+                      {t.users.gdprConsent}
                     </label>
                   </div>
 
-                  <div className="bg-white/50 border border-gray-200 p-6 rounded-xl">
-                    <div className="flex items-center mb-4">
-                      <Shield className="h-6 w-6 text-blue-600 mr-3" />
-                      <span className="text-base font-semibold text-gray-700">UUID Actual</span>
+                  <div className="bg-white/50 border border-gray-200 p-4 sm:p-6 rounded-xl">
+                    <div className="flex items-center mb-3 sm:mb-4">
+                      <Shield className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 mr-2 sm:mr-3" />
+                      <span className="text-sm sm:text-base font-semibold text-gray-700">{t.users.currentUUID}</span>
                     </div>
-                    <div className="text-sm text-gray-600 font-mono break-all bg-gray-50 border border-gray-200 rounded-lg px-4 py-3">
-                      {editingUser.UUID || 'Sin UUID asignado'}
+                    <div className="text-xs sm:text-sm text-gray-600 font-mono break-all bg-gray-50 border border-gray-200 rounded-lg px-3 sm:px-4 py-2 sm:py-3">
+                      {editingUser.UUID || t.users.noUUIDAssigned}
                     </div>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-end space-x-6 mt-10">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end space-y-3 sm:space-y-0 sm:space-x-4 lg:space-x-6 mt-8 sm:mt-10">
                   <button
                     onClick={cancelEditing}
-                    className="px-8 py-4 text-base font-semibold text-gray-600 bg-white/50 border border-gray-200 rounded-xl hover:bg-gray-50 transition-all duration-300"
+                    className="px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base font-semibold text-gray-600 bg-white/50 border border-gray-200 rounded-xl hover:bg-gray-50 transition-all duration-300"
                   >
-                    Cancelar
+                    {t.users.cancel}
                   </button>
                   <button
                     onClick={saveUser}
                     disabled={saving || !editForm.Username.trim()}
-                    className="px-8 py-4 text-base font-semibold text-white bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-600 rounded-xl hover:from-blue-700 hover:via-blue-800 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center transition-all duration-300 transform hover:-translate-y-0.5 disabled:transform-none shadow-lg hover:shadow-xl"
+                    className="px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base font-semibold text-white bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-600 rounded-xl hover:from-blue-700 hover:via-blue-800 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-all duration-300 transform hover:-translate-y-0.5 disabled:transform-none shadow-lg hover:shadow-xl"
                   >
                     {saving ? (
                       <>
-                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
-                        Guardando...
+                        <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-b-2 border-white mr-2 sm:mr-3"></div>
+                        {t.users.saving}
                       </>
                     ) : (
                       <>
-                        <Save className="h-5 w-5 mr-3" />
-                        Guardar
+                        <Save className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3" />
+                        {t.users.save}
                       </>
                     )}
                   </button>
@@ -549,44 +654,44 @@ export default function UsersPage() {
 
           {/* Modal de creación de usuario */}
           {showCreateForm && (
-            <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
-              <div className="relative bg-white/95 backdrop-blur-xl border border-gray-200/50 rounded-3xl p-10 w-full max-w-lg mx-4 shadow-2xl">
-                <div className="flex items-center justify-between mb-8">
-                  <h3 className="text-3xl font-bold text-gray-900">Crear Nuevo Usuario</h3>
+            <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+              <div className="relative bg-white/95 backdrop-blur-xl border border-gray-200/50 rounded-2xl sm:rounded-3xl p-6 sm:p-8 lg:p-10 w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl">
+                <div className="flex items-center justify-between mb-6 sm:mb-8">
+                  <h3 className="text-2xl sm:text-3xl font-bold text-gray-900">{t.users.createNewUser}</h3>
                   <button
                     onClick={() => setShowCreateForm(false)}
-                    className="p-3 bg-gradient-to-br from-red-500/20 to-rose-500/20 backdrop-blur-sm border border-red-500/30 rounded-xl text-red-500 hover:border-red-500/50 transition-all duration-300"
+                    className="p-2 sm:p-3 bg-gradient-to-br from-red-500/20 to-rose-500/20 backdrop-blur-sm border border-red-500/30 rounded-xl text-red-500 hover:border-red-500/50 transition-all duration-300"
                   >
-                    <X className="h-6 w-6" />
+                    <X className="h-5 w-5 sm:h-6 sm:w-6" />
                   </button>
                 </div>
 
-                <form onSubmit={handleCreateUser} className="space-y-8">
+                <form onSubmit={handleCreateUser} className="space-y-6 sm:space-y-8">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-4">
-                      <UserIcon className="h-5 w-5 inline mr-2" />
-                      Nombre de Usuario *
+                    <label className="block text-sm font-semibold text-gray-700 mb-3 sm:mb-4">
+                      <UserIcon className="h-4 w-4 sm:h-5 sm:w-5 inline mr-2" />
+                      {t.users.usernameLabel} *
                     </label>
                     <input
                       type="text"
                       value={createForm.username}
                       onChange={(e) => setCreateForm({ ...createForm, username: e.target.value })}
-                      className="w-full bg-white/50 border border-gray-200 rounded-xl px-4 py-4 text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 hover:bg-white/70"
+                      className="w-full bg-white/50 border border-gray-200 rounded-xl px-3 sm:px-4 py-3 sm:py-4 text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 hover:bg-white/70 text-sm sm:text-base"
                       placeholder="Nombre de usuario único"
                       required
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-4">
-                      <Lock className="h-5 w-5 inline mr-2" />
-                      Contraseña *
+                    <label className="block text-sm font-semibold text-gray-700 mb-3 sm:mb-4">
+                      <Lock className="h-4 w-4 sm:h-5 sm:w-5 inline mr-2" />
+                      {t.users.passwordLabel} *
                     </label>
                     <input
                       type="password"
                       value={createForm.password}
                       onChange={(e) => setCreateForm({ ...createForm, password: e.target.value })}
-                      className="w-full bg-white/50 border border-gray-200 rounded-xl px-4 py-4 text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 hover:bg-white/70"
+                      className="w-full bg-white/50 border border-gray-200 rounded-xl px-3 sm:px-4 py-3 sm:py-4 text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 hover:bg-white/70 text-sm sm:text-base"
                       placeholder="Mínimo 6 caracteres"
                       minLength={6}
                       required
@@ -594,14 +699,14 @@ export default function UsersPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-4">
-                      <Shield className="h-5 w-5 inline mr-2" />
-                      {t.dashboard.role} *
+                    <label className="block text-sm font-semibold text-gray-700 mb-3 sm:mb-4">
+                      <Shield className="h-4 w-4 sm:h-5 sm:w-5 inline mr-2" />
+                      {t.users.roleLabel} *
                     </label>
                     <select
                       value={createForm.role}
                       onChange={(e) => setCreateForm({ ...createForm, role: e.target.value })}
-                      className="w-full bg-white/50 border border-gray-200 rounded-xl px-4 py-4 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 hover:bg-white/70"
+                      className="w-full bg-white/50 border border-gray-200 rounded-xl px-3 sm:px-4 py-3 sm:py-4 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 hover:bg-white/70 text-sm sm:text-base"
                     >
                       <option value="user">{t.dashboard.user}</option>
                       <option value="doctor">{t.dashboard.doctor}</option>
@@ -609,38 +714,38 @@ export default function UsersPage() {
                     </select>
                   </div>
 
-                  <div className="bg-white/50 border border-gray-200 p-6 rounded-xl">
-                    <div className="flex items-center mb-4">
-                      <Shield className="h-6 w-6 text-blue-600 mr-3" />
-                      <span className="text-base font-semibold text-gray-700">Información</span>
+                  <div className="bg-white/50 border border-gray-200 p-4 sm:p-6 rounded-xl">
+                    <div className="flex items-center mb-3 sm:mb-4">
+                      <Shield className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 mr-2 sm:mr-3" />
+                      <span className="text-sm sm:text-base font-semibold text-gray-700">{t.users.information}</span>
                     </div>
-                    <p className="text-sm text-gray-600">
-                      El usuario será creado con nombre de usuario y contraseña. Podrá acceder a la aplicación móvil usando estas credenciales.
+                    <p className="text-xs sm:text-sm text-gray-600">
+                      {t.users.userWillBeCreated}
                     </p>
                   </div>
 
-                  <div className="flex items-center justify-end space-x-6 mt-10">
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end space-y-3 sm:space-y-0 sm:space-x-4 lg:space-x-6 mt-8 sm:mt-10">
                     <button
                       type="button"
                       onClick={() => setShowCreateForm(false)}
-                      className="px-8 py-4 text-base font-semibold text-gray-600 bg-white/50 border border-gray-200 rounded-xl hover:bg-gray-50 transition-all duration-300"
+                      className="px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base font-semibold text-gray-600 bg-white/50 border border-gray-200 rounded-xl hover:bg-gray-50 transition-all duration-300"
                     >
-                      Cancelar
+                      {t.users.cancel}
                     </button>
                     <button
                       type="submit"
                       disabled={createLoading || !createForm.username || !createForm.password}
-                      className="px-8 py-4 text-base font-semibold text-white bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-600 rounded-xl hover:from-blue-700 hover:via-blue-800 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center transition-all duration-300 transform hover:-translate-y-0.5 disabled:transform-none shadow-lg hover:shadow-xl"
+                      className="px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base font-semibold text-white bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-600 rounded-xl hover:from-blue-700 hover:via-blue-800 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-all duration-300 transform hover:-translate-y-0.5 disabled:transform-none shadow-lg hover:shadow-xl"
                     >
                       {createLoading ? (
                         <>
-                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
-                          Creando...
+                          <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-b-2 border-white mr-2 sm:mr-3"></div>
+                          {t.users.creating}
                         </>
                       ) : (
                         <>
-                          <Plus className="h-5 w-5 mr-3" />
-                          {t.dashboard.createUser}
+                          <Plus className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3" />
+                          {t.users.create}
                         </>
                       )}
                     </button>
