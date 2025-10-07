@@ -226,31 +226,25 @@ export default function AppLoginPage() {
               </button>
             </form>
 
-            <div className="mt-8 space-y-6">
-              <button
-                type="button"
-                className="w-full text-blue-600 hover:text-blue-700 font-semibold transition-colors text-lg"
-                disabled
-              >
-                ¿No tienes cuenta? Regístrate
-              </button>
-              
+            <div className="mt-8 text-center">
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-300"></div>
+                  <div className="w-full border-t border-gray-200"></div>
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="px-4 bg-white/80 text-gray-500">o</span>
+                  <span className="px-4 bg-white/80 text-gray-500">{t.auth.or}</span>
                 </div>
               </div>
               
-              <a
-                href="/login"
-                className="w-full flex items-center justify-center px-4 py-3 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 transition-colors font-medium"
-              >
-                <Mail className="h-5 w-5 mr-2" />
-                {t.auth.adminAccess}
-              </a>
+              <div className="mt-6">
+                <a
+                  href="/login"
+                  className="w-full flex items-center justify-center px-4 py-3 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 transition-colors font-medium"
+                >
+                  <Mail className="h-5 w-5 mr-2" />
+                  {t.auth.adminAccess}
+                </a>
+              </div>
             </div>
           </div>
         </div>
