@@ -132,6 +132,25 @@ def _unzip(zip_path: Path, dest_dir: Path) -> None:
     if rc != 0:
         raise RuntimeError(f"unzip failed: {out}")
 
+def _pick_release_root(extract_dir: Path) -> Path:
+    """
+    GitHub source zips extract into a single top-level folder (e.g. repo-main/).
+    Our updater expects requirements.txt at the release root, so if it's nested
+    one level down, use that folder as the effective release root.
+    """
+    req = extract_dir / "requirements.txt"
+    if req.exists():
+        return extract_dir
+    try:
+        kids = [p for p in extract_dir.iterdir() if p.is_dir()]
+    except Exception:
+        kids = []
+    if len(kids) == 1:
+        nested = kids[0]
+        if (nested / "requirements.txt").exists():
+            return nested
+    return extract_dir
+
 def _ensure_venv_and_install(release_dir: Path) -> None:
     venv_py = release_dir / ".venv" / "bin" / "python"
     pip = release_dir / ".venv" / "bin" / "pip"
@@ -548,8 +567,9 @@ def main() -> None:
                     publish_status({"reason": "app.update"})
                     _download(url, tmp_zip)
                     _unzip(tmp_zip, release_dir)
-                    _ensure_venv_and_install(release_dir)
-                    _swap_current(base_dir, release_dir)
+                    root = _pick_release_root(release_dir)
+                    _ensure_venv_and_install(root)
+                    _swap_current(base_dir, root)
                     # restart app service (user or system)
                     restart_res = (
                         _systemd_user_action(cfg.app_service_name, "restart", cfg.app_user, cfg.app_user_uid)
@@ -563,7 +583,7 @@ def main() -> None:
                         {
                             "version": version,
                             "url": url,
-                            "release_dir": str(release_dir),
+                            "release_dir": str(root),
                             "current": str(base_dir / "current"),
                             "restart": restart_res,
                         },
@@ -599,7 +619,8 @@ def main() -> None:
                     publish_status({"reason": "app.update.check"})
                     _download(url, tmp_zip)
                     _unzip(tmp_zip, staged_dir)
-                    _ensure_venv_and_install(staged_dir)
+                    root = _pick_release_root(staged_dir)
+                    _ensure_venv_and_install(root)
                     publish_status({"reason": "app.update.check.done"})
                     respond(
                         req_id,
@@ -607,7 +628,7 @@ def main() -> None:
                         {
                             "version": version,
                             "url": url,
-                            "staged_dir": str(staged_dir),
+                            "staged_dir": str(root),
                             "zip": str(tmp_zip),
                             "would_activate": str(releases / version),
                             "note": "OK: descarga+unzip+deps. No se activó (no swap current, no restart).",
