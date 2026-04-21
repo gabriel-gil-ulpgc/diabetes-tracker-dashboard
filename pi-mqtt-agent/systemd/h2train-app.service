@@ -6,10 +6,11 @@ Wants=network-online.target
 [Service]
 Type=simple
 EnvironmentFile=-/etc/h2train-app.env
-WorkingDirectory=/opt/h2train-app
+WorkingDirectory=/opt/h2train-app/current
 
-# Por defecto ejecuta la app python "tal cual". Ajusta si usas venv.
-ExecStart=/usr/bin/python3 /opt/h2train-app/app.py
+# Ejecuta la release "current" para que app.update tenga efecto.
+# (El updater cambia el symlink /opt/h2train-app/current)
+ExecStart=/opt/h2train-app/current/.venv/bin/python /opt/h2train-app/current/app.py
 
 Restart=on-failure
 RestartSec=3
