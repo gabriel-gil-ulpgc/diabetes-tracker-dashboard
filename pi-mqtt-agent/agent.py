@@ -767,7 +767,11 @@ def main() -> None:
                 if restart_val is None and isinstance(args, dict):
                     restart_val = args.get("restart")
                 do_restart = bool(True if restart_val is None else restart_val)
-                action_res = _systemd_action(cfg.app_service_name, "restart" if do_restart else "reload-or-restart")
+                action_res = (
+                    _systemd_user_action(cfg.app_service_name, "restart" if do_restart else "reload-or-restart", cfg.app_user, cfg.app_user_uid)
+                    if cfg.app_systemd_mode == "user"
+                    else _systemd_action(cfg.app_service_name, "restart" if do_restart else "reload-or-restart")
+                )
                 publish_status({"reason": "app.config.set"})
                 respond(req_id, True, {"written": cfg.app_env_file, "updates": sorted(list(updates.keys())), "action": action_res})
                 return
