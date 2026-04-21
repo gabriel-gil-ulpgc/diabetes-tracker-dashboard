@@ -752,13 +752,21 @@ def main() -> None:
                 return
             if cmd == "app.config.set":
                 # payload: { id, cmd:"app.config.set", env: { "KEY":"VALUE", ... }, restart:true/false }
-                env_updates = payload.get("env") or {}
+                # Accept both legacy payload shape and the dashboard shape { cmd, args:{ env, restart } }.
+                args = payload.get("args") or {}
+                env_updates = payload.get("env")
+                if env_updates is None and isinstance(args, dict):
+                    env_updates = args.get("env")
+                env_updates = env_updates or {}
                 if not isinstance(env_updates, dict):
                     respond(req_id, False, error="env debe ser un objeto {KEY:VALUE}")
                     return
                 updates = {str(k): _safe_str(v, 2048) for k, v in env_updates.items()}
                 _write_env_kv(cfg.app_env_file, updates)
-                do_restart = bool(payload.get("restart", True))
+                restart_val = payload.get("restart")
+                if restart_val is None and isinstance(args, dict):
+                    restart_val = args.get("restart")
+                do_restart = bool(True if restart_val is None else restart_val)
                 action_res = _systemd_action(cfg.app_service_name, "restart" if do_restart else "reload-or-restart")
                 publish_status({"reason": "app.config.set"})
                 respond(req_id, True, {"written": cfg.app_env_file, "updates": sorted(list(updates.keys())), "action": action_res})
