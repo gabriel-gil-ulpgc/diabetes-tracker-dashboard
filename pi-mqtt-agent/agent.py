@@ -348,7 +348,7 @@ def _systemd_user_show(service: str, props: list[str], user: str, uid: int) -> d
             out[p] = _v.strip()
     return out
 
-def _proc_environ(pid: int) -> dict[str, str]:
+def _proc_environ(pid: int) -> tuple[dict[str, str], str]:
     env: dict[str, str] = {}
     try:
         raw = Path(f"/proc/{pid}/environ").read_bytes()
@@ -360,9 +360,9 @@ def _proc_environ(pid: int) -> dict[str, str]:
                 env[k.decode("utf-8", "ignore")] = v.decode("utf-8", "ignore")
             except Exception:
                 continue
-    except Exception:
-        pass
-    return env
+        return env, ""
+    except Exception as e:
+        return {}, str(e)
 
 
 def _build_config() -> Config:
@@ -894,8 +894,9 @@ def main() -> None:
                 if pid <= 0:
                     pid = pid_system if pid_system > 0 else pid_user
 
-                env = _proc_environ(pid) if pid > 0 else {}
+                env, env_err = _proc_environ(pid) if pid > 0 else ({}, "pid=0")
                 h2t = {k: env.get(k, "") for k in sorted(env.keys()) if k.startswith("H2T_")}
+                sample_keys = sorted(list(env.keys()))[:25]
                 respond(
                     req_id,
                     True,
@@ -904,7 +905,37 @@ def main() -> None:
                         "show": {"system": show_system, "user": show_user},
                         "pid": pid,
                         "h2t": h2t,
+                        "env_size": len(env),
+                        "env_sample_keys": sample_keys,
+                        "env_read_error": env_err,
                         "note": "Estos valores son los H2T_* que ve el proceso en ejecución (/proc/<pid>/environ).",
+                    },
+                )
+                return
+
+            if cmd == "app.code.get":
+                # Read the currently deployed app.py and extract version / markers.
+                base_dir = Path(cfg.app_base_dir)
+                app_py = (base_dir / "current" / "app.py")
+                try:
+                    text = app_py.read_text(encoding="utf-8", errors="ignore")
+                except Exception as e:
+                    respond(req_id, False, error=f"no se pudo leer {app_py}: {e}")
+                    return
+                m = re.search(r'^\s*APP_VERSION\s*=\s*"([^"]+)"', text, flags=re.M)
+                version = m.group(1) if m else ""
+                markers = {
+                    "has_env_loader": "_load_env_file_into_process" in text,
+                    "has_putenv": "os.putenv" in text,
+                    "has_effective_log": "effective H2T_*" in text or "loaded" in text,
+                }
+                respond(
+                    req_id,
+                    True,
+                    {
+                        "path": str(app_py),
+                        "app_version": version,
+                        "markers": markers,
                     },
                 )
                 return
