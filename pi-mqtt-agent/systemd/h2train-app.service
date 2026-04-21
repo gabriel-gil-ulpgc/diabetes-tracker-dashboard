@@ -1,0 +1,27 @@
+[Unit]
+Description=H2TRAIN Python App (Tkinter)
+After=graphical.target network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+EnvironmentFile=-/etc/h2train-app.env
+WorkingDirectory=/opt/h2train-app
+
+# Por defecto ejecuta la app python "tal cual". Ajusta si usas venv.
+ExecStart=/usr/bin/python3 /opt/h2train-app/app.py
+
+Restart=on-failure
+RestartSec=3
+
+# Si quieres GUI en Raspberry con desktop, normalmente el usuario no-root es mejor:
+User=ggil
+
+# Tkinter necesita DISPLAY y, si hay X11, autorización (XAUTHORITY).
+# Ajusta si tu sesión gráfica usa otro usuario o Wayland.
+Environment=DISPLAY=:0
+Environment=XAUTHORITY=/home/%u/.Xauthority
+
+[Install]
+WantedBy=multi-user.target
+
