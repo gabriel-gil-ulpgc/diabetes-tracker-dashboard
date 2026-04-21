@@ -293,6 +293,10 @@ def _systemd_action(service: str, action: str) -> dict:
         "state": st,
     }
 
+def _systemd_is_active(service: str) -> bool:
+    rc, out = _run(["systemctl", "is-active", service], timeout=4.0)
+    return rc == 0 and (out or "").strip() == "active"
+
 def _systemd_user_action(service: str, action: str, user: str, uid: int) -> dict:
     base = [
         "runuser",
@@ -827,9 +831,18 @@ def main() -> None:
                 if restart_val is None and isinstance(args, dict):
                     restart_val = args.get("restart")
                 do_restart = bool(True if restart_val is None else restart_val)
+                # Prefer configured systemd scope, but fall back to system scope if that's what is actually active.
+                want_user = cfg.app_systemd_mode == "user"
+                if want_user and _systemd_is_active(cfg.app_service_name):
+                    want_user = False
                 action_res = (
-                    _systemd_user_action(cfg.app_service_name, "restart" if do_restart else "reload-or-restart", cfg.app_user, cfg.app_user_uid)
-                    if cfg.app_systemd_mode == "user"
+                    _systemd_user_action(
+                        cfg.app_service_name,
+                        "restart" if do_restart else "reload-or-restart",
+                        cfg.app_user,
+                        cfg.app_user_uid,
+                    )
+                    if want_user
                     else _systemd_action(cfg.app_service_name, "restart" if do_restart else "reload-or-restart")
                 )
                 publish_status({"reason": "app.config.set"})
@@ -863,15 +876,24 @@ def main() -> None:
                 return
             if cmd == "app.env.get":
                 # Inspect runtime env of the running service process (MainPID).
-                show = (
-                    _systemd_user_show(cfg.app_service_name, ["MainPID", "ExecStart", "WorkingDirectory"], cfg.app_user, cfg.app_user_uid)
-                    if cfg.app_systemd_mode == "user"
-                    else _systemd_show(cfg.app_service_name, ["MainPID", "ExecStart", "WorkingDirectory"])
+                show_system = _systemd_show(cfg.app_service_name, ["MainPID", "ExecStart", "WorkingDirectory"])
+                show_user = _systemd_user_show(
+                    cfg.app_service_name, ["MainPID", "ExecStart", "WorkingDirectory"], cfg.app_user, cfg.app_user_uid
                 )
-                try:
-                    pid = int(show.get("MainPID", "0") or "0")
-                except Exception:
-                    pid = 0
+
+                def _pid_of(show: dict[str, str]) -> int:
+                    try:
+                        return int(show.get("MainPID", "0") or "0")
+                    except Exception:
+                        return 0
+
+                pid_system = _pid_of(show_system)
+                pid_user = _pid_of(show_user)
+                # If configured scope yields pid=0, try the other scope automatically.
+                pid = pid_user if cfg.app_systemd_mode == "user" else pid_system
+                if pid <= 0:
+                    pid = pid_system if pid_system > 0 else pid_user
+
                 env = _proc_environ(pid) if pid > 0 else {}
                 h2t = {k: env.get(k, "") for k in sorted(env.keys()) if k.startswith("H2T_")}
                 respond(
@@ -879,7 +901,7 @@ def main() -> None:
                     True,
                     {
                         "service": cfg.app_service_name,
-                        "show": show,
+                        "show": {"system": show_system, "user": show_user},
                         "pid": pid,
                         "h2t": h2t,
                         "note": "Estos valores son los H2T_* que ve el proceso en ejecución (/proc/<pid>/environ).",
