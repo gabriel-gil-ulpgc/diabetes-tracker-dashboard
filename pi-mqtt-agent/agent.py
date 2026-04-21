@@ -315,6 +315,32 @@ def _systemd_user_action(service: str, action: str, user: str, uid: int) -> dict
         "user": user,
     }
 
+def _systemd_show(service: str, props: list[str]) -> dict[str, str]:
+    # Returns a dict of requested properties (best-effort).
+    out: dict[str, str] = {}
+    for p in props:
+        rc, val = _run(["systemctl", "show", service, "-p", p], timeout=5.0)
+        if rc == 0 and val and "=" in val:
+            _k, _v = val.split("=", 1)
+            out[p] = _v.strip()
+    return out
+
+def _proc_environ(pid: int) -> dict[str, str]:
+    env: dict[str, str] = {}
+    try:
+        raw = Path(f"/proc/{pid}/environ").read_bytes()
+        for part in raw.split(b"\x00"):
+            if not part or b"=" not in part:
+                continue
+            k, v = part.split(b"=", 1)
+            try:
+                env[k.decode("utf-8", "ignore")] = v.decode("utf-8", "ignore")
+            except Exception:
+                continue
+    except Exception:
+        pass
+    return env
+
 
 def _build_config() -> Config:
     mqtt_username = _env("MQTT_USERNAME", "").strip()
@@ -813,6 +839,27 @@ def main() -> None:
                         "raw": text,
                         "parsed": parsed,
                         "h2t": {k: parsed.get(k, "") for k in sorted(parsed.keys()) if k.startswith("H2T_")},
+                    },
+                )
+                return
+            if cmd == "app.env.get":
+                # Inspect runtime env of the running service process (MainPID).
+                show = _systemd_show(cfg.app_service_name, ["MainPID", "ExecStart", "WorkingDirectory"])
+                try:
+                    pid = int(show.get("MainPID", "0") or "0")
+                except Exception:
+                    pid = 0
+                env = _proc_environ(pid) if pid > 0 else {}
+                h2t = {k: env.get(k, "") for k in sorted(env.keys()) if k.startswith("H2T_")}
+                respond(
+                    req_id,
+                    True,
+                    {
+                        "service": cfg.app_service_name,
+                        "show": show,
+                        "pid": pid,
+                        "h2t": h2t,
+                        "note": "Estos valores son los H2T_* que ve el proceso en ejecución (/proc/<pid>/environ).",
                     },
                 )
                 return
