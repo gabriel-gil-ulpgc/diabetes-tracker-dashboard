@@ -373,6 +373,21 @@ def _write_env_kv(path: str, updates: dict[str, str]) -> None:
     - Mantiene claves existentes que no se tocan
     - Actualiza/agrega las de `updates`
     """
+    def _fmt_env_value(v: str) -> str:
+        """
+        systemd EnvironmentFile soporta valores sin espacios o entre comillas.
+        Para evitar que espacios/paréntesis rompan el parseo, ponemos comillas cuando haga falta.
+        """
+        s = "" if v is None else str(v)
+        if s == "":
+            return ""
+        needs_quote = any(ch.isspace() for ch in s) or any(ch in s for ch in ['"', "'", "#", "(", ")", ";"])
+        if not needs_quote:
+            return s
+        # Escape mínimo para comillas dobles.
+        esc = s.replace("\\", "\\\\").replace('"', '\\"')
+        return f"\"{esc}\""
+
     p = Path(path)
     existing: dict[str, str] = {}
     if p.exists():
@@ -382,7 +397,7 @@ def _write_env_kv(path: str, updates: dict[str, str]) -> None:
                 continue
             k, v = s.split("=", 1)
             existing[k.strip()] = v.strip()
-    existing.update({k: _safe_str(v, 2048) for k, v in updates.items()})
+    existing.update({k: _fmt_env_value(_safe_str(v, 2048)) for k, v in updates.items()})
     _ensure_dir(p.parent)
     content = "\n".join([f"{k}={existing[k]}" for k in sorted(existing.keys())]) + "\n"
     p.write_text(content, encoding="utf-8")
@@ -774,6 +789,32 @@ def main() -> None:
                 )
                 publish_status({"reason": "app.config.set"})
                 respond(req_id, True, {"written": cfg.app_env_file, "updates": sorted(list(updates.keys())), "action": action_res})
+                return
+            if cmd == "app.config.get":
+                # Returns current env file contents + parsed key/values.
+                p = Path(cfg.app_env_file)
+                try:
+                    text = p.read_text(encoding="utf-8") if p.exists() else ""
+                except Exception as e:
+                    respond(req_id, False, error=f"no se pudo leer env: {e}")
+                    return
+                parsed: dict[str, str] = {}
+                for line in text.splitlines():
+                    s = line.strip()
+                    if not s or s.startswith("#") or "=" not in s:
+                        continue
+                    k, v = s.split("=", 1)
+                    parsed[k.strip()] = v.strip()
+                respond(
+                    req_id,
+                    True,
+                    {
+                        "env_file": cfg.app_env_file,
+                        "raw": text,
+                        "parsed": parsed,
+                        "h2t": {k: parsed.get(k, "") for k in sorted(parsed.keys()) if k.startswith("H2T_")},
+                    },
+                )
                 return
             if cmd == "device.meta.set":
                 # payload: { id, cmd:"device.meta.set", name?, location? }
