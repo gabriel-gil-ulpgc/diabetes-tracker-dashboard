@@ -325,6 +325,25 @@ def _systemd_show(service: str, props: list[str]) -> dict[str, str]:
             out[p] = _v.strip()
     return out
 
+def _systemd_user_show(service: str, props: list[str], user: str, uid: int) -> dict[str, str]:
+    out: dict[str, str] = {}
+    base = [
+        "runuser",
+        "-u",
+        user,
+        "--",
+        "env",
+        "XDG_RUNTIME_DIR=/run/user/%d" % uid,
+        "systemctl",
+        "--user",
+    ]
+    for p in props:
+        rc, val = _run(base + ["show", service, "-p", p], timeout=6.0)
+        if rc == 0 and val and "=" in val:
+            _k, _v = val.split("=", 1)
+            out[p] = _v.strip()
+    return out
+
 def _proc_environ(pid: int) -> dict[str, str]:
     env: dict[str, str] = {}
     try:
@@ -844,7 +863,11 @@ def main() -> None:
                 return
             if cmd == "app.env.get":
                 # Inspect runtime env of the running service process (MainPID).
-                show = _systemd_show(cfg.app_service_name, ["MainPID", "ExecStart", "WorkingDirectory"])
+                show = (
+                    _systemd_user_show(cfg.app_service_name, ["MainPID", "ExecStart", "WorkingDirectory"], cfg.app_user, cfg.app_user_uid)
+                    if cfg.app_systemd_mode == "user"
+                    else _systemd_show(cfg.app_service_name, ["MainPID", "ExecStart", "WorkingDirectory"])
+                )
                 try:
                     pid = int(show.get("MainPID", "0") or "0")
                 except Exception:
