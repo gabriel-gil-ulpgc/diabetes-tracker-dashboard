@@ -548,9 +548,21 @@ def main() -> None:
 
         def _loop():
             last_runtime = 0.0
+            last_seq: int | None = None
             while stream_state["enabled"]:
                 t0 = time.time()
-                _publish_app_key_once()
+                # Poll fast, but only publish when key changes (reduces noise/traffic).
+                try:
+                    j = _http_get_json("http://127.0.0.1:8099/api/key", timeout=2.0)
+                    if j.get("ok"):
+                        seq = j.get("key_seq")
+                        if isinstance(seq, int) and seq != last_seq:
+                            last_seq = seq
+                            publish_telemetry({"app_key": j})
+                    else:
+                        publish_telemetry({"app_key": {"ok": False, "error": j.get("error", "unknown")}})
+                except Exception as e:
+                    publish_telemetry({"app_key": {"ok": False, "error": str(e)}})
                 # Runtime (signal) less frequently to reduce load.
                 if (t0 - last_runtime) >= float(stream_state["runtime_every"]):
                     _publish_app_runtime_once()
@@ -1019,10 +1031,22 @@ def main() -> None:
                 stream_state["runtime_every"] = max(1.0, min(runtime_every, 120.0))
                 if enabled:
                     _ensure_stream_thread()
-                    publish_telemetry({"reason": "app.stream.on", "interval_sec": stream_state["interval"], "runtime_every_sec": stream_state["runtime_every"]})
+                    # Publish immediate snapshot so UI updates instantly.
+                    _publish_app_key_once()
+                    _publish_app_runtime_once()
+                    publish_telemetry(
+                        {
+                            "reason": "app.stream.on",
+                            "app_stream": {"enabled": True, "interval_sec": stream_state["interval"], "runtime_every_sec": stream_state["runtime_every"]},
+                        }
+                    )
                 else:
-                    publish_telemetry({"reason": "app.stream.off"})
-                respond(req_id, True, {"enabled": enabled, "interval_sec": stream_state["interval"], "runtime_every_sec": stream_state["runtime_every"]})
+                    publish_telemetry({"reason": "app.stream.off", "app_stream": {"enabled": False}})
+                respond(
+                    req_id,
+                    True,
+                    {"enabled": enabled, "interval_sec": stream_state["interval"], "runtime_every_sec": stream_state["runtime_every"]},
+                )
                 return
             if cmd == "device.meta.set":
                 # payload: { id, cmd:"device.meta.set", name?, location? }
