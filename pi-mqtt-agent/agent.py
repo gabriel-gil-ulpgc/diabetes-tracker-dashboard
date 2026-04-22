@@ -517,7 +517,7 @@ def main() -> None:
             raw = resp.read()
         return json.loads(raw.decode("utf-8"))
 
-    stream_state = {"enabled": False, "interval": 2.0}
+    stream_state = {"enabled": False, "interval": 0.5, "runtime_every": 4.0}
     stream_thread: list[threading.Thread] = []
 
     def _publish_app_runtime_once():
@@ -530,6 +530,16 @@ def main() -> None:
         except Exception as e:
             publish_telemetry({"app_runtime": {"ok": False, "error": str(e)}})
 
+    def _publish_app_key_once():
+        try:
+            j = _http_get_json("http://127.0.0.1:8099/api/key", timeout=2.0)
+            if not j.get("ok"):
+                publish_telemetry({"app_key": {"ok": False, "error": j.get("error", "unknown")}})
+                return
+            publish_telemetry({"app_key": j})
+        except Exception as e:
+            publish_telemetry({"app_key": {"ok": False, "error": str(e)}})
+
     def _ensure_stream_thread():
         if stream_thread:
             t = stream_thread[0]
@@ -537,9 +547,17 @@ def main() -> None:
                 return
 
         def _loop():
+            last_runtime = 0.0
             while stream_state["enabled"]:
-                _publish_app_runtime_once()
-                time.sleep(max(0.5, float(stream_state["interval"])))
+                t0 = time.time()
+                _publish_app_key_once()
+                # Runtime (signal) less frequently to reduce load.
+                if (t0 - last_runtime) >= float(stream_state["runtime_every"]):
+                    _publish_app_runtime_once()
+                    last_runtime = t0
+                # Sleep remainder to keep cadence stable.
+                sleep_s = max(0.05, float(stream_state["interval"]) - (time.time() - t0))
+                time.sleep(sleep_s)
 
         t = threading.Thread(target=_loop, daemon=True, name="app-runtime-stream")
         stream_thread[:] = [t]
@@ -976,6 +994,7 @@ def main() -> None:
                 return
 
             if cmd == "app.snapshot":
+                _publish_app_key_once()
                 _publish_app_runtime_once()
                 respond(req_id, True, {"published": True})
                 return
@@ -987,17 +1006,22 @@ def main() -> None:
                     return
                 enabled = bool(args.get("enabled", False))
                 try:
-                    interval = float(args.get("interval_sec", 2.0))
+                    interval = float(args.get("interval_sec", stream_state["interval"]))
                 except Exception:
-                    interval = 2.0
+                    interval = float(stream_state["interval"])
+                try:
+                    runtime_every = float(args.get("runtime_every_sec", stream_state["runtime_every"]))
+                except Exception:
+                    runtime_every = float(stream_state["runtime_every"])
                 stream_state["enabled"] = enabled
                 stream_state["interval"] = max(0.5, min(interval, 60.0))
+                stream_state["runtime_every"] = max(1.0, min(runtime_every, 120.0))
                 if enabled:
                     _ensure_stream_thread()
-                    publish_telemetry({"reason": "app.stream.on", "interval_sec": stream_state["interval"]})
+                    publish_telemetry({"reason": "app.stream.on", "interval_sec": stream_state["interval"], "runtime_every_sec": stream_state["runtime_every"]})
                 else:
                     publish_telemetry({"reason": "app.stream.off"})
-                respond(req_id, True, {"enabled": enabled, "interval_sec": stream_state["interval"]})
+                respond(req_id, True, {"enabled": enabled, "interval_sec": stream_state["interval"], "runtime_every_sec": stream_state["runtime_every"]})
                 return
             if cmd == "device.meta.set":
                 # payload: { id, cmd:"device.meta.set", name?, location? }
