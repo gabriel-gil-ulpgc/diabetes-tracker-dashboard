@@ -11,6 +11,7 @@ import uuid
 import logging
 import re
 import urllib.parse
+import urllib.request
 
 import paho.mqtt.client as mqtt
 
@@ -510,6 +511,40 @@ def main() -> None:
             payload.update(extra)
         client.publish(cfg.topic_telemetry, json.dumps(payload), qos=1, retain=True)
 
+    def _http_get_json(url: str, timeout: float = 5.0) -> dict:
+        req = urllib.request.Request(url, headers={"User-Agent": "pi-mqtt-agent"})
+        with urllib.request.urlopen(req, timeout=timeout) as resp:  # nosec - local endpoint
+            raw = resp.read()
+        return json.loads(raw.decode("utf-8"))
+
+    stream_state = {"enabled": False, "interval": 2.0}
+    stream_thread: list[threading.Thread] = []
+
+    def _publish_app_runtime_once():
+        try:
+            j = _http_get_json("http://127.0.0.1:8099/api/runtime", timeout=5.0)
+            if not j.get("ok"):
+                publish_telemetry({"app_runtime": {"ok": False, "error": j.get("error", "unknown")}})
+                return
+            publish_telemetry({"app_runtime": j})
+        except Exception as e:
+            publish_telemetry({"app_runtime": {"ok": False, "error": str(e)}})
+
+    def _ensure_stream_thread():
+        if stream_thread:
+            t = stream_thread[0]
+            if t.is_alive():
+                return
+
+        def _loop():
+            while stream_state["enabled"]:
+                _publish_app_runtime_once()
+                time.sleep(max(0.5, float(stream_state["interval"])))
+
+        t = threading.Thread(target=_loop, daemon=True, name="app-runtime-stream")
+        stream_thread[:] = [t]
+        t.start()
+
     def publish_status(extra: dict | None = None) -> None:
         st = (
             _systemd_user_state(cfg.app_service_name, cfg.app_user, cfg.app_user_uid)
@@ -938,6 +973,31 @@ def main() -> None:
                         "markers": markers,
                     },
                 )
+                return
+
+            if cmd == "app.snapshot":
+                _publish_app_runtime_once()
+                respond(req_id, True, {"published": True})
+                return
+
+            if cmd == "app.stream.set":
+                args = payload.get("args") or {}
+                if not isinstance(args, dict):
+                    respond(req_id, False, error="args debe ser objeto {enabled, interval_sec?}")
+                    return
+                enabled = bool(args.get("enabled", False))
+                try:
+                    interval = float(args.get("interval_sec", 2.0))
+                except Exception:
+                    interval = 2.0
+                stream_state["enabled"] = enabled
+                stream_state["interval"] = max(0.5, min(interval, 60.0))
+                if enabled:
+                    _ensure_stream_thread()
+                    publish_telemetry({"reason": "app.stream.on", "interval_sec": stream_state["interval"]})
+                else:
+                    publish_telemetry({"reason": "app.stream.off"})
+                respond(req_id, True, {"enabled": enabled, "interval_sec": stream_state["interval"]})
                 return
             if cmd == "device.meta.set":
                 # payload: { id, cmd:"device.meta.set", name?, location? }
