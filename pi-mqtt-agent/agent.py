@@ -517,7 +517,7 @@ def main() -> None:
             raw = resp.read()
         return json.loads(raw.decode("utf-8"))
 
-    stream_state = {"enabled": False, "interval": 0.5, "runtime_every": 4.0}
+    stream_state = {"enabled": False, "interval": 0.1, "runtime_every": 4.0}
     stream_thread: list[threading.Thread] = []
 
     def _publish_app_runtime_once():
@@ -556,7 +556,7 @@ def main() -> None:
                     _publish_app_runtime_once()
                     last_runtime = t0
                 # Sleep remainder to keep cadence stable.
-                sleep_s = max(0.05, float(stream_state["interval"]) - (time.time() - t0))
+                sleep_s = max(0.01, float(stream_state["interval"]) - (time.time() - t0))
                 time.sleep(sleep_s)
 
         t = threading.Thread(target=_loop, daemon=True, name="app-runtime-stream")
@@ -1014,7 +1014,8 @@ def main() -> None:
                 except Exception:
                     runtime_every = float(stream_state["runtime_every"])
                 stream_state["enabled"] = enabled
-                stream_state["interval"] = max(0.5, min(interval, 60.0))
+                # Allow 10Hz polling for near real-time key tracking.
+                stream_state["interval"] = max(0.1, min(interval, 60.0))
                 stream_state["runtime_every"] = max(1.0, min(runtime_every, 120.0))
                 if enabled:
                     _ensure_stream_thread()
